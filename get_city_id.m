@@ -1,0 +1,9 @@
+function [ CityID ] = get_city_id( CityName )
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+CityList = evalin('base','CityList');
+CityList.CityName = nominal(CityList.CityName);
+CityID = CityList(CityList.CityName == CityName,:);
+CityID = CityID{:,2};
+end
+
