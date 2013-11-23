@@ -17,6 +17,7 @@ open_serial_port( 'COM6', 19200, 8, 'even', 1 );
 % Read value from register address where the city id is stored. If values
 % differ, write new value to register.
 
+% Create modbus message
 [modbus_pdu] = gen_pdu(device_id,fcode_read_sr,reg_add_weather_region,'0001');
 [ txdata_hex ] = crc_calc( modbus_pdu );
 [ txdata ] = format_modbus_msg( txdata_hex );
