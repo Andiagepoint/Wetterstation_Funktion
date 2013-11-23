@@ -28,7 +28,7 @@ if strcmp('data.Communication_Settings',field_name) == 1
     dec_value = hex2dec(strcat(dec2hex(value(1),2),dec2hex(value(2),2)));
     
     % As we have an unsigned value from the message, we have to convert
-    % this to a signed value, which means FFFF or 65535 stands for -1
+    % it to a signed value, which means FFFF or 65535 stands for -1
     if dec_value > 32768
         dec_value = dec_value - 65536;
     end
