@@ -1,11 +1,11 @@
-function [ response_data, crc_check_value, response_msg, err_msg ] = rxdata_proc( rxdata, modbus_msg, field_name, hObject, handles, cycle_number )
+function [ response_data, crc_check_value, response_msg, err_msg ] = rxdata_proc( rxdata, modbus_msg, field_name, cycle_number )
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 not_done = 1;
 
 while not_done == 1
     if isempty(rxdata)
-        err_msg = 'No data received! Check if client is available!';
+        err_msg = 'No data received! Check if server is available!';
         response_data = [];
         crc_check_value = 0;
         response_msg = [];
@@ -44,7 +44,7 @@ while not_done == 1
                 case 3
                     byte_count = rxdata(3);
                     if byte_count > (size(rxdata,1)-5)
-                    [ value ] = send_and_receive_data( modbus_msg, field_name, hObject, handles );
+                    [ value ] = send_and_receive_data( modbus_msg, field_name );
                     end
                     response_data = data_proc( rxdata(4:end-2), reg_address, field_name, cycle_number );
                     [crc_check_value, response_msg] = crc_check(rxdata);
@@ -52,7 +52,6 @@ while not_done == 1
                     output_address = dec2hex(rxdata(3:4),4);
                     output_value = dec2hex(rxdata(5:6),4);
                 case 6
-        %             reg_address = dec2hex(rxdata(3:4),4);
                     response_data = dec2hex(rxdata(5:6),4);
                     [crc_check_value, response_msg] = crc_check(rxdata);
                 otherwise
