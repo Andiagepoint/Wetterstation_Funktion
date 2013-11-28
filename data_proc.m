@@ -34,11 +34,10 @@ if strcmp('data.Communication_Settings',field_name) == 1
     end
     
 else
-    start = regexp(field_name{3},'-','split');
     if strcmp(field_name{2},'Mittlere_temp_prog')==1
-        [true, sdindex] = ismember(start{1}, days);
+        [true, sdindex] = ismember(field_name{3}, days);
     else
-        [true, sdindex] = ismember(start{1}, days);
+        [true, sdindex] = ismember(field_name{3}, days);
     end
     
     if size(field_name,2) < 4
@@ -46,11 +45,10 @@ else
         % be run only once
         edindex = sdindex;
     else
-        ende = regexp(field_name{4},'-','split');
         if strcmp(field_name{2},'Mittlere_temp_prog')==1
-            [true, edindex] = ismember(ende{1}, days);
+            [true, edindex] = ismember(field_name{5}, days);
         else
-            [true, edindex] = ismember(ende{1}, days);
+            [true, edindex] = ismember(field_name{5}, days);
         end
     end
     
@@ -61,9 +59,9 @@ else
        
         if t == sdindex
                 if strcmp(field_name{2},'Mittlere_temp_prog')==1
-                    [true, shindex] = ismember(start{2}, hours_detailed);
+                    [true, shindex] = ismember(field_name{4}, hours_detailed);
                 else
-                    [true, shindex] = ismember(start{2}, hours_rough);
+                    [true, shindex] = ismember(field_name{4}, hours_rough);
                 end
                 if size(field_name,2) < 4
                     ehindex = shindex;
@@ -74,9 +72,9 @@ else
                 end
         elseif t == edindex
                 if strcmp(field_name{2},'Mittlere_temp_prog')==1
-                    [true, ehindex] = ismember(ende{2}, hours_detailed);
+                    [true, ehindex] = ismember(field_name{6}, hours_detailed);
                 else
-                    [true, ehindex] = ismember(ende{2}, hours_rough);
+                    [true, ehindex] = ismember(field_name{6}, hours_rough);
                 end
                 shindex = 1;
         else
@@ -102,13 +100,6 @@ else
                 dec_value = dec_value - 65536;
             end
             
-%             if  size(weather_data,2) < 7
-%                 weather_data_col_utc = 5;
-%                 weather_data_col_data = 6;
-%             else
-%                 weather_data_col_utc = size(weather_data,2) - 1;
-%                 weather_data_col_data = size(weather_data,2);
-%             end
             
             if strcmp(field_name{2},'Mittlere_temp_prog')==1
                 fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, days{t}, hours_detailed{s}, date2utc(datevec(now)), dec_value)
