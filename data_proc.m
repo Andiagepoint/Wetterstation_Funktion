@@ -102,31 +102,31 @@ else
             
             
             if strcmp(field_name{2},'Mittlere_temp_prog')==1
-                fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, days{t}, hours_detailed{s}, date2utc(datevec(now)), dec_value)
                 if size(weather_data,2) < 7
                     weather_data{size_weather_data_r,1} = field_name{1};
                     weather_data{size_weather_data_r,2} = field_name{2};
                     weather_data{size_weather_data_r,3} = days{t};
                     weather_data{size_weather_data_r,4} = hours_detailed{s};
                     weather_data{size_weather_data_r,5} = date2utc(datevec(now));
-                    weather_data{size_weather_data_r,6} = dec_value;
+                    weather_data{size_weather_data_r,6} = data_mult(dec_value,field_name{2});
                 else
                     new_data{size_new_data_r,1} = date2utc(datevec(now));
-                    new_data{size_new_data_r,2} = dec_value;          
+                    new_data{size_new_data_r,2} = data_mult(dec_value,field_name{2});          
                 end
+                fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, days{t}, hours_detailed{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
             else
-                fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, days{t}, hours_rough{s}, date2utc(datevec(now)), dec_value)
                 if size(weather_data,2) < 7
                     weather_data{size_weather_data_r,1} = field_name{1};
                     weather_data{size_weather_data_r,2} = field_name{2};
                     weather_data{size_weather_data_r,3} = days{t};
                     weather_data{size_weather_data_r,4} = hours_rough{s};
                     weather_data{size_weather_data_r,5} = date2utc(datevec(now));
-                    weather_data{size_weather_data_r,6} = dec_value;
+                    weather_data{size_weather_data_r,6} = data_mult(dec_value,field_name{2});
                 else
                     new_data{size_new_data_r,1} = date2utc(datevec(now));
-                    new_data{size_new_data_r,2} = dec_value;
+                    new_data{size_new_data_r,2} = data_mult(dec_value,field_name{2});
                 end
+                fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, days{t}, hours_rough{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
             end
 
             lfvara = lfvara + 2;

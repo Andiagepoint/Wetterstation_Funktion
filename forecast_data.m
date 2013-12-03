@@ -1,7 +1,10 @@
 function [ output_args ] = forecast_data( city_name, forecast_definition, varargin )
 % Example
-% forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-25-Nov-2013','1')
+% forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-25-Nov-2013','1','6')
 %   Detailed explanation goes here
+
+filepath = uigetdir('','Ordner für das Speichern der Wetterdaten');
+
 
 if ~isempty(varargin)
     observation_period      = varargin{1};
@@ -9,7 +12,12 @@ if ~isempty(varargin)
     update_interval         = varargin{3};
 end
 
-evalin('base',['load(''C:\Users\AndiPower\Documents\MATLAB\Wetterstation_Funktion\weather_station_data.mat'')']);
+[reg_data_file_name, reg_data_path_name] = uigetfile('','Bitte laden Sie zuerst die Registerdaten');
+reg_data = strcat(reg_data_path_name,reg_data_file_name);
+load(reg_data);
+assignin('base','data',data);
+assignin('base','CityList',CityList);
+assignin('base','CityList_Sorted',CityList_Sorted);
 
 if evalin('base', ['exist(''serial_interface'')']) == 1
     evalin('base', ['delete(''serial_interface'')']);
@@ -20,6 +28,9 @@ end
 % General variable settings
 
 device_id                   = '03';
+if ~iscell(forecast_definition)
+    forecast_definition = {forecast_definition};
+end
 
 
 % Adresse für die Wetterregion in Holdingregister 112
@@ -42,7 +53,14 @@ end
 
 % Open serial interface
 
-open_serial_port( 'COM6', 9600, 8, 'none', 1 );
+open_serial_port( 'COM6', 19200, 8, 'even', 1 );
+
+% Create data container
+
+    weather_data            = cell(1,4);
+    assignin('base','weather_data',weather_data);
+    new_data                = cell(1,2);
+    assignin('base','new_data',new_data);
 
 
 % Read city_id value in holding register
@@ -61,12 +79,8 @@ if city_id ~= city_id_reg
 end
 
 
-% Create cell array for data aquisition
-    weather_data            = cell(1,4);
-    assignin('base','weather_data',weather_data);
-    new_data                = cell(1,2);
-    assignin('base','new_data',new_data);
-    
+% Get number of requests
+
     size_table_data         = size(forecast_definition,1);
     
 % If update checkbox is activated update_checkbox will be 1.
@@ -106,8 +120,8 @@ if ~isempty(varargin)
 % timer object after all tasks have been executed. 
     t                       = timer;
     t.StartDelay            = 3;
-    t.TimerFcn              = {@send_loop, size_table_data, forecast_definition, device_id};
-    t.StopFcn               = @stop_timer;
+    t.TimerFcn              = {@send_loop, size_table_data, forecast_definition, device_id, filepath};
+    t.StopFcn               = {@stop_timer, filepath};
     t.Period                = update_interval_hours;
     t.TasksToExecute        = update_cycle_number;
     t.ExecutionMode         = 'fixedSpacing';
@@ -115,8 +129,11 @@ if ~isempty(varargin)
     
 else
     
-    send_loop('','', size_table_data, {forecast_definition}, device_id);
-    
+    send_loop('','', size_table_data, forecast_definition, device_id);
+    filename = strcat(filepath,'\weather_data_',date,'.mat');
+    weather_data = evalin('base','weather_data');
+    save(filename,'weather_data','-mat');
+      
 end
 
 

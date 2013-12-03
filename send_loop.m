@@ -1,7 +1,9 @@
-function [  ] = send_loop(obj, event, t, forecast_definition, device_id )
+function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 h = waitbar(0,'Please wait while receiving data...');
+new_data = cell(1,2);
+assignin('base','new_data',new_data);
 for r = 1:t
         
         cycle_number = r;
@@ -21,10 +23,12 @@ for r = 1:t
         
         waitbar(r/t,h)
 end
-
-weather_data = evalin('base','weather_data');
-if size(weather_data,2) > 6
 new_data = evalin('base','new_data');
+weather_data = evalin('base','weather_data');
+
+filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
+save(filename,'new_data','-mat');
+if size(weather_data,2) > 6
 weather_data(:,size(weather_data,2)-1:size(weather_data,2)) = new_data;
 assignin('base','weather_data',weather_data);
 end
