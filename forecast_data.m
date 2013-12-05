@@ -90,8 +90,8 @@ if ~isempty(varargin)
 % defined by the start and end date.
 
     observation_period      = regexp(observation_period,'-','split');
-    update_start_date       = [observation_period{1},'-',observation_period{3},'-',observation_period{4}];
-    update_end_date         = [observation_period{2},'-',observation_period{3},'-',observation_period{4}];
+    update_start_date       = [observation_period{1},'-',observation_period{2},'-',observation_period{3}];
+    update_end_date         = [observation_period{4},'-',observation_period{5},'-',observation_period{6}];
 
 % If start date is today you first have to calculate the remaining hours
 % till the end of that day, then you have to calculte the difference
