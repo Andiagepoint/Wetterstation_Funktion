@@ -1,5 +1,5 @@
 function [ unix_zeit ] = date2utc( date_vector )
-%Converts a date vector into unix time code, i.e. date2utc(datevec(now)) 
+%Converts a date vector into unix time code, i.e. 
 %   Detailed explanation goes here
 
 jahr = uint64(date_vector(1));

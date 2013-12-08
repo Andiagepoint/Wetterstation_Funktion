@@ -65,7 +65,7 @@ else
     % If condition is false, number of loops will be determined by the list
     % position (obs_day) of the last day of observation.
     
-    [~, sdindex] = ismember(field_name{3}, obs_day);
+    [true, sdindex] = ismember(field_name{3}, obs_day);
      
     if size(field_name,2) < 4
         
@@ -73,7 +73,7 @@ else
         
     else
         
-        [~, edindex] = ismember(field_name{5}, obs_day);
+        [true, edindex] = ismember(field_name{5}, obs_day);
         
     end
     
@@ -94,11 +94,11 @@ else
             
                 if strcmp(field_name{2},'Mittlere_temp_prog')==1
                     
-                    [~, shindex] = ismember(field_name{4}, point_in_time);
+                    [true, shindex] = ismember(field_name{4}, point_in_time);
                     
                 else
                     
-                    [~, shindex] = ismember(field_name{4}, day_segment);
+                    [true, shindex] = ismember(field_name{4}, day_segment);
                     
                 end
                 
@@ -120,11 +120,11 @@ else
             
                 if strcmp(field_name{2},'Mittlere_temp_prog')==1
                     
-                    [~, ehindex] = ismember(field_name{6}, point_in_time);
+                    [true, ehindex] = ismember(field_name{6}, point_in_time);
                     
                 else
                     
-                    [~, ehindex] = ismember(field_name{6}, day_segment);
+                    [true, ehindex] = ismember(field_name{6}, day_segment);
                     
                 end
                 
