@@ -17,7 +17,7 @@ end
 
 [rxdata] = fread(serial_interface, bytes_num, 'uint8');
 
-[value, error_msg] = rxdata_proc( rxdata, modbus_msg, field_name, cycle_number );
+[value, error_msg] = rxdata_processing( rxdata, modbus_msg, field_name, cycle_number );
 
 end
 

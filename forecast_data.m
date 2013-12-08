@@ -1,4 +1,4 @@
-function [ output_args ] = forecast_data( city_name, forecast_definition, varargin )
+function [ ] = forecast_data( city_name, forecast_definition, varargin )
 % Example
 % forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-25-Nov-2013','1','6')
 %   Detailed explanation goes here
@@ -15,12 +15,12 @@ end
 [reg_data_file_name, reg_data_path_name] = uigetfile('','Bitte laden Sie zuerst die Registerdaten');
 reg_data = strcat(reg_data_path_name,reg_data_file_name);
 load(reg_data);
-assignin('base','data',data);
+assignin('base','register_data_hwk_kompakt',register_data_hwk_kompakt);
 assignin('base','CityList',CityList);
 assignin('base','CityList_Sorted',CityList_Sorted);
 
-if evalin('base', ['exist(''serial_interface'')']) == 1
-    evalin('base', ['delete(''serial_interface'')']);
+if evalin('base', ('exist(''serial_interface'')')) == 1
+    evalin('base', ('delete(''serial_interface'')'));
     evalin('base', 'clear serial_interface');
     evalin('base', 'delete(instrfind)');
 end
@@ -37,25 +37,23 @@ end
 % Adresse für die Sendestation in Holdingregister 110
 
 reg_add_weather_region      = {'city_id'};
-reg_add_station_location    = {'transmitting_station'};
-
 
 % Check for available COM Ports
 
 av_com_ports                = instrhwinfo('serial');
-com_port_av                 = find(ismember(av_com_ports.AvailableSerialPorts,'COM6'));
+com_port_av                 = find(ismember(av_com_ports.AvailableSerialPorts,'COM2'));
 
 if isempty(com_port_av)
-    fprintf('%s \n','COM Port ist nicht verfügbar');
+    fprintf('%s \n','COM6 Port ist nicht verfügbar!');
     return;
 end
    
 
 % Open serial interface
 
-open_serial_port( 'COM6', 19200, 8, 'even', 1 );
+open_serial_port( 'COM2', 9600, 8, 'none', 1 );
 
-% Create data container
+% Create and reset data container
 
     weather_data            = cell(1,4);
     assignin('base','weather_data',weather_data);
@@ -65,7 +63,7 @@ open_serial_port( 'COM6', 19200, 8, 'even', 1 );
 
 % Read city_id value in holding register
 
-city_id_reg                 = read_sr(device_id, reg_add_weather_region);
+city_id_reg                 = read_com_set(device_id, reg_add_weather_region);
 
 
 % Compare city_id and value, if values differ, write the new
@@ -73,7 +71,11 @@ city_id_reg                 = read_sr(device_id, reg_add_weather_region);
 
 [ city_id ]                 = get_city_id( city_name );
 
-if city_id ~= city_id_reg
+if isempty(city_id_reg) == 1
+   fprintf('Es befindet sich kein Wert in Register 112!\n');
+   write_sr( device_id, city_id, reg_add_weather_region );
+   fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);
+elseif city_id ~= city_id_reg
    write_sr( device_id, city_id, reg_add_weather_region );
    fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);
 end
@@ -133,6 +135,7 @@ else
     filename = strcat(filepath,'\weather_data_',date,'.mat');
     weather_data = evalin('base','weather_data');
     save(filename,'weather_data','-mat');
+    close_serial_port(serial_interface);
       
 end
 

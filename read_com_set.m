@@ -1,4 +1,4 @@
-function [ request_value ] = read_sr( device_id, request_list )
+function [ request_value ] = read_com_set( device_id, request_list )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 

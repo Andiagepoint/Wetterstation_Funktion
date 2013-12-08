@@ -1,4 +1,4 @@
-function [ dec_value ] = data_proc( value, reg_address, field_name, cycle_number )
+function [ dec_value ] = data_processing( value, field_name, cycle_number )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -6,7 +6,7 @@ function [ dec_value ] = data_proc( value, reg_address, field_name, cycle_number
 
 % Get the register data and weather data container form the base workspace
 
-data = evalin('base','data');
+% register_data_hwk_kompakt = evalin('base','register_data_hwk_kompakt');
 weather_data = evalin('base','weather_data');
 
 % Container building: for the first request session (=modbus-message)
@@ -21,7 +21,6 @@ if cycle_number == 1
     size_weather_data_r                         = 1;
     size_new_data_r                             = 1;
     weather_data{1,size(weather_data,2) + 2}    = [];
-    size_weather_data_c                         = size(weather_data,2);
     new_data                                    = cell(1,2);
 else
     new_data                                    = evalin('base','new_data');
@@ -46,7 +45,7 @@ com_settings    = {'temperature_offset','temperature','city_id', ...
 % If no weather data are requested, but communication specific values the
 % if condition is true. Otherwise weather data will be processed.
 
-if strcmp('data.Communication_Settings',field_name) == 1
+if strcmp('register_data_hwk_kompakt.Communication_Settings',field_name) == 1
     dec_value = hex2dec(strcat(dec2hex(value(1),2),dec2hex(value(2),2)));
     
     % As we have an unsigned value from the message, we have to convert
@@ -65,7 +64,7 @@ else
     % If condition is false, number of loops will be determined by the list
     % position (obs_day) of the last day of observation.
     
-    [true, sdindex] = ismember(field_name{3}, obs_day);
+    [~, sdindex] = ismember(field_name{3}, obs_day);
      
     if size(field_name,2) < 4
         
@@ -73,7 +72,7 @@ else
         
     else
         
-        [true, edindex] = ismember(field_name{5}, obs_day);
+        [~, edindex] = ismember(field_name{5}, obs_day);
         
     end
     
@@ -91,16 +90,22 @@ else
         % (Mittlere_temp_prog)
         
         if t == sdindex
-            
+                
+                % Starting point for the first observation day
                 if strcmp(field_name{2},'Mittlere_temp_prog')==1
                     
-                    [true, shindex] = ismember(field_name{4}, point_in_time);
+                    [~, shindex] = ismember(field_name{4}, point_in_time);
                     
                 else
                     
-                    [true, shindex] = ismember(field_name{4}, day_segment);
+                    [~, shindex] = ismember(field_name{4}, day_segment);
                     
                 end
+                
+                % End point for the first observation day will either be
+                % the starting point, when only one value is requested, or
+                % the entire intervall (24,4), which will be stopped at when
+                % the data string is completely evaluated.
                 
                 if size(field_name,2) < 4
                     
@@ -117,20 +122,30 @@ else
                 end
                 
         elseif t == edindex
-            
-                if strcmp(field_name{2},'Mittlere_temp_prog')==1
-                    
-                    [true, ehindex] = ismember(field_name{6}, point_in_time);
-                    
-                else
-                    
-                    [true, ehindex] = ismember(field_name{6}, day_segment);
-                    
-                end
+                
+                % If more then one day is observed we have in any case at
+                % least a starting index of 1. The ending point is
+                % determined through the list position in point_in_time or
+                % day_segment.
                 
                 shindex             = 1;
                 
+                if strcmp(field_name{2},'Mittlere_temp_prog')==1
+                    
+                    [~, ehindex] = ismember(field_name{6}, point_in_time);
+                    
+                else
+                    
+                    [~, ehindex] = ismember(field_name{6}, day_segment);
+                    
+                end
+                
         else
+            
+                % If the observation intervall exceeds more than two days,
+                % the starting point and end point are defined over the
+                % complete forecast intervall for the days between start
+                % and end day. 
             
                 shindex             = 1;
                 
@@ -148,61 +163,76 @@ else
         
         for s = shindex:ehindex
 
+            % Break condition for an completely evaluated data string
+            
             if lfvare > size(value,1)
                 
                 break;
                 
             end
             
-            hi_byte         = dec2hex(value(lfvara),2);
-            lo_byte         = dec2hex(value(lfvare),2);
-            hex_value       = strcat(hi_byte,lo_byte);
-            dec_value       = hex2dec(hex_value);
+            % Evaluation of a 16-bit word, big-Endian
+            
+            hi_byte                                     = dec2hex(value(lfvara),2);
+            lo_byte                                     = dec2hex(value(lfvare),2);
+            hex_value                                   = strcat(hi_byte,lo_byte);
+            dec_value                                   = hex2dec(hex_value);
+            
+            % Receiving uint bytes, signed bytes will be calculated here
             
             if dec_value > 32768
-                dec_value   = dec_value - 65536;
+                dec_value                               = dec_value - 65536;
             end
             
+            % Structuring data: forecast details in rows, timestamp and value in columns 
             
-            if strcmp(field_name{2},'Mittlere_temp_prog')==1
-                if size(weather_data,2) < 7
+            if size(weather_data,2) < 7
+                
                     weather_data{size_weather_data_r,1} = field_name{1};
                     weather_data{size_weather_data_r,2} = field_name{2};
                     weather_data{size_weather_data_r,3} = obs_day{t};
-                    weather_data{size_weather_data_r,4} = point_in_time{s};
                     weather_data{size_weather_data_r,5} = date2utc(datevec(now));
                     weather_data{size_weather_data_r,6} = data_mult(dec_value,field_name{2});
-                else
-                    new_data{size_new_data_r,1}         = date2utc(datevec(now));
-                    new_data{size_new_data_r,2}         = data_mult(dec_value,field_name{2});          
-                end
-                fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, point_in_time{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+                    
+                    if strcmp(field_name{2},'Mittlere_temp_prog')==1
+                        
+                        weather_data{size_weather_data_r,4} = point_in_time{s};
+                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, point_in_time{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+                        
+                    else
+                        
+                        weather_data{size_weather_data_r,4} = day_segment{s};
+                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, day_segment{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+                        
+                    end          
+                    
             else
-                if size(weather_data,2) < 7
-                    weather_data{size_weather_data_r,1} = field_name{1};
-                    weather_data{size_weather_data_r,2} = field_name{2};
-                    weather_data{size_weather_data_r,3} = obs_day{t};
-                    weather_data{size_weather_data_r,4} = day_segment{s};
-                    weather_data{size_weather_data_r,5} = date2utc(datevec(now));
-                    weather_data{size_weather_data_r,6} = data_mult(dec_value,field_name{2});
-                else
+                
                     new_data{size_new_data_r,1}         = date2utc(datevec(now));
                     new_data{size_new_data_r,2}         = data_mult(dec_value,field_name{2});
-                end
-                fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, day_segment{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+                    
             end
 
-            lfvara              = lfvara + 2;
-            lfvare              = lfvare + 2;
-            pause(0.1)
-            size_weather_data_r = size_weather_data_r + 1;
+            % Incrementing data string, and data container row position 
+            
+            lfvara                                      = lfvara + 2;
+            lfvare                                      = lfvare + 2;
+%             pause(0.1)
+            size_weather_data_r                         = size_weather_data_r + 1;
+            
             if size(weather_data,2) > 6
-                size_new_data_r = size_new_data_r + 1;
+                size_new_data_r                         = size_new_data_r + 1;
             end
+            
         end
     end
+    
+    % Assign data container to base workspace
+    
     assignin('base','new_data',new_data);
     assignin('base','weather_data',weather_data);
+    
 end
+
 end
 
