@@ -189,7 +189,7 @@ else
             datepart = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
             
             if ~isempty(obs_day{t})
-               switch obs_day{t}
+               switch day_segment{s}
                     case 'Morgen'
                        timevec = [datepart, 0 0 0];
                     case 'Vormittag'
@@ -249,7 +249,7 @@ else
                        timevec = [datepart, 22 0 0]; 
                     case 'PM11_00'   
                        timevec = [datepart, 23 0 0]; 
-                
+                end
             end
             
             
@@ -258,7 +258,7 @@ else
                     weather_data{size_weather_data_r,1} = field_name{1};
                     weather_data{size_weather_data_r,2} = field_name{2};
                     weather_data{size_weather_data_r,3} = obs_day{t};
-                    weather_data{size_weather_data_r,5} = date2utc(timevec));
+                    weather_data{size_weather_data_r,5} = date2utc(timevec);
                     weather_data{size_weather_data_r,6} = data_mult(dec_value,field_name{2});
                     
                     if strcmp(field_name{2},'Mittlere_temp_prog')==1
