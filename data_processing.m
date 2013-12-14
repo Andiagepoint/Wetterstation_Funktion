@@ -186,29 +186,96 @@ else
             
             % Structuring data: forecast details in rows, timestamp and value in columns 
             
+            datepart = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
+            
+            if ~isempty(obs_day{t})
+               switch obs_day{t}
+                    case 'Morgen'
+                       timevec = [datepart, 0 0 0];
+                    case 'Vormittag'
+                       timevec = [datepart, 6 0 0];
+                    case 'Nachmittag'
+                       timevec = [datepart, 12 0 0];
+                    case 'Abend'    
+                       timevec = [datepart, 18 0 0];
+               end
+            else
+                switch point_in_time{s}
+                    case 'AM0_00'
+                       timevec = [datepart, 0 0 0]; 
+                    case 'AM1_00'
+                       timevec = [datepart, 1 0 0]; 
+                    case 'AM2_00'
+                       timevec = [datepart, 2 0 0]; 
+                    case 'AM3_00'
+                       timevec = [datepart, 3 0 0]; 
+                    case 'AM4_00'
+                       timevec = [datepart, 4 0 0]; 
+                    case 'AM5_00'
+                       timevec = [datepart, 5 0 0]; 
+                    case 'AM6_00'
+                       timevec = [datepart, 6 0 0]; 
+                    case 'AM7_00'
+                       timevec = [datepart, 7 0 0]; 
+                    case 'AM8_00'
+                       timevec = [datepart, 8 0 0]; 
+                    case 'AM9_00'
+                       timevec = [datepart, 9 0 0]; 
+                    case 'AM10_00'
+                       timevec = [datepart, 10 0 0]; 
+                    case 'AM11_00'
+                       timevec = [datepart, 11 0 0]; 
+                    case 'AM12_00'
+                       timevec = [datepart, 12 0 0]; 
+                    case 'PM1_00'
+                       timevec = [datepart, 13 0 0]; 
+                    case 'PM2_00'
+                       timevec = [datepart, 14 0 0]; 
+                    case 'PM3_00'
+                       timevec = [datepart, 15 0 0]; 
+                    case 'PM4_00'
+                       timevec = [datepart, 16 0 0]; 
+                    case 'PM5_00'
+                       timevec = [datepart, 17 0 0]; 
+                    case 'PM6_00'
+                       timevec = [datepart, 18 0 0]; 
+                    case 'PM7_00'
+                       timevec = [datepart, 19 0 0]; 
+                    case 'PM8_00'
+                       timevec = [datepart, 20 0 0]; 
+                    case 'PM9_00'
+                       timevec = [datepart, 21 0 0]; 
+                    case 'PM10_00'
+                       timevec = [datepart, 22 0 0]; 
+                    case 'PM11_00'   
+                       timevec = [datepart, 23 0 0]; 
+                
+            end
+            
+            
             if size(weather_data,2) < 7
                 
                     weather_data{size_weather_data_r,1} = field_name{1};
                     weather_data{size_weather_data_r,2} = field_name{2};
                     weather_data{size_weather_data_r,3} = obs_day{t};
-                    weather_data{size_weather_data_r,5} = date2utc(datevec(now));
+                    weather_data{size_weather_data_r,5} = date2utc(timevec));
                     weather_data{size_weather_data_r,6} = data_mult(dec_value,field_name{2});
                     
                     if strcmp(field_name{2},'Mittlere_temp_prog')==1
                         
                         weather_data{size_weather_data_r,4} = point_in_time{s};
-                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, point_in_time{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, point_in_time{s}, date2utc(timevec), data_mult(dec_value,field_name{2}))
                         
                     else
                         
                         weather_data{size_weather_data_r,4} = day_segment{s};
-                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, day_segment{s}, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, day_segment{s}, date2utc(timevec), data_mult(dec_value,field_name{2}))
                         
                     end          
                     
             else
                 
-                    new_data{size_new_data_r,1}         = date2utc(datevec(now));
+                    new_data{size_new_data_r,1}         = date2utc(timevec);
                     new_data{size_new_data_r,2}         = data_mult(dec_value,field_name{2});
                     
             end
