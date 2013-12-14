@@ -188,7 +188,7 @@ else
             
             datepart = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
             
-            if ~isempty(obs_day{t})
+            if strcmp(field_name{2},'Mittlere_temp_prog')~= 1 
                switch day_segment{s}
                     case 'Morgen'
                        timevec = [datepart, 0 0 0];
@@ -203,23 +203,23 @@ else
                 switch point_in_time{s}
                     case 'AM0_00'
                        timevec = [datepart, 0 0 0]; 
-                    case 'AM1_00'
+                    case 'AM01_00'
                        timevec = [datepart, 1 0 0]; 
-                    case 'AM2_00'
+                    case 'AM02_00'
                        timevec = [datepart, 2 0 0]; 
-                    case 'AM3_00'
+                    case 'AM03_00'
                        timevec = [datepart, 3 0 0]; 
-                    case 'AM4_00'
+                    case 'AM04_00'
                        timevec = [datepart, 4 0 0]; 
-                    case 'AM5_00'
+                    case 'AM05_00'
                        timevec = [datepart, 5 0 0]; 
-                    case 'AM6_00'
+                    case 'AM06_00'
                        timevec = [datepart, 6 0 0]; 
-                    case 'AM7_00'
+                    case 'AM07_00'
                        timevec = [datepart, 7 0 0]; 
-                    case 'AM8_00'
+                    case 'AM08_00'
                        timevec = [datepart, 8 0 0]; 
-                    case 'AM9_00'
+                    case 'AM09_00'
                        timevec = [datepart, 9 0 0]; 
                     case 'AM10_00'
                        timevec = [datepart, 10 0 0]; 
@@ -227,23 +227,23 @@ else
                        timevec = [datepart, 11 0 0]; 
                     case 'AM12_00'
                        timevec = [datepart, 12 0 0]; 
-                    case 'PM1_00'
+                    case 'PM01_00'
                        timevec = [datepart, 13 0 0]; 
-                    case 'PM2_00'
+                    case 'PM02_00'
                        timevec = [datepart, 14 0 0]; 
-                    case 'PM3_00'
+                    case 'PM03_00'
                        timevec = [datepart, 15 0 0]; 
-                    case 'PM4_00'
+                    case 'PM04_00'
                        timevec = [datepart, 16 0 0]; 
-                    case 'PM5_00'
+                    case 'PM05_00'
                        timevec = [datepart, 17 0 0]; 
-                    case 'PM6_00'
+                    case 'PM06_00'
                        timevec = [datepart, 18 0 0]; 
-                    case 'PM7_00'
+                    case 'PM07_00'
                        timevec = [datepart, 19 0 0]; 
-                    case 'PM8_00'
+                    case 'PM08_00'
                        timevec = [datepart, 20 0 0]; 
-                    case 'PM9_00'
+                    case 'PM09_00'
                        timevec = [datepart, 21 0 0]; 
                     case 'PM10_00'
                        timevec = [datepart, 22 0 0]; 
