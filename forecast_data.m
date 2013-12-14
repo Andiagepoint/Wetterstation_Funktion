@@ -1,9 +1,51 @@
 function [ ] = forecast_data( city_name, forecast_definition, varargin )
 % Example
-% forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-25-Nov-2013','1','6')
-%   Detailed explanation goes here
+% forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-Nov-2013-25-Nov-2013','1','6')
+% forecast_data('München','Luftdruck--Heute-Morgen-Heute-Abend','23-Nov-2013-23-Nov-2013','1','6')
+%
+%   Function to get the forecast data provided by the weather station HWK
+%   Kompakt. The arguments for this function are CITY NAME (available in
+%   the CityList), specific FORECAST DATA and INTERVAL, OBSERVATION
+%   INTERVAL, RESOLUTION and UPDATE INTERVAL
+%
+%   Available FORECAST DATA:
+%   Luftdruck--                    (only **)
+%   Markantes_Wetter-
+%               Bodennebel
+%               Gefrierender_Nebel
+%               Bodenfrost
+%               Boeen
+%               Niederschlag
+%               Hitze
+%               Kaelte    
+%   Niederschlag- 
+%               Menge
+%               Wahrscheinlichkeit
+%   Signifikantes_Wetter--
+%   Solarleistung-
+%               Dauer              (only **)
+%               Einstrahlung       (only **)
+%   Wind-
+%               Richtung
+%               Staerke
+%   Temperatur-
+%               Min
+%               Max
+%               Mittlere_temp_prog (only ***)
+%
+%   Available INTERVAL:
+%   Heute (**)
+%   Erster_Folgetag (**)
+%   Zweiter_Folgetag 
+%   Dritter_Folgetag 
+%   Morgen
+%   Vormittag
+%   Nachmittag
+%   Abend
+%   0_00AM-11_00PM (1 hour step) (***)
 
-filepath = uigetdir('','Ordner für das Speichern der Wetterdaten');
+
+filepath = uigetdir('','Please select folder to save forecast data');
 
 
 if ~isempty(varargin)
@@ -12,7 +54,7 @@ if ~isempty(varargin)
     update_interval         = varargin{3};
 end
 
-[reg_data_file_name, reg_data_path_name] = uigetfile('','Bitte laden Sie zuerst die Registerdaten');
+[reg_data_file_name, reg_data_path_name] = uigetfile('','Please first load neccessary register data');
 reg_data = strcat(reg_data_path_name,reg_data_file_name);
 load(reg_data);
 assignin('base','register_data_hwk_kompakt',register_data_hwk_kompakt);
@@ -33,15 +75,15 @@ if ~iscell(forecast_definition)
 end
 
 
-% Adresse für die Wetterregion in Holdingregister 112
-% Adresse für die Sendestation in Holdingregister 110
+% Address for weather region in holdingregister = 112
+% Address for transmitting station in holdingregister = 110
 
 reg_add_weather_region      = {'city_id'};
 
 % Check for available COM Ports
 
 av_com_ports                = instrhwinfo('serial');
-com_port_av                 = find(ismember(av_com_ports.AvailableSerialPorts,'COM2'));
+com_port_av                 = find(ismember(av_com_ports.AvailableSerialPorts,'COM6'));
 
 if isempty(com_port_av)
     fprintf('%s \n','COM6 Port ist nicht verfügbar!');
@@ -51,7 +93,7 @@ end
 
 % Open serial interface
 
-open_serial_port( 'COM2', 9600, 8, 'none', 1 );
+open_serial_port( 'COM6', 19200, 8, 'even', 1 );
 
 % Create and reset data container
 
@@ -113,7 +155,7 @@ if ~isempty(varargin)
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
-    update_interval_hours   = update_interval*15;    
+    update_interval_hours   = update_interval*3600;    
     
 % A timer is defined here to control the automatic update cycles.
 % Requests start with a 3 sec delay. The function to be executed after

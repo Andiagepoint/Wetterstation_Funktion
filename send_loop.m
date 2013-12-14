@@ -23,14 +23,19 @@ for r = 1:t
         
         waitbar(r/t,h)
 end
+
 new_data = evalin('base','new_data');
 weather_data = evalin('base','weather_data');
 
-filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
-save(filename,'new_data','-mat');
 if size(weather_data,2) > 6
-weather_data(:,size(weather_data,2)-1:size(weather_data,2)) = new_data;
-assignin('base','weather_data',weather_data);
+    weather_data(:,size(weather_data,2)-1:size(weather_data,2)) = new_data;
+    assignin('base','weather_data',weather_data);
+    filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
+    save(filename,'new_data','-mat');
+else
+    filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
+    new_data = weather_data(:,5:6);
+    save(filename,'new_data','-mat');
 end
 close(h);
 end
