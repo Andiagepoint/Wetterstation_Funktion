@@ -1,4 +1,4 @@
-function [ dec_value ] = data_processing( value, field_name, cycle_number )
+function [ dec_value ] = data_processing( data_string, field_name, cycle_number )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -46,7 +46,7 @@ com_settings    = {'temperature_offset','temperature','city_id', ...
 % if condition is true. Otherwise weather data will be processed.
 
 if strcmp('register_data_hwk_kompakt.Communication_Settings',field_name) == 1
-    dec_value = hex2dec(strcat(dec2hex(value(1),2),dec2hex(value(2),2)));
+    dec_value = hex2dec(strcat(dec2hex(data_string(1),2),dec2hex(data_string(2),2)));
     
     % As we have an unsigned value from the message, we have to convert
     % it to a signed value, which means FFFF or 65535 stands for -1
@@ -66,7 +66,7 @@ else
     
     [~, sdindex] = ismember(field_name{3}, obs_day);
      
-    if size(field_name,2) < 4
+    if size(field_name,2) < 5
         
         edindex = sdindex;
         
@@ -78,8 +78,8 @@ else
     
     % Increment initialization for the data loop
     
-    lfvara = 1;
-    lfvare = 2;
+    data_str_hi_byte_pos = 1;
+    data_str_lo_byte_pos = 2;
     
     % Loop through response data
     
@@ -107,7 +107,7 @@ else
                 % the entire intervall (24,4), which will be stopped at when
                 % the data string is completely evaluated.
                 
-                if size(field_name,2) < 4
+                if size(field_name,2) < 5
                     
                     ehindex         = shindex;
                     
@@ -165,7 +165,7 @@ else
 
             % Break condition for an completely evaluated data string
             
-            if lfvare > size(value,1)
+            if data_str_lo_byte_pos > size(data_string,1)
                 
                 break;
                 
@@ -173,8 +173,8 @@ else
             
             % Evaluation of a 16-bit word, big-Endian
             
-            hi_byte                                     = dec2hex(value(lfvara),2);
-            lo_byte                                     = dec2hex(value(lfvare),2);
+            hi_byte                                     = dec2hex(data_string(data_str_hi_byte_pos),2);
+            lo_byte                                     = dec2hex(data_string(data_str_lo_byte_pos),2);
             hex_value                                   = strcat(hi_byte,lo_byte);
             dec_value                                   = hex2dec(hex_value);
             
@@ -253,15 +253,68 @@ else
             end
             
             
-            if size(weather_data,2) < 7
+            if size(weather_data,2) < 8
                 
                     weather_data{size_weather_data_r,1} = field_name{1};
                     weather_data{size_weather_data_r,2} = field_name{2};
                     weather_data{size_weather_data_r,3} = obs_day{t};
-                    weather_data{size_weather_data_r,5} = date2utc(timevec);
-                    weather_data{size_weather_data_r,6} = data_mult(dec_value,field_name{2});
                     
-                    if strcmp(field_name{2},'Mittlere_temp_prog')==1
+                    switch field_name{1}
+                        case 'Temperatur'
+                            if strcmp(field_name{2},'Min') == 1
+                                    weather_data{size_weather_data_r,5} = '°C min. Lufttemperatur 2m ü. Erdboden'; 
+                            elseif strcmp(field_name{2},'Max') == 1
+                                    weather_data{size_weather_data_r,5} = '°C max. Lufttemperatur 2m ü. Erdboden';
+                            else
+                                    weather_data{size_weather_data_r,5} = '°C mittlere Lufttemperatur 2m ü. Erdboden';
+                            end
+                        case 'Niederschlag'
+                            if strcmp(field_name{2},'Menge') == 1
+                                    weather_data{size_weather_data_r,5} = 'l/m²';
+                            else
+                                    weather_data{size_weather_data_r,5} = '%';
+                            end
+                        case 'Solarleistung'
+                            if strcmp(field_name{2},'Dauer') == 1
+                                    weather_data{size_weather_data_r,5} = 'h';
+                            else
+                                    weather_data{size_weather_data_r,5} = 'W/m²';
+                            end
+                        case 'Wind'
+                            if strcmp(field_name{2},'Staerke') == 1
+                                    weather_data{size_weather_data_r,5} = 'Bft in einer Höhe von 10m ü. Erdboden';
+                            else 
+                                    weather_data{size_weather_data_r,5} = 'N/NO/O/SO/S/SW/W/NW -> 1...8';
+                            end
+                        case 'Luftdruck'
+                                    weather_data{size_weather_data_r,5} = 'hPa';
+                        case 'Signifikantes_Wetter'
+                                    weather_data{size_weather_data_r,5} = '1 = sonnig,klar 2 = leicht bewölkt 3 = vorwiegend bewölkt 4 = bedeckt 5 = Wärmegewitter 6 = starker Regen 7 = Schneefall 8 = Nebel 9 = Schneeregen 10 = Regenschauer 11 = leichter Regen 12 = Schneeschauer 13 = Frontengewitter 14 = Hochnebel 15 = Schneeregenschauer';
+                        case 'Markantes_Wetter'
+                            switch field_name{2}
+                                case 'Bodennebel'
+                                    weather_data{size_weather_data_r,5} = '1 = Wahrscheinlichkeit > 50%, Sichtweite unter 200m';
+                                case 'Gefrierender_Regen'
+                                    weather_data{size_weather_data_r,5} = '1 = Wahrscheinlichkeit > 50%';
+                                case 'Bodenfrost'
+                                    weather_data{size_weather_data_r,5} = '1 = <0°C 5cm ü. Erdboden';
+                                case 'Boeen'
+                                    weather_data{size_weather_data_r,5} = '0 = keine Böen 1 = 45km/h starke Böen 2 = 72km/h stürmische Böen 3 = 99km/h orkanartige Böen';
+                                case 'Niederschlag'
+                                    weather_data{size_weather_data_r,5} = '0 = kein starker Niederschlag 1 = 10mm starker Niederschlag 2 = 50mm sehr starker Niederschlag';
+                                case 'Hitze'
+                                    weather_data{size_weather_data_r,5} = '0 = keine Meldung 1 = 27-31°C 2 = 32-40°C 3 = 41-53°C 4 = >54°C';
+                                case 'Kaelte'
+                                    weather_data{size_weather_data_r,5} = '0 = keine Meldung 1 = <-15°C 2 = <-20°C 3 = <-25°C 4 = <-30°C';
+                            end   
+                    end
+                         
+                    
+                    
+                    weather_data{size_weather_data_r,6} = date2utc(timevec);
+                    weather_data{size_weather_data_r,7} = data_mult(dec_value,field_name{2});
+                    
+                    if strcmp(field_name{2},'Mittlere_temp_prog') == 1
                         
                         weather_data{size_weather_data_r,4} = point_in_time{s};
                         fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, point_in_time{s}, date2utc(timevec), data_mult(dec_value,field_name{2}))
@@ -282,12 +335,12 @@ else
 
             % Incrementing data string, and data container row position 
             
-            lfvara                                      = lfvara + 2;
-            lfvare                                      = lfvare + 2;
+            data_str_hi_byte_pos                        = data_str_hi_byte_pos + 2;
+            data_str_lo_byte_pos                        = data_str_lo_byte_pos + 2;
 %             pause(0.1)
             size_weather_data_r                         = size_weather_data_r + 1;
             
-            if size(weather_data,2) > 6
+            if size(weather_data,2) > 7
                 size_new_data_r                         = size_new_data_r + 1;
             end
             

@@ -57,6 +57,7 @@ end
 [reg_data_file_name, reg_data_path_name] = uigetfile('','Please first load neccessary register data');
 reg_data = strcat(reg_data_path_name,reg_data_file_name);
 load(reg_data);
+
 assignin('base','register_data_hwk_kompakt',register_data_hwk_kompakt);
 assignin('base','CityList',CityList);
 assignin('base','CityList_Sorted',CityList_Sorted);
@@ -67,18 +68,23 @@ if evalin('base', ('exist(''serial_interface'')')) == 1
     evalin('base', 'delete(instrfind)');
 end
 
-% General variable settings
+% Set device id
 
 device_id                   = '03';
+
+% Create and reset data container
+
+weather_data            = cell(1,4);
+assignin('base','weather_data',weather_data);
+new_data                = cell(1,2);
+assignin('base','new_data',new_data);
+
+% If forecast_definition is not a cell array but a char, convert to cell
+% array.
+
 if ~iscell(forecast_definition)
     forecast_definition = {forecast_definition};
 end
-
-
-% Address for weather region in holdingregister = 112
-% Address for transmitting station in holdingregister = 110
-
-reg_add_weather_region      = {'city_id'};
 
 % Check for available COM Ports
 
@@ -93,19 +99,11 @@ end
 
 % Open serial interface
 
-open_serial_port( 'COM6', 19200, 8, 'even', 1 );
-
-% Create and reset data container
-
-    weather_data            = cell(1,4);
-    assignin('base','weather_data',weather_data);
-    new_data                = cell(1,2);
-    assignin('base','new_data',new_data);
-
+open_serial_port( 'COM6', 9600, 8, 'none', 1 );
 
 % Read city_id value in holding register
 
-city_id_reg                 = read_com_set(device_id, reg_add_weather_region);
+city_id_reg                 = read_com_set(device_id, {'city_id'});
 
 
 % Compare city_id and value, if values differ, write the new
@@ -115,19 +113,16 @@ city_id_reg                 = read_com_set(device_id, reg_add_weather_region);
 
 if isempty(city_id_reg) == 1
    fprintf('Es befindet sich kein Wert in Register 112!\n');
-   write_sr( device_id, city_id, reg_add_weather_region );
+   write_com_set( device_id, city_id, {'city_id'} );
    fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);
 elseif city_id ~= city_id_reg
-   write_sr( device_id, city_id, reg_add_weather_region );
+   write_com_set( device_id, city_id, {'city_id'} );
    fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);
 end
-
-
-% Get number of requests
-
-    size_table_data         = size(forecast_definition,1);
     
-% If update checkbox is activated update_checkbox will be 1.
+% If an observation interval is given as argument in the function, varargin
+% is not empty. Otherwise only a single request will be generated.
+
 if ~isempty(varargin)
 
 % Decision between a single update call or an automated update cycle
@@ -155,7 +150,11 @@ if ~isempty(varargin)
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
-    update_interval_hours   = update_interval*3600;    
+    update_interval_hours   = update_interval*3600;
+    
+% Get number of requests
+
+    size_table_data         = size(forecast_definition,1);
     
 % A timer is defined here to control the automatic update cycles.
 % Requests start with a 3 sec delay. The function to be executed after
