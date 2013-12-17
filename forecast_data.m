@@ -6,7 +6,11 @@ function [ ] = forecast_data( city_name, forecast_definition, varargin )
 %   Function to get the forecast data provided by the weather station HWK
 %   Kompakt. The arguments for this function are CITY NAME (available in
 %   the CityList), specific FORECAST DATA and INTERVAL, OBSERVATION
-%   INTERVAL, RESOLUTION and UPDATE INTERVAL
+%   INTERVAL (dd-mmm-yyyy), RESOLUTION and UPDATE INTERVAL (multiple of 6).
+%
+%   Calling the function you will be asked for a folder to save the data to.
+%   After selecting the folder, you have to load the neccessary register data (weather_station_data.mat). 
+%
 %
 %   Available FORECAST DATA:
 %   Luftdruck--                    (only **)
@@ -99,7 +103,7 @@ end
 
 % Open serial interface
 
-open_serial_port( 'COM6', 9600, 8, 'none', 1 );
+open_serial_port( 'COM6', 19200, 8, 'even', 1 );
 
 % Read city_id value in holding register
 
@@ -122,7 +126,10 @@ end
     
 % If an observation interval is given as argument in the function, varargin
 % is not empty. Otherwise only a single request will be generated.
+% Get number of requests
 
+    size_table_data         = size(forecast_definition,1);
+    
 if ~isempty(varargin)
 
 % Decision between a single update call or an automated update cycle
@@ -144,18 +151,16 @@ if ~isempty(varargin)
         diff_today          = etime(end_of_day,start_of_day)/3600;
         diff_days           = days365(update_start_date,update_end_date)*24;
         update_cycle_number = floor((diff_today+diff_days)/update_interval)+1;
+        assignin('base','update_cycle_number',update_cycle_number);
     else
         diff_days           = days365(update_start_date,update_end_date)*24;
         update_cycle_number = floor(diff_days/update_interval);
+        assignin('base','update_cycle_number',update_cycle_number);
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
-    update_interval_hours   = update_interval*3600;
-    
-% Get number of requests
-
-    size_table_data         = size(forecast_definition,1);
-    
+    update_interval_hours   = update_interval*15;
+   
 % A timer is defined here to control the automatic update cycles.
 % Requests start with a 3 sec delay. The function to be executed after
 % the waiting period is send_loop, which triggers the communication
@@ -163,7 +168,7 @@ if ~isempty(varargin)
 % timer object after all tasks have been executed. 
     t                       = timer;
     t.StartDelay            = 3;
-    t.TimerFcn              = {@send_loop, size_table_data, forecast_definition, device_id, filepath};
+    t.TimerFcn              = {@send_loop, size_table_data, forecast_definition, device_id, filepath, update_cycle_number};
     t.StopFcn               = {@stop_timer, filepath};
     t.Period                = update_interval_hours;
     t.TasksToExecute        = update_cycle_number;
@@ -172,12 +177,12 @@ if ~isempty(varargin)
     
 else
     
-    send_loop('','', size_table_data, forecast_definition, device_id);
+    send_loop('','', size_table_data, forecast_definition, device_id, filepath, '');
     filename = strcat(filepath,'\weather_data_',date,'.mat');
     weather_data = evalin('base','weather_data');
     save(filename,'weather_data','-mat');
-    close_serial_port(serial_interface);
-      
+    close_serial_port();
+    
 end
 
 

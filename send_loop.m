@@ -1,4 +1,4 @@
-function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath )
+function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath, update_cycle_number )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 h = waitbar(0,'Please wait while receiving data...');
@@ -38,10 +38,22 @@ if size(weather_data,2) > 7
     assignin('base','weather_data',weather_data);
     filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
     save(filename,'new_data','-mat');
+    if ~isempty(update_cycle_number)
+    update_cycle_number = evalin('base','update_cycle_number');
+    update_cycle_number = update_cycle_number-1;
+    fprintf('Noch %u ausstehende Abfrage(n).\n',update_cycle_number)
+    assignin('base','update_cycle_number',update_cycle_number);
+    end
 else
     filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
     new_data = weather_data(:,6:7);
     save(filename,'new_data','-mat');
+    if ~isempty(update_cycle_number)
+    update_cycle_number = evalin('base','update_cycle_number');
+    update_cycle_number = update_cycle_number-1; 
+    fprintf('Noch %u ausstehende Abfrage(n).\n',update_cycle_number)
+    assignin('base','update_cycle_number',update_cycle_number);
+    end
 end
 close(h);
 end

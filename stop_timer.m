@@ -12,6 +12,6 @@ weather_data = evalin('base','weather_data');
 save(filename,'weather_data','-mat');
 
 close_serial_port();
-
+evalin('base','clear update_cycle_number');
 end
 
