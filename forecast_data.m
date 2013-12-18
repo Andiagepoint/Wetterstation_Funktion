@@ -1,7 +1,8 @@
 function [ ] = forecast_data( city_name, forecast_definition, varargin )
 % Example
-% forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-Nov-2013-25-Nov-2013','1','6')
-% forecast_data('München','Luftdruck--Heute-Morgen-Heute-Abend','23-Nov-2013-23-Nov-2013','1','6')
+% forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-Nov-2013-25-Nov-2013',1,6)
+% forecast_data('München','Luftdruck--Heute-Morgen-Heute-Abend','23-Nov-2013-23-Nov-2013',1,6)
+% forecast_data('München',cell_array,'23-Nov-2013-23-Nov-2013',1,6)
 %
 %   Function to get the forecast data provided by the weather station HWK
 %   Kompakt. The arguments for this function are CITY NAME (available in
@@ -11,10 +12,13 @@ function [ ] = forecast_data( city_name, forecast_definition, varargin )
 %   Calling the function you will be asked for a folder to save the data to.
 %   After selecting the folder, you have to load the neccessary register data (weather_station_data.mat). 
 %
-%
+%   FORECAST DATA and INTERVAL could be provided as a cell array avoiding
+%   several function callings. Example for all data is given in the .mat
+%   file all_requests_function.
+% 
 %   Available FORECAST DATA:
-%   Luftdruck--                    (only **)
-%   Markantes_Wetter-
+%       Luftdruck--                    (only **)
+%       Markantes_Wetter-
 %               Bodennebel
 %               Gefrierender_Nebel
 %               Bodenfrost
@@ -22,31 +26,35 @@ function [ ] = forecast_data( city_name, forecast_definition, varargin )
 %               Niederschlag
 %               Hitze
 %               Kaelte    
-%   Niederschlag- 
+%       Niederschlag- 
 %               Menge
 %               Wahrscheinlichkeit
-%   Signifikantes_Wetter--
-%   Solarleistung-
+%       Signifikantes_Wetter--
+%       Solarleistung-
 %               Dauer              (only **)
 %               Einstrahlung       (only **)
-%   Wind-
+%       Wind-
 %               Richtung
 %               Staerke
-%   Temperatur-
+%       Temperatur-
 %               Min
 %               Max
 %               Mittlere_temp_prog (only ***)
 %
-%   Available INTERVAL:
-%   Heute (**)
-%   Erster_Folgetag (**)
-%   Zweiter_Folgetag 
-%   Dritter_Folgetag 
-%   Morgen
-%   Vormittag
-%   Nachmittag
-%   Abend
-%   0_00AM-11_00PM (1 hour step) (***)
+%   Available FORECAST INTERVAL:
+%       Heute (**)
+%       Erster_Folgetag (**)
+%       Zweiter_Folgetag 
+%       Dritter_Folgetag 
+%       Morgen
+%       Vormittag
+%       Nachmittag
+%       Abend
+%       0_00AM-11_00PM (1 hour step) (***)
+%
+%   UPDATE INTERVAL
+%       Month abbreviation has to be in english format
+%       Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Oct, Sep, Nov, Dec
 
 
 filepath = uigetdir('','Please select folder to save forecast data');
@@ -138,7 +146,14 @@ if ~isempty(varargin)
     observation_period      = regexp(observation_period,'-','split');
     update_start_date       = [observation_period{1},'-',observation_period{2},'-',observation_period{3}];
     update_end_date         = [observation_period{4},'-',observation_period{5},'-',observation_period{6}];
-
+    
+    diff_days               = days365(update_start_date,update_end_date)*24;
+    
+    if diff_days < 0 
+        error(['Das Startdatum für den Beobachtungszeitraum muss vor' ...
+              ' dem Enddatum liegen! Bitte korrigieren Sie die Datumseingabe.']);
+    else
+    
 % If start date is today you first have to calculate the remaining hours
 % till the end of that day, then you have to calculte the difference
 % between the start and the end date to receive the number of days.
@@ -149,11 +164,9 @@ if ~isempty(varargin)
         end_of_day          = datevec(date)+[0 0 0 24 0 0];
         start_of_day        = datevec(now);
         diff_today          = etime(end_of_day,start_of_day)/3600;
-        diff_days           = days365(update_start_date,update_end_date)*24;
         update_cycle_number = floor((diff_today+diff_days)/update_interval)+1;
         assignin('base','update_cycle_number',update_cycle_number);
     else
-        diff_days           = days365(update_start_date,update_end_date)*24;
         update_cycle_number = floor(diff_days/update_interval);
         assignin('base','update_cycle_number',update_cycle_number);
     end
@@ -175,6 +188,7 @@ if ~isempty(varargin)
     t.ExecutionMode         = 'fixedSpacing';
     start(t);
     
+    end
 else
     
     send_loop('','', size_table_data, forecast_definition, device_id, filepath, '');

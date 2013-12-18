@@ -1,6 +1,20 @@
 function [ request_value ] = read_com_set( device_id, request_list )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%This function reads the holding register, where communication settings are
+%stored. E.g. read_com_set('03',{city_id})
+%
+%   device_id  has to be '03'
+%
+%   To get the index for the actual weather region the station receives forecasts 
+%   request_list has to be {'city_id'}
+%
+%   To get the connection quality request_list has to be {'quality'}
+%
+%   To get the transmitting station id from which data are received set
+%   request_list {'transmitting_station'}
+%
+%   To get all more data with a single call just build a cell array for
+%   the request_list with the interested objects like {'city_id','quality'}
+%   The results are sorted in the way the request_list was grouped.
 
 % Progress bar to show processing time
 if size(request_list,2) > 1
