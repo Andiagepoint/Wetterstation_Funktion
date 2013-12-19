@@ -1,5 +1,5 @@
 function [ CityID ] = get_city_id( CityName )
-%UNTITLED Summary of this function goes here
+%Gets the city id from the city list
 %   Detailed explanation goes here
 CityList = evalin('base','CityList');
 CityList.CityName = nominal(CityList.CityName);

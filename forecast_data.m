@@ -1,4 +1,5 @@
 function [ ] = forecast_data( city_name, forecast_definition, varargin )
+% Function to read data from HWK Kompakt WS-xx Modbus
 % Example
 % forecast_data('München','Niederschlag-Menge-Heute-Morgen-Dritter_Folgetag-Abend','23-Nov-2013-25-Nov-2013',1,6)
 % forecast_data('München','Luftdruck--Heute-Morgen-Heute-Abend','23-Nov-2013-23-Nov-2013',1,6)
@@ -55,15 +56,25 @@ function [ ] = forecast_data( city_name, forecast_definition, varargin )
 %   UPDATE INTERVAL
 %       Month abbreviation has to be in english format
 %       Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Oct, Sep, Nov, Dec
+%   
+%   To end the function and to save all results, type delete(timerfind)
 
 
-filepath = uigetdir('','Please select folder to save forecast data');
+% filepath = uigetdir('','Please select folder to save forecast data');
 
 
 if ~isempty(varargin)
-    observation_period      = varargin{1};
-    resolution              = varargin{2};
-    update_interval         = varargin{3};
+    start_observation       = varargin{1};
+    end_observation         = varargin{2};
+    resolution              = varargin{3};
+    update_interval         = varargin{4};
+    if size(varargin,2) > 4
+        filepath            = varargin{5};
+    else
+        filepath            = strcat(pwd,'Aufzeichnungen');
+        [s,mess,messid]     = mkdir(filepath);
+        fprintf(strcat(mess,'\n'));
+    end
 end
 
 [reg_data_file_name, reg_data_path_name] = uigetfile('','Please first load neccessary register data');
@@ -143,17 +154,22 @@ if ~isempty(varargin)
 % Decision between a single update call or an automated update cycle
 % defined by the start and end date.
 
-    observation_period      = regexp(observation_period,'-','split');
-    update_start_date       = [observation_period{1},'-',observation_period{2},'-',observation_period{3}];
-    update_end_date         = [observation_period{4},'-',observation_period{5},'-',observation_period{6}];
+    start_observation       = regexp(start_observation,'-','split');
+    end_observation         = regexp(end_observation,'-','split');
+    update_start_date       = [start_observation{1},'-',start_observation{2},'-',start_observation{3}];
+    update_end_date         = [end_observation{1},'-',end_observation{2},'-',end_observation{3}];
     
     diff_days               = days365(update_start_date,update_end_date)*24;
+    end_of_day              = datevec(date)+[0 0 0 24 0 0];
+    start_of_day            = datevec(now);
     
     if diff_days < 0 
         error(['Das Startdatum für den Beobachtungszeitraum muss vor' ...
               ' dem Enddatum liegen! Bitte korrigieren Sie die Datumseingabe.']);
+    elseif days365(date,update_start_date) < 0
+        error('Das Startdatum liegt in der Vergangenheit!');
     else
-    
+        
 % If start date is today you first have to calculate the remaining hours
 % till the end of that day, then you have to calculte the difference
 % between the start and the end date to receive the number of days.
@@ -161,12 +177,11 @@ if ~isempty(varargin)
 % cycles is calculated then by dividing the sum of available hours round
 % down the result and add 1 for the immediate request at time zero.
     if strcmp(update_start_date,date) == 1
-        end_of_day          = datevec(date)+[0 0 0 24 0 0];
-        start_of_day        = datevec(now);
         diff_today          = etime(end_of_day,start_of_day)/3600;
         update_cycle_number = floor((diff_today+diff_days)/update_interval)+1;
         assignin('base','update_cycle_number',update_cycle_number);
     else
+        diff_today          = etime(end_of_day,start_of_day);
         update_cycle_number = floor(diff_days/update_interval);
         assignin('base','update_cycle_number',update_cycle_number);
     end
@@ -180,7 +195,11 @@ if ~isempty(varargin)
 % between Matlab and the weather station. The stop function deletes the
 % timer object after all tasks have been executed. 
     t                       = timer;
-    t.StartDelay            = 3;
+    if strcmp(update_start_date,date) == 1
+        t.StartDelay            = 3;
+    else
+        t.StartDelay            = diff_today;
+    end
     t.TimerFcn              = {@send_loop, size_table_data, forecast_definition, device_id, filepath, update_cycle_number};
     t.StopFcn               = {@stop_timer, filepath};
     t.Period                = update_interval_hours;

@@ -1,5 +1,5 @@
 function [ reg_address, field_name ] = get_reg_address( varargin )
-%UNTITLED Summary of this function goes here
+%Gets the register number as hex value 
 %   Detailed explanation goes here
 register_data_hwk_kompakt   = evalin('base', 'register_data_hwk_kompakt');
 
