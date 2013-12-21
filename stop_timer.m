@@ -3,7 +3,7 @@ function [  ] = stop_timer(mTimer,~,filepath)
 %   Detailed explanation goes here
 
 fprintf(['Automatischer Abruf für den angegebenen Beobachtungszeitraum\n' ...
-      'wurde erfolgreich abgeschlossen.\n']);
+      'wurde beendet.\n']);
   
 delete(mTimer)
 

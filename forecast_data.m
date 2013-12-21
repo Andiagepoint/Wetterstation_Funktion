@@ -71,19 +71,25 @@ if ~isempty(varargin)
     if size(varargin,2) > 4
         filepath            = varargin{5};
     else
-        filepath            = strcat(pwd,'Aufzeichnungen');
+        if size(pwd,2) < 4
+            filepath        = [pwd,'Aufzeichnungen'];
+        else
+            filepath        = [pwd,'\Aufzeichnungen']; 
+        end
         [s,mess,messid]     = mkdir(filepath);
-        fprintf(strcat(mess,'\n'));
+        if ~isempty(mess)
+            fprintf('Ordner existiert bereits.\n');
+        end
     end
 end
 
-[reg_data_file_name, reg_data_path_name] = uigetfile('','Please first load neccessary register data');
-reg_data = strcat(reg_data_path_name,reg_data_file_name);
-load(reg_data);
 
-assignin('base','register_data_hwk_kompakt',register_data_hwk_kompakt);
+data = create_reg_data();
+CityList = create_city_list;
+
+assignin('base','register_data_hwk_kompakt',data);
 assignin('base','CityList',CityList);
-assignin('base','CityList_Sorted',CityList_Sorted);
+
 
 if evalin('base', ('exist(''serial_interface'')')) == 1
     evalin('base', ('delete(''serial_interface'')'));
@@ -97,9 +103,9 @@ device_id                   = '03';
 
 % Create and reset data container
 
-weather_data            = cell(1,4);
+weather_data                = cell(1,3);
 assignin('base','weather_data',weather_data);
-new_data                = cell(1,2);
+new_data                    = cell(1,5);
 assignin('base','new_data',new_data);
 
 % If forecast_definition is not a cell array but a char, convert to cell
@@ -171,48 +177,53 @@ if ~isempty(varargin)
     else
         
 % If start date is today you first have to calculate the remaining hours
-% till the end of that day, then you have to calculte the difference
+% till the end of that day, then you have to calculate the difference
 % between the start and the end date to receive the number of days.
 % Multiply with 24 to get the hours for those days. The number of update
 % cycles is calculated then by dividing the sum of available hours round
 % down the result and add 1 for the immediate request at time zero.
     if strcmp(update_start_date,date) == 1
-        diff_today          = etime(end_of_day,start_of_day)/3600;
-        update_cycle_number = floor((diff_today+diff_days)/update_interval)+1;
+        diff_today              = etime(end_of_day,start_of_day)/3600;
+        update_cycle_number     = floor((diff_today+diff_days)/update_interval)+1;
         assignin('base','update_cycle_number',update_cycle_number);
     else
-        diff_today          = etime(end_of_day,start_of_day);
-        update_cycle_number = floor(diff_days/update_interval);
-        assignin('base','update_cycle_number',update_cycle_number);
+        if datenum(update_start_date) == datenum(update_end_date)
+            diff_days           = 24;
+        end
+            diff_today          = etime(end_of_day,start_of_day);
+            diff_days2start     = days365(date,update_start_date);
+            start_delay         = uint32(diff_today+diff_days2start*86400);
+            update_cycle_number = floor(diff_days/update_interval);
+            assignin('base','update_cycle_number',update_cycle_number);
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
-    update_interval_hours   = update_interval*15;
+    update_interval_hours       = update_interval*15;
    
 % A timer is defined here to control the automatic update cycles.
 % Requests start with a 3 sec delay. The function to be executed after
 % the waiting period is send_loop, which triggers the communication
 % between Matlab and the weather station. The stop function deletes the
 % timer object after all tasks have been executed. 
-    t                       = timer;
+    t                           = timer;
     if strcmp(update_start_date,date) == 1
         t.StartDelay            = 3;
     else
-        t.StartDelay            = diff_today;
+        t.StartDelay            = start_delay;
     end
-    t.TimerFcn              = {@send_loop, size_table_data, forecast_definition, device_id, filepath, update_cycle_number};
-    t.StopFcn               = {@stop_timer, filepath};
-    t.Period                = update_interval_hours;
-    t.TasksToExecute        = update_cycle_number;
-    t.ExecutionMode         = 'fixedSpacing';
+    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, update_cycle_number};
+    t.StopFcn                   = {@stop_timer, filepath};
+    t.Period                    = update_interval_hours;
+    t.TasksToExecute            = update_cycle_number;
+    t.ExecutionMode             = 'fixedSpacing';
     start(t);
     
     end
 else
     
     send_loop('','', size_table_data, forecast_definition, device_id, filepath, '');
-    filename = strcat(filepath,'\weather_data_',date,'.mat');
-    weather_data = evalin('base','weather_data');
+    filename                    = strcat(filepath,'\weather_data_',date,'.mat');
+    weather_data                = evalin('base','weather_data');
     save(filename,'weather_data','-mat');
     close_serial_port();
     

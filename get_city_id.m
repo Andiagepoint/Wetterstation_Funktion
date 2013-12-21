@@ -11,7 +11,7 @@ if isempty(CityID)
            ' Eine alphabetisch geordnete Liste mit den verfügbaren' ...
            ' Städten finden Sie in CityList_sorted.']);
 else
-CityID = CityID{:,2};
+CityID = CityID{:,1};
 end
 end
 

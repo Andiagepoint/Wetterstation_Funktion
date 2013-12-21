@@ -20,7 +20,7 @@ weather_data = evalin('base','weather_data');
 if cycle_number == 1
     size_weather_data_r                         = 1;
     size_new_data_r                             = 1;
-    weather_data{1,size(weather_data,2) + 2}    = [];
+    weather_data{1,size(weather_data,2) + 5}    = [];
     new_data                                    = cell(1,2);
 else
     new_data                                    = evalin('base','new_data');
@@ -161,6 +161,16 @@ else
                 
         end
         
+        if t == sdindex
+                datepart                = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
+                date_str_num            = datenum(date);
+                date_str                = datestr(date_str_num,20);
+        else 
+                datepart                = datepart + [0 0 1];
+                date_str_num            = date_str_num + 1;
+                date_str                = datestr(date_str_num,20); 
+        end
+        
         for s = shindex:ehindex
 
             % Break condition for an completely evaluated data string
@@ -186,150 +196,181 @@ else
             
             % Structuring data: forecast details in rows, timestamp and value in columns 
             
-            datepart = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
             
             if strcmp(field_name{2},'Mittlere_temp_prog')~= 1 
                switch day_segment{s}
                     case 'Morgen'
-                       timevec = [datepart, 0 0 0];
+                       timevec      = [datepart, 0 0 1];
+                       time_str     = [date_str,'  ','00:00:01-06:00:00'];
                     case 'Vormittag'
-                       timevec = [datepart, 6 0 0];
+                       timevec      = [datepart, 6 0 1];
+                       time_str     = [date_str,'  ','06:00:01-12:00:00'];
                     case 'Nachmittag'
-                       timevec = [datepart, 12 0 0];
+                       timevec      = [datepart, 12 0 1];
+                       time_str     = [date_str,'  ','12:00:01-18:00:00'];
                     case 'Abend'    
-                       timevec = [datepart, 18 0 0];
+                       timevec      = [datepart, 18 0 1];
+                       time_str     = [date_str,'  ','18:00:01-24:00:00'];
                end
             else
                 switch point_in_time{s}
                     case 'AM0_00'
-                       timevec = [datepart, 0 0 0]; 
+                       timevec = [datepart, 0 0 1]; 
+                       time_str     = [date_str,'  ','00:00:01-01:00:00'];
                     case 'AM01_00'
-                       timevec = [datepart, 1 0 0]; 
+                       timevec = [datepart, 1 0 1];
+                       time_str     = [date_str,'  ','01:00:01-02:00:00'];
                     case 'AM02_00'
-                       timevec = [datepart, 2 0 0]; 
+                       timevec = [datepart, 2 0 1]; 
+                       time_str     = [date_str,'  ','02:00:01-03:00:00'];
                     case 'AM03_00'
-                       timevec = [datepart, 3 0 0]; 
+                       timevec = [datepart, 3 0 1]; 
+                       time_str     = [date_str,'  ','03:00:01-04:00:00'];
                     case 'AM04_00'
-                       timevec = [datepart, 4 0 0]; 
+                       timevec = [datepart, 4 0 1]; 
+                       time_str     = [date_str,'  ','04:00:01-05:00:00'];
                     case 'AM05_00'
-                       timevec = [datepart, 5 0 0]; 
+                       timevec = [datepart, 5 0 1]; 
+                       time_str     = [date_str,'  ','05:00:01-06:00:00'];
                     case 'AM06_00'
-                       timevec = [datepart, 6 0 0]; 
+                       timevec = [datepart, 6 0 1]; 
+                       time_str     = [date_str,'  ','06:00:01-07:00:00'];
                     case 'AM07_00'
-                       timevec = [datepart, 7 0 0]; 
+                       timevec = [datepart, 7 0 1]; 
+                       time_str     = [date_str,'  ','07:00:01-08:00:00'];
                     case 'AM08_00'
-                       timevec = [datepart, 8 0 0]; 
+                       timevec = [datepart, 8 0 1]; 
+                       time_str     = [date_str,'  ','08:00:01-09:00:00'];
                     case 'AM09_00'
-                       timevec = [datepart, 9 0 0]; 
+                       timevec = [datepart, 9 0 1]; 
+                       time_str     = [date_str,'  ','09:00:01-10:00:00'];
                     case 'AM10_00'
-                       timevec = [datepart, 10 0 0]; 
+                       timevec = [datepart, 10 0 1]; 
+                       time_str     = [date_str,'  ','10:00:01-11:00:00'];
                     case 'AM11_00'
-                       timevec = [datepart, 11 0 0]; 
+                       timevec = [datepart, 11 0 1]; 
+                       time_str     = [date_str,'  ','11:00:01-12:00:00'];
                     case 'AM12_00'
-                       timevec = [datepart, 12 0 0]; 
+                       timevec = [datepart, 12 0 1]; 
+                       time_str     = [date_str,'  ','12:00:01-13:00:00'];
                     case 'PM01_00'
-                       timevec = [datepart, 13 0 0]; 
+                       timevec = [datepart, 13 0 1]; 
+                       time_str     = [date_str,'  ','13:00:01-14:00:00'];
                     case 'PM02_00'
-                       timevec = [datepart, 14 0 0]; 
+                       timevec = [datepart, 14 0 1]; 
+                       time_str     = [date_str,'  ','14:00:01-15:00:00'];
                     case 'PM03_00'
-                       timevec = [datepart, 15 0 0]; 
+                       timevec = [datepart, 15 0 1]; 
+                       time_str     = [date_str,'  ','15:00:01-16:00:00'];
                     case 'PM04_00'
-                       timevec = [datepart, 16 0 0]; 
+                       timevec = [datepart, 16 0 1]; 
+                       time_str     = [date_str,'  ','16:00:01-17:00:00'];
                     case 'PM05_00'
-                       timevec = [datepart, 17 0 0]; 
+                       timevec = [datepart, 17 0 1]; 
+                       time_str     = [date_str,'  ','17:00:01-18:00:00'];
                     case 'PM06_00'
-                       timevec = [datepart, 18 0 0]; 
+                       timevec = [datepart, 18 0 1]; 
+                       time_str     = [date_str,'  ','18:00:01-19:00:00'];
                     case 'PM07_00'
-                       timevec = [datepart, 19 0 0]; 
+                       timevec = [datepart, 19 0 1]; 
+                       time_str     = [date_str,'  ','19:00:01-20:00:00'];
                     case 'PM08_00'
-                       timevec = [datepart, 20 0 0]; 
+                       timevec = [datepart, 20 0 1]; 
+                       time_str     = [date_str,'  ','20:00:01-21:00:00'];
                     case 'PM09_00'
-                       timevec = [datepart, 21 0 0]; 
+                       timevec = [datepart, 21 0 1]; 
+                       time_str     = [date_str,'  ','21:00:01-22:00:00'];
                     case 'PM10_00'
-                       timevec = [datepart, 22 0 0]; 
+                       timevec = [datepart, 22 0 1]; 
+                       time_str     = [date_str,'  ','22:00:01-23:00:00'];
                     case 'PM11_00'   
-                       timevec = [datepart, 23 0 0]; 
+                       timevec = [datepart, 23 0 1]; 
+                       time_str     = [date_str,'  ','23:00:01-24:00:00'];
                 end
             end
             
             
-            if size(weather_data,2) < 8
+            if size(weather_data,2) < 9
                 
                     weather_data{size_weather_data_r,1} = field_name{1};
                     weather_data{size_weather_data_r,2} = field_name{2};
-                    weather_data{size_weather_data_r,3} = obs_day{t};
                     
                     switch field_name{1}
                         case 'Temperatur'
                             if strcmp(field_name{2},'Min') == 1
-                                    weather_data{size_weather_data_r,5} = '°C min. Lufttemperatur 2m ü. Erdboden'; 
+                                    weather_data{size_weather_data_r,3} = '°C min. Lufttemperatur 2m ü. Erdboden'; 
                             elseif strcmp(field_name{2},'Max') == 1
-                                    weather_data{size_weather_data_r,5} = '°C max. Lufttemperatur 2m ü. Erdboden';
+                                    weather_data{size_weather_data_r,3} = '°C max. Lufttemperatur 2m ü. Erdboden';
                             else
-                                    weather_data{size_weather_data_r,5} = '°C mittlere Lufttemperatur 2m ü. Erdboden';
+                                    weather_data{size_weather_data_r,3} = '°C mittlere Lufttemperatur 2m ü. Erdboden';
                             end
                         case 'Niederschlag'
                             if strcmp(field_name{2},'Menge') == 1
-                                    weather_data{size_weather_data_r,5} = 'l/m²';
+                                    weather_data{size_weather_data_r,3} = 'l/m²';
                             else
-                                    weather_data{size_weather_data_r,5} = '%';
+                                    weather_data{size_weather_data_r,3} = '%';
                             end
                         case 'Solarleistung'
                             if strcmp(field_name{2},'Dauer') == 1
-                                    weather_data{size_weather_data_r,5} = 'h';
+                                    weather_data{size_weather_data_r,3} = 'h';
                             else
-                                    weather_data{size_weather_data_r,5} = 'W/m²';
+                                    weather_data{size_weather_data_r,3} = 'W/m²';
                             end
                         case 'Wind'
                             if strcmp(field_name{2},'Staerke') == 1
-                                    weather_data{size_weather_data_r,5} = 'Bft in einer Höhe von 10m ü. Erdboden';
+                                    weather_data{size_weather_data_r,3} = 'Bft in einer Höhe von 10m ü. Erdboden';
                             else 
-                                    weather_data{size_weather_data_r,5} = 'N/NO/O/SO/S/SW/W/NW -> 1...8';
+                                    weather_data{size_weather_data_r,3} = 'N/NO/O/SO/S/SW/W/NW -> 1...8';
                             end
                         case 'Luftdruck'
-                                    weather_data{size_weather_data_r,5} = 'hPa';
+                                    weather_data{size_weather_data_r,3} = 'hPa';
                         case 'Signifikantes_Wetter'
-                                    weather_data{size_weather_data_r,5} = '1 = sonnig,klar 2 = leicht bewölkt 3 = vorwiegend bewölkt 4 = bedeckt 5 = Wärmegewitter 6 = starker Regen 7 = Schneefall 8 = Nebel 9 = Schneeregen 10 = Regenschauer 11 = leichter Regen 12 = Schneeschauer 13 = Frontengewitter 14 = Hochnebel 15 = Schneeregenschauer';
+                                    weather_data{size_weather_data_r,3} = '1 = sonnig,klar 2 = leicht bewölkt 3 = vorwiegend bewölkt 4 = bedeckt 5 = Wärmegewitter 6 = starker Regen 7 = Schneefall 8 = Nebel 9 = Schneeregen 10 = Regenschauer 11 = leichter Regen 12 = Schneeschauer 13 = Frontengewitter 14 = Hochnebel 15 = Schneeregenschauer';
                         case 'Markantes_Wetter'
                             switch field_name{2}
                                 case 'Bodennebel'
-                                    weather_data{size_weather_data_r,5} = '1 = Wahrscheinlichkeit > 50%, Sichtweite unter 200m';
+                                    weather_data{size_weather_data_r,3} = '1 = Wahrscheinlichkeit > 50%, Sichtweite unter 200m';
                                 case 'Gefrierender_Regen'
-                                    weather_data{size_weather_data_r,5} = '1 = Wahrscheinlichkeit > 50%';
+                                    weather_data{size_weather_data_r,3} = '1 = Wahrscheinlichkeit > 50%';
                                 case 'Bodenfrost'
-                                    weather_data{size_weather_data_r,5} = '1 = <0°C 5cm ü. Erdboden';
+                                    weather_data{size_weather_data_r,3} = '1 = <0°C 5cm ü. Erdboden';
                                 case 'Boeen'
-                                    weather_data{size_weather_data_r,5} = '0 = keine Böen 1 = 45km/h starke Böen 2 = 72km/h stürmische Böen 3 = 99km/h orkanartige Böen';
+                                    weather_data{size_weather_data_r,3} = '0 = keine Böen 1 = 45km/h starke Böen 2 = 72km/h stürmische Böen 3 = 99km/h orkanartige Böen';
                                 case 'Niederschlag'
-                                    weather_data{size_weather_data_r,5} = '0 = kein starker Niederschlag 1 = 10mm starker Niederschlag 2 = 50mm sehr starker Niederschlag';
+                                    weather_data{size_weather_data_r,3} = '0 = kein starker Niederschlag 1 = 10mm starker Niederschlag 2 = 50mm sehr starker Niederschlag';
                                 case 'Hitze'
-                                    weather_data{size_weather_data_r,5} = '0 = keine Meldung 1 = 27-31°C 2 = 32-40°C 3 = 41-53°C 4 = >54°C';
+                                    weather_data{size_weather_data_r,3} = '0 = keine Meldung 1 = 27-31°C 2 = 32-40°C 3 = 41-53°C 4 = >54°C';
                                 case 'Kaelte'
-                                    weather_data{size_weather_data_r,5} = '0 = keine Meldung 1 = <-15°C 2 = <-20°C 3 = <-25°C 4 = <-30°C';
+                                    weather_data{size_weather_data_r,3} = '0 = keine Meldung 1 = <-15°C 2 = <-20°C 3 = <-25°C 4 = <-30°C';
                             end   
                     end
                          
                     
-                    
-                    weather_data{size_weather_data_r,6} = date2utc(timevec);
-                    weather_data{size_weather_data_r,7} = data_mult(dec_value,field_name{2});
-                    
-                    if strcmp(field_name{2},'Mittlere_temp_prog') == 1
-                        
-                        weather_data{size_weather_data_r,4} = point_in_time{s};
-                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, point_in_time{s}, date2utc(timevec), data_mult(dec_value,field_name{2}))
-                        
-                    else
-                        
-                        weather_data{size_weather_data_r,4} = day_segment{s};
-                        fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, day_segment{s}, date2utc(timevec), data_mult(dec_value,field_name{2}))
-                        
-                    end          
+                    weather_data{size_weather_data_r,4} = time_str;
+                    weather_data{size_weather_data_r,5} = date2utc(timevec);
+                    weather_data{size_weather_data_r,6} = weather_data{size_weather_data_r,5} + (6*3600-1);
+                    weather_data{size_weather_data_r,7} = date2utc(datevec(now));
+                    weather_data{size_weather_data_r,8} = data_mult(dec_value,field_name{2});
+                    fprintf('%s %s - %s %u %u %u %u \n', field_name{1}, field_name{2}, time_str, date2utc(timevec), weather_data{size_weather_data_r,5} + 6*3600-1, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+%                     if strcmp(field_name{2},'Mittlere_temp_prog') == 1
+%                         
+%                         weather_data{size_weather_data_r,4} = time_str;
+%                         fprintf('%s %s - %s %u %u %u %u \n', field_name{1}, field_name{2}, time_str, date2utc(timevec), weather_data{size_weather_data_r,5} + 6*3600, date2utc(datevec(now)), data_mult(dec_value,field_name{2}))
+%                         
+%                     else
+%                         
+%                         weather_data{size_weather_data_r,4} = time_str;
+%                         fprintf('%s %s %s - %s, %u %u \n', field_name{1}, field_name{2}, obs_day{t}, day_segment{s}, date2utc(timevec), data_mult(dec_value,field_name{2}))
+%                         
+%                     end          
                     
             else
                 
-                    new_data{size_new_data_r,1}         = date2utc(timevec);
-                    new_data{size_new_data_r,2}         = data_mult(dec_value,field_name{2});
+                    new_data{size_new_data_r,1}         = time_str;
+                    new_data{size_new_data_r,2}         = date2utc(timevec);
+                    new_data{size_new_data_r,3}         = new_data{size_new_data_r,2} + (6*3600-1);
+                    new_data{size_new_data_r,4}         = date2utc(datevec(now));
+                    new_data{size_new_data_r,5}         = data_mult(dec_value,field_name{2});
                     
             end
 
@@ -340,7 +381,7 @@ else
 %             pause(0.1)
             size_weather_data_r                         = size_weather_data_r + 1;
             
-            if size(weather_data,2) > 7
+            if size(weather_data,2) > 9
                 size_new_data_r                         = size_new_data_r + 1;
             end
             
