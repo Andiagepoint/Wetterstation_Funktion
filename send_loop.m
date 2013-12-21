@@ -100,25 +100,25 @@ new_data = evalin('base','new_data');
 weather_data = evalin('base','weather_data');
 
 if size(weather_data,2) > 9
-    weather_data(:,size(weather_data,2)-4:size(weather_data,2)) = new_data;
+    weather_data(:,size(weather_data,2)-4:size(weather_data,2)) = new_data(:,4:8);
     assignin('base','weather_data',weather_data);
     filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
     save(filename,'new_data','-mat');
     if ~isempty(update_cycle_number)
-    update_cycle_number = evalin('base','update_cycle_number');
-    update_cycle_number = update_cycle_number-1;
-    fprintf('Noch %u ausstehende Abfrage(n).\n',update_cycle_number)
-    assignin('base','update_cycle_number',update_cycle_number);
+        update_cycle_number = evalin('base','update_cycle_number');
+        update_cycle_number = update_cycle_number-1;
+        fprintf('Noch %u ausstehende Abfrage(n).\n',update_cycle_number)
+        assignin('base','update_cycle_number',update_cycle_number);
     end
 else
     filename = strcat(filepath,'\new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
     new_data = weather_data(:,4:8);
     save(filename,'new_data','-mat');
     if ~isempty(update_cycle_number)
-    update_cycle_number = evalin('base','update_cycle_number');
-    update_cycle_number = update_cycle_number-1; 
-    fprintf('Noch %u ausstehende Abfrage(n).\n',update_cycle_number)
-    assignin('base','update_cycle_number',update_cycle_number);
+        update_cycle_number = evalin('base','update_cycle_number');
+        update_cycle_number = update_cycle_number-1; 
+        fprintf('Noch %u ausstehende Abfrage(n).\n',update_cycle_number)
+        assignin('base','update_cycle_number',update_cycle_number);
     end
 end
 close(h);

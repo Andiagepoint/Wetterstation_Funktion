@@ -365,12 +365,64 @@ else
 %                     end          
                     
             else
-                
-                    new_data{size_new_data_r,1}         = time_str;
-                    new_data{size_new_data_r,2}         = date2utc(timevec);
-                    new_data{size_new_data_r,3}         = new_data{size_new_data_r,2} + (6*3600-1);
-                    new_data{size_new_data_r,4}         = date2utc(datevec(now));
-                    new_data{size_new_data_r,5}         = data_mult(dec_value,field_name{2});
+
+                    new_data{size_new_data_r,1} = field_name{1};
+                    new_data{size_new_data_r,2} = field_name{2};
+                    
+                    switch field_name{1}
+                        case 'Temperatur'
+                            if strcmp(field_name{2},'Min') == 1
+                                    new_data{size_new_data_r,3} = '°C min. Lufttemperatur 2m ü. Erdboden'; 
+                            elseif strcmp(field_name{2},'Max') == 1
+                                    new_data{size_new_data_r,3} = '°C max. Lufttemperatur 2m ü. Erdboden';
+                            else
+                                    new_data{size_new_data_r,3} = '°C mittlere Lufttemperatur 2m ü. Erdboden';
+                            end
+                        case 'Niederschlag'
+                            if strcmp(field_name{2},'Menge') == 1
+                                    new_data{size_new_data_r,3} = 'l/m²';
+                            else
+                                    new_data{size_new_data_r,3} = '%';
+                            end
+                        case 'Solarleistung'
+                            if strcmp(field_name{2},'Dauer') == 1
+                                    new_data{size_new_data_r,3} = 'h';
+                            else
+                                    new_data{size_new_data_r,3} = 'W/m²';
+                            end
+                        case 'Wind'
+                            if strcmp(field_name{2},'Staerke') == 1
+                                    new_data{size_new_data_r,3} = 'Bft in einer Höhe von 10m ü. Erdboden';
+                            else 
+                                    new_data{size_new_data_r,3} = 'N/NO/O/SO/S/SW/W/NW -> 1...8';
+                            end
+                        case 'Luftdruck'
+                                    new_data{size_new_data_r,3} = 'hPa';
+                        case 'Signifikantes_Wetter'
+                                    new_data{size_new_data_r,3} = '1 = sonnig,klar 2 = leicht bewölkt 3 = vorwiegend bewölkt 4 = bedeckt 5 = Wärmegewitter 6 = starker Regen 7 = Schneefall 8 = Nebel 9 = Schneeregen 10 = Regenschauer 11 = leichter Regen 12 = Schneeschauer 13 = Frontengewitter 14 = Hochnebel 15 = Schneeregenschauer';
+                        case 'Markantes_Wetter'
+                            switch field_name{2}
+                                case 'Bodennebel'
+                                    new_data{size_new_data_r,3} = '1 = Wahrscheinlichkeit > 50%, Sichtweite unter 200m';
+                                case 'Gefrierender_Regen'
+                                    new_data{size_new_data_r,3} = '1 = Wahrscheinlichkeit > 50%';
+                                case 'Bodenfrost'
+                                    new_data{size_new_data_r,3} = '1 = <0°C 5cm ü. Erdboden';
+                                case 'Boeen'
+                                    new_data{size_new_data_r,3} = '0 = keine Böen 1 = 45km/h starke Böen 2 = 72km/h stürmische Böen 3 = 99km/h orkanartige Böen';
+                                case 'Niederschlag'
+                                    new_data{size_new_data_r,3} = '0 = kein starker Niederschlag 1 = 10mm starker Niederschlag 2 = 50mm sehr starker Niederschlag';
+                                case 'Hitze'
+                                    new_data{size_new_data_r,3} = '0 = keine Meldung 1 = 27-31°C 2 = 32-40°C 3 = 41-53°C 4 = >54°C';
+                                case 'Kaelte'
+                                    new_data{size_new_data_r,3} = '0 = keine Meldung 1 = <-15°C 2 = <-20°C 3 = <-25°C 4 = <-30°C';
+                            end   
+                    end                
+                    new_data{size_new_data_r,4}         = time_str;
+                    new_data{size_new_data_r,5}         = date2utc(timevec);
+                    new_data{size_new_data_r,6}         = new_data{size_new_data_r,5} + (6*3600-1);
+                    new_data{size_new_data_r,7}         = date2utc(datevec(now));
+                    new_data{size_new_data_r,8}         = data_mult(dec_value,field_name{2});
                     
             end
 
