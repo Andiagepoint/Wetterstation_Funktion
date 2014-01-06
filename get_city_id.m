@@ -1,14 +1,14 @@
-function [ CityID_correct, CityID ] = get_city_id( CityName )
+function [ city_id_correct, city_id ] = get_city_id( cityname )
 %Gets the city id from the city list
 %   Detailed explanation goes here
-CityList = evalin('base','CityList');
-CityList.CityName = nominal(CityList.CityName);
-CityID = CityList(CityList.CityName == CityName,:);
-if isempty(CityID)
-    CityID_correct = 0;
+citylist = evalin('base','city_list');
+citylist.CityName = nominal(citylist.CityName);
+city_id = citylist(citylist.CityName == cityname,:);
+if isempty(city_id)
+    city_id_correct = 0;
 else
-    CityID = CityID{:,1};
-    CityID_correct = 1;
+    city_id = city_id{:,1};
+    city_id_correct = 1;
 end
 end
 

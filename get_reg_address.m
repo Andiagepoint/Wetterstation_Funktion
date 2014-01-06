@@ -9,20 +9,20 @@ if nargin == 1
     
     if strmatch(varargin, coil_list) == 1
         
-        reg_address         = getfield(register_data_hwk_kompakt.Communication_Settings.coil,char(varargin));
-        field_name          = {'register_data_hwk_kompakt.Communication_Settings'};
+        reg_address         = getfield(register_data_hwk_kompakt.communication_settings.coil,char(varargin));
+        field_name          = {'register_data_hwk_kompakt.communication_settings'};
         
     elseif ~isempty(cell2mat(strfind(varargin,'radio_clock')))
         
         varargin            = regexp(char(varargin),'[.]','split');
         
-        reg_address         = getfield(register_data_hwk_kompakt.Communication_Settings.register.radio_clock,char(varargin(2)));
-        field_name          = {'register_data_hwk_kompakt.Communication_Settings'};
+        reg_address         = getfield(register_data_hwk_kompakt.communication_settings.register.radio_clock,char(varargin(2)));
+        field_name          = {'register_data_hwk_kompakt.communication_settings'};
         
     else
         
-        reg_address         = getfield(register_data_hwk_kompakt.Communication_Settings.register,char(varargin));
-        field_name          = {'register_data_hwk_kompakt.Communication_Settings'};
+        reg_address         = getfield(register_data_hwk_kompakt.communication_settings.register,char(varargin));
+        field_name          = {'register_data_hwk_kompakt.communication_settings'};
         
     end
     

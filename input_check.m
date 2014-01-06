@@ -12,21 +12,21 @@ end
 check = strfind(forecast_detail,'-');
 
 if size(check,2) ~= 2
-    correct_input(2) = 0;
-    error_msg{2} = ['Das forecast_detail wurde nicht korrekt definiert: ' char(forecast_detail)];
+    correct_input(2)    = 0;
+    error_msg{2}        = ['Das forecast_detail wurde nicht korrekt definiert: ' char(forecast_detail)];
     
 else
-    correct_input(2) = 1;
+    correct_input(2)    = 1;
 
     forecast_detail     = regexp(forecast_detail,'-','split');
 
-    forecast_scope      = {'Niederschlag', 'Wind', 'Temperatur', 'Solarleistung', ...
-                           'Markantes_Wetter', 'Signifikantes_Wetter', 'Luftdruck'};
-    forecast_details    = {'', 'Richtung', 'Staerke', 'Min', 'Max', ...
-                           'Mittlere_temp_prog' ...
-                           'Dauer', 'Einstrahlung', 'Boeen', 'Bodenfrost', ...
-                           'Gefrierender_Regen', 'Menge', 'Kaelte', 'Hitze', ...
-                           'Bodennebel', 'Wahrscheinlichkeit', 'Niederschlag'};
+    forecast_scope      = {'niederschlag', 'wind', 'temperatur', 'solarleistung', ...
+                           'markantes_wetter', 'signifikantes_wetter', 'luftdruck'};
+    forecast_details    = {'', 'richtung', 'staerke', 'min', 'max', ...
+                           'mittlere_temp_prog' ...
+                           'dauer', 'einstrahlung', 'boeen', 'bodenfrost', ...
+                           'gefrierender_regen', 'menge', 'kaelte', 'hitze', ...
+                           'bodennebel', 'wahrscheinlichkeit', 'niederschlag'};
     forecast_interval   = {'1','2','3','all'};
 
     correct_input(3)    = ismember(forecast_detail{1},forecast_scope);
@@ -45,23 +45,23 @@ else
     
 end
 
-diff_days           = days365(update_start_date,update_end_date)*24;
+diff_days               = days365(update_start_date,update_end_date)*24;
 
 if diff_days < 0
     correct_input(6)    = 0;
-    error_msg{6}    = (['Das Startdatum für den Beobachtungszeitraum muss vor' ...
+    error_msg{6}        = (['Das Startdatum für den Beobachtungszeitraum muss vor' ...
           ' dem Enddatum liegen! Bitte korrigieren Sie die Datumseingabe.']);
 elseif days365(date,update_start_date) < 0
     correct_input(6)    = 0;
-    error_msg{6}    = ('Das Startdatum liegt in der Vergangenheit!');
+    error_msg{6}        = ('Das Startdatum liegt in der Vergangenheit!');
 else
     correct_input(6)    = 1;
 end
 
 if true(correct_input)
-    error_msg = NaN;
+    error_msg           = NaN;
 elseif size(error_msg,2) < 6
-    error_msg{6} = [];
+    error_msg{6}        = [];
 end
 
 

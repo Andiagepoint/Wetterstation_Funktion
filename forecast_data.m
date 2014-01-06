@@ -7,7 +7,7 @@ function [ ] = forecast_data( city_name, forecast_definition, varargin )
 %
 %   Function to get the forecast data provided by the weather station HWK
 %   Kompakt. The arguments for this function are CITY NAME (available in
-%   the CityList), specific FORECAST DATA and INTERVAL, OBSERVATION
+%   the city_list), specific FORECAST DATA and INTERVAL, OBSERVATION
 %   INTERVAL (dd-mmm-yyyy), RESOLUTION and UPDATE INTERVAL (multiple of 6).
 %
 %   Calling the function you will be asked for a folder to save the data to.
@@ -95,14 +95,20 @@ update_start_date       = [start_observation{1},'-',start_observation{2},'-',sta
 update_end_date         = [end_observation{1},'-',end_observation{2},'-',end_observation{3}];
 
 data = create_reg_data();
-CityList = create_city_list;
+city_list = create_city_list;
 
 assignin('base','register_data_hwk_kompakt',data);
-assignin('base','CityList',CityList);
+assignin('base','city_list',city_list);
+
+weather_data = [];
+new_data = [];
     
 for z = 1:size_table_data
     [correct_input, error_msg, city_id] = input_check(forecast_definition{z}, update_start_date, update_end_date, city_name);
     if true(correct_input)
+        
+        weather_data = create_data_struct(forecast_definition{z}, weather_data, 'weather_data');
+        new_data = create_data_struct(forecast_definition{z}, new_data, 'new_data');
         
     else
     
@@ -126,9 +132,7 @@ device_id                   = '03';
 
 % Create and reset data container
 
-weather_data                = cell(1,3);
 assignin('base','weather_data',weather_data);
-new_data                    = cell(1,5);
 assignin('base','new_data',new_data);
 
 % If forecast_definition is not a cell array but a char, convert to cell
@@ -211,7 +215,7 @@ if ~isempty(varargin)
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
-    update_interval_hours       = update_interval*15;
+    update_interval_hours       = update_interval*3600;
 
 % A timer is defined here to control the automatic update cycles.
 % Requests start with a 3 sec delay. The function to be executed after
@@ -229,8 +233,8 @@ if ~isempty(varargin)
         t.StartDelay            = start_delay;
 
     end
-    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number};
-    t.StopFcn                   = {@stop_timer, filepath};
+    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution};
+    t.StopFcn                   = {@stop_timer, filepath, city_name};
     t.Period                    = update_interval_hours;
     t.TasksToExecute            = update_cycle_number;
     t.ExecutionMode             = 'fixedSpacing';
@@ -238,7 +242,7 @@ if ~isempty(varargin)
 
 else
 
-    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '');
+    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '', resolution);
     filename                    = strcat(filepath,'\weather_data_',date,'.mat');
     weather_data                = evalin('base','weather_data');
     save(filename,'weather_data','-mat');

@@ -2,15 +2,16 @@ function [ data  ] = create_reg_data(  )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-hour_rough = struct('Morgen',0, 'Vormittag',0, 'Nachmittag',0, 'Abend',0);
-hour_detailed = struct('AM0_00',0,'AM01_00',0,'AM02_00',0,'AM03_00',0,'AM04_00',0,'AM05_00',0,'AM06_00',0,'AM07_00',0,'AM08_00',0,'AM09_00',0,'AM10_00',0,'AM11_00',0,'AM12_00',0,'PM01_00',0,'PM02_00',0,'PM03_00',0,'PM04_00',0,'PM05_00',0,'PM06_00',0,'PM07_00',0,'PM08_00',0,'PM09_00',0,'PM10_00',0,'PM11_00',0);
-day_rough = struct('Heute',hour_rough, 'Erster_Folgetag',hour_rough, 'Zweiter_Folgetag',hour_rough, 'Dritter_Folgetag',hour_rough);
-day_detailed = struct('Heute',hour_detailed, 'Erster_Folgetag',hour_detailed, 'Zweiter_Folgetag',hour_detailed, 'Dritter_Folgetag',hour_detailed);
-markantes_wetter = struct('Bodennebel',day_rough,'Gefrierender_Regen',day_rough,'Bodenfrost',day_rough,'Boeen',day_rough,'Niederschlag',day_rough,'Hitze',day_rough,'Kaelte',day_rough);
-niederschlag = struct('Menge',day_rough,'Wahrscheinlichkeit',day_rough);
-wind = struct('Staerke',day_rough,'Richtung',day_rough);
-solarleistung = struct('Dauer',day_rough,'Einstrahlung',day_rough);
-temperatur = struct('Max',day_rough,'Min',day_rough,'Mittlere_temp_prog',day_detailed);
+hour_rough = struct('morgen',0, 'vormittag',0, 'nachmittag',0, 'abend',0);
+hour_detailed = struct('am0_00',0,'am01_00',0,'am02_00',0,'am03_00',0,'am04_00',0,'am05_00',0,'am06_00',0,'am07_00',0,'am08_00',0,'am09_00',0,'am10_00',0,'am11_00',0,'am12_00',0,'pm01_00',0,'pm02_00',0,'pm03_00',0,'pm04_00',0,'pm05_00',0,'pm06_00',0,'pm07_00',0,'pm08_00',0,'pm09_00',0,'pm10_00',0,'pm11_00',0);
+day_rough = struct('heute',hour_rough, 'erster_folgetag',hour_rough, 'zweiter_folgetag',hour_rough, 'dritter_folgetag',hour_rough);
+day_detailed = struct('heute',hour_detailed, 'erster_folgetag',hour_detailed, 'zweiter_folgetag',hour_detailed, 'dritter_folgetag',hour_detailed);
+markantes_wetter = struct('bodennebel',day_rough,'gefrierender_regen',day_rough,'bodenfrost',day_rough,'boeen',day_rough,'niederschlag',day_rough,'hitze',day_rough,'kaelte',day_rough);
+niederschlag = struct('menge',day_rough,'wahrscheinlichkeit',day_rough);
+wind = struct('staerke',day_rough,'richtung',day_rough);
+solarleistung = struct('dauer',day_rough,'einstrahlung',day_rough);
+temperatur = struct('max',day_rough,'min',day_rough,'mittlere_temp_prog',day_detailed);
+x = struct('x',day_rough);
 
 radio_clock = struct('sec','0064','min','0065','hour','0066','day','0067','month','0068','year','0069');
 status = struct('fsk_qualitaet','0000','status_ext_temp_sensor','0001','reserve1','0002','reserve2','0003','reserve3','0004');
@@ -18,27 +19,27 @@ register = struct('temperature','0061','temperature_offset','0062','radio_clock'
 coil = struct('status',status);
 comset = struct('register',register,'coil',coil);
 
-data = struct('Temperatur',temperatur,'Luftdruck',day_rough,'Markantes_Wetter',markantes_wetter,'Niederschlag',niederschlag,'Solarleistung',solarleistung,'Signifikantes_Wetter',day_rough,'Wind',wind,'Communication_Settings',comset);
+data = struct('temperatur',temperatur,'luftdruck',x,'markantes_wetter',markantes_wetter,'niederschlag',niederschlag,'solarleistung',solarleistung,'signifikantes_wetter',x,'wind',wind,'communication_settings',comset);
 
-[data] = regfill(390,data,'Temperatur','Mittlere_temp_prog');
-[data] = regfill(400,data,'Temperatur','Max');
-[data] = regfill(420,data,'Temperatur','Min');
-[data] = regfill(140,data,'Niederschlag','Menge');
-[data] = regfill(160,data,'Niederschlag','Wahrscheinlichkeit');
-[data] = regfill(180,data,'Solarleistung','Dauer');
-[data] = regfill(190,data,'Solarleistung','Einstrahlung');
-[data] = regfill(200,data,'Wind','Staerke');
-[data] = regfill(220,data,'Wind','Richtung');
-[data] = regfill(250,data,'Markantes_Wetter','Bodennebel');
-[data] = regfill(270,data,'Markantes_Wetter','Gefrierender_Regen');
-[data] = regfill(290,data,'Markantes_Wetter','Bodenfrost');
-[data] = regfill(310,data,'Markantes_Wetter','Boeen');
-[data] = regfill(330,data,'Markantes_Wetter','Niederschlag');
-[data] = regfill(350,data,'Markantes_Wetter','Hitze');
-[data] = regfill(370,data,'Markantes_Wetter','Kaelte');
-[data] = regfill(240,data,'Luftdruck','');
-[data] = regfill(120,data,'Signifikantes_Wetter','');
-[data] = regfill(0,data,'Temperatur','Mittlere_temp_prog');
+[data] = regfill(390,data,'temperatur','mittlere_temp_prog');
+[data] = regfill(400,data,'temperatur','max');
+[data] = regfill(420,data,'temperatur','min');
+[data] = regfill(140,data,'niederschlag','menge');
+[data] = regfill(160,data,'niederschlag','wahrscheinlichkeit');
+[data] = regfill(180,data,'solarleistung','dauer');
+[data] = regfill(190,data,'solarleistung','einstrahlung');
+[data] = regfill(200,data,'wind','staerke');
+[data] = regfill(220,data,'wind','richtung');
+[data] = regfill(250,data,'markantes_wetter','bodennebel');
+[data] = regfill(270,data,'markantes_wetter','gefrierender_regen');
+[data] = regfill(290,data,'markantes_wetter','bodenfrost');
+[data] = regfill(310,data,'markantes_wetter','boeen');
+[data] = regfill(330,data,'markantes_wetter','niederschlag');
+[data] = regfill(350,data,'markantes_wetter','hitze');
+[data] = regfill(370,data,'markantes_wetter','kaelte');
+[data] = regfill(240,data,'luftdruck','x');
+[data] = regfill(120,data,'signifikantes_wetter','x');
+[data] = regfill(0,data,'temperatur','mittlere_temp_prog');
 
 clear hour_detailed
 clear hour_rough
