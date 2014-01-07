@@ -83,6 +83,10 @@ if ~isempty(varargin)
     end
 end
 
+if strcmp(forecast_definition,'all') == 1
+    forecast_definition = create_table();
+end
+
 if ~iscell(forecast_definition)
     forecast_definition = {forecast_definition};
 end

@@ -281,6 +281,10 @@ else
                 end
             end
             
+            if dec_value == 10000
+                return;
+            end 
+            
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(w_dat_r)    = date2utc(timevec);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = (date2utc(timevec) + (6*3600-1));
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
