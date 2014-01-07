@@ -375,11 +375,11 @@ else
             
 %             weather_data.(field_name{1}).(field_name{2}).value(1,i:data_end+1) = spline(temp_data_x,temp_data_y,weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,i:end));
             if strcmp(field_name{1},'temperatur') == 1
-                slm = slmengine(temp_data_x,temp_data_y,'plot','on','knots',16,'increasing','off','leftslope',0,'rightslope',0); 
-                slm_new = slmengine(temp_data_x,temp_data_y,'plot','on','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0); 
+                slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
             else
-                slm = slmengine(temp_data_x,temp_data_y,'plot','on','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
-                slm_new = slmengine(temp_data_x,temp_data_y,'plot','on','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
+                slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
+                slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
             end
                         
             for u = i:data_end+1

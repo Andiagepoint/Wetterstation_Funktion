@@ -71,12 +71,12 @@ switch field_name{1}
         end
     case 'luftdruck'
                 unit = 'hPa';
-                data_struct.(field_name{1}) = luftdruck;
-                data_struct.(field_name{1}).unit = unit;
+                data_struct.(field_name{1}).(field_name{2}) = luftdruck;
+                data_struct.(field_name{1}).(field_name{2}).unit = unit;
     case 'signifikantes_wetter'
                 unit = '1 = sonnig,klar 2 = leicht bewölkt 3 = vorwiegend bewölkt 4 = bedeckt 5 = Wärmegewitter 6 = starker Regen 7 = Schneefall 8 = Nebel 9 = Schneeregen 10 = Regenschauer 11 = leichter Regen 12 = Schneeschauer 13 = Frontengewitter 14 = Hochnebel 15 = Schneeregenschauer';
-                data_struct.(field_name{1}) = signifikantes_wetter;
-                data_struct.(field_name{1}).unit = unit;
+                data_struct.(field_name{1}).(field_name{2}) = signifikantes_wetter;
+                data_struct.(field_name{1}).(field_name{2}).unit = unit;
     case 'markantes_wetter'
         switch field_name{2}
             case 'bodennebel'
