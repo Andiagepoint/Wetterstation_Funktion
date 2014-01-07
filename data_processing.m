@@ -61,9 +61,9 @@ else
         weather_data_r = 1;
     else
 %         if date2utc(datevec(now))-time_record < 60  
-%             datetest = '06-Jan-2014';
-%         else
 %             datetest = '07-Jan-2014';
+%         else
+%             datetest = '08-Jan-2014';
 %         end
         if datestr(utc2date(time_record),1) == date
             weather_data_r = 1;
@@ -338,21 +338,18 @@ else
                 
                 if i == 1
                 
-                data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
+                    data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
                 
                 else
                 
-                data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
+                    data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
                 
                 end
                 
-                if strcmp(field_name{1},'temperatur') == 1
-                    slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0); 
-                    slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
-                else
-                    slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
-                    slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
-                end
+                
+                slm = slmengine([weather_data.(field_name{1}).(field_name{2}).unix_start_time(1,i-1) temp_data_x],[weather_data.(field_name{1}).(field_name{2}).value(1,i-1) temp_data_y],'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
+                slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
+                
 
                 for u = i:data_end+1
                    weather_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm); 
@@ -367,61 +364,61 @@ else
                 
             else
                 
-            if i == 1
-                
-                data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
-                
-            else
-                
-                data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
-                
-            end    
+                if i == 1
+
+                    data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+
+                else
+
+                    data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+
+                end    
             
-            weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)           = weather_data.(field_name{1}).(field_name{2}).unix_time_end(i) - ((factor-1)*(21600/factor));
-            weather_data.(field_name{1}).(field_name{2}).interval_time_clear{i}     = {[utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(i)),'-',datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)),13)]};
-            
-            new_data.(field_name{1}).(field_name{2}).unix_time_end(1)               = new_data.(field_name{1}).(field_name{2}).unix_time_end(1) - ((factor-1)*(21600/factor));
-            new_data.(field_name{1}).(field_name{2}).interval_time_clear{1}         = {[utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_start(1)),'-',datestr(utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_end(1)),13)]};
+                weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)           = weather_data.(field_name{1}).(field_name{2}).unix_time_end(i) - ((factor-1)*(21600/factor));
+                weather_data.(field_name{1}).(field_name{2}).interval_time_clear{i}     = {[utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(i)),'-',datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)),13)]};
+
+                new_data.(field_name{1}).(field_name{2}).unix_time_end(1)               = new_data.(field_name{1}).(field_name{2}).unix_time_end(1) - ((factor-1)*(21600/factor));
+                new_data.(field_name{1}).(field_name{2}).interval_time_clear{1}         = {[utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_start(1)),'-',datestr(utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_end(1)),13)]};
 
             
                
-            for u = i:data_end
-                
-                weather_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)       = weather_data.(field_name{1}).(field_name{2}).unix_time_start(u) + (21600/factor);
-                weather_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)         = weather_data.(field_name{1}).(field_name{2}).unix_time_end(u) + (21600/factor);
-                weather_data.(field_name{1}).(field_name{2}).unix_time_record(u+1)      = date2utc(datevec(now));
-                weather_data.(field_name{1}).(field_name{2}).interval_time_clear{u+1}   = {[utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)),'-',datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)),13)]};
-                
-            end
-            
-            for u = 1:size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1
-                
-                new_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)       = new_data.(field_name{1}).(field_name{2}).unix_time_start(u) + (21600/factor);
-                new_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)         = new_data.(field_name{1}).(field_name{2}).unix_time_end(u) + (21600/factor);
-                new_data.(field_name{1}).(field_name{2}).unix_time_record(u+1)      = date2utc(datevec(now));
-                new_data.(field_name{1}).(field_name{2}).interval_time_clear{u+1}   = {[utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)),'-',datestr(utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)),13)]};
+                for u = i:data_end
 
-            end
+                    weather_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)       = weather_data.(field_name{1}).(field_name{2}).unix_time_start(u) + (21600/factor);
+                    weather_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)         = weather_data.(field_name{1}).(field_name{2}).unix_time_end(u) + (21600/factor);
+                    weather_data.(field_name{1}).(field_name{2}).unix_time_record(u+1)      = date2utc(datevec(now));
+                    weather_data.(field_name{1}).(field_name{2}).interval_time_clear{u+1}   = {[utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)),'-',datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)),13)]};
+
+                end
+
+                for u = 1:size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1
+
+                    new_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)       = new_data.(field_name{1}).(field_name{2}).unix_time_start(u) + (21600/factor);
+                    new_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)         = new_data.(field_name{1}).(field_name{2}).unix_time_end(u) + (21600/factor);
+                    new_data.(field_name{1}).(field_name{2}).unix_time_record(u+1)      = date2utc(datevec(now));
+                    new_data.(field_name{1}).(field_name{2}).interval_time_clear{u+1}   = {[utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)),'-',datestr(utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)),13)]};
+
+                end
             
 %             weather_data.(field_name{1}).(field_name{2}).value(1,i:data_end+1) = spline(temp_data_x,temp_data_y,weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,i:end));
-            if strcmp(field_name{1},'temperatur') == 1
-                slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0); 
-                slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
-            else
-                slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
-                slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
-            end
-                        
-            for u = i:data_end+1
-               weather_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm); 
-            end
-            
-            for u = 1:size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)
-               new_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm_new);
-            end
-            
-            assignin('base','new_data',new_data);
-            assignin('base','weather_data',weather_data);
+                if strcmp(field_name{1},'temperatur') == 1
+                    slm = slmengine([weather_data.(field_name{1}).(field_name{2}).unix_start_time(1,i-1) temp_data_x],[weather_data.(field_name{1}).(field_name{2}).value(1,i-1) temp_data_y],'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0); 
+                    slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                else
+                    slm = slmengine([weather_data.(field_name{1}).(field_name{2}).unix_start_time(1,i-1) temp_data_x],[weather_data.(field_name{1}).(field_name{2}).value(1,i-1) temp_data_y],'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
+                    slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
+                end
+
+                for u = i:data_end+1
+                   weather_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm); 
+                end
+
+                for u = 1:size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)
+                   new_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm_new);
+                end
+
+                assignin('base','new_data',new_data);
+                assignin('base','weather_data',weather_data);
             
             end
             
