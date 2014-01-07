@@ -332,6 +332,16 @@ else
             temp_data_y = double(new_data.(field_name{1}).(field_name{2}).value(1,1:end)');
             temp_data_x = double(new_data.(field_name{1}).(field_name{2}).unix_time_start(1,1:end)');
             
+            if i == 1
+                
+                data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+                
+            else
+                
+                data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+                
+            end
+            
             if strcmp(field_name{2},'mittlere_temp_prog') == 1 && factor == 6
                 
                 if strcmp(field_name{1},'temperatur') == 1
@@ -361,15 +371,7 @@ else
             new_data.(field_name{1}).(field_name{2}).unix_time_end(1)               = new_data.(field_name{1}).(field_name{2}).unix_time_end(1) - ((factor-1)*(21600/factor));
             new_data.(field_name{1}).(field_name{2}).interval_time_clear{1}         = {[utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_start(1)),'-',datestr(utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_end(1)),13)]};
 
-            if i == 1
-                
-                data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
-                
-            else
-                
-                data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
-                
-            end
+            
                
             for u = i:data_end
                 
