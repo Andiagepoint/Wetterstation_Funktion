@@ -332,17 +332,19 @@ else
             temp_data_y = double(new_data.(field_name{1}).(field_name{2}).value(1,1:end)');
             temp_data_x = double(new_data.(field_name{1}).(field_name{2}).unix_time_start(1,1:end)');
             
-            if i == 1
-                
-                data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
-                
-            else
-                
-                data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
-                
-            end
+            
             
             if strcmp(field_name{2},'mittlere_temp_prog') == 1 && factor == 6
+                
+                if i == 1
+                
+                data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
+                
+                else
+                
+                data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
+                
+                end
                 
                 if strcmp(field_name{1},'temperatur') == 1
                     slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0); 
@@ -364,6 +366,16 @@ else
                 assignin('base','weather_data',weather_data);
                 
             else
+                
+            if i == 1
+                
+                data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+                
+            else
+                
+                data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+                
+            end    
             
             weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)           = weather_data.(field_name{1}).(field_name{2}).unix_time_end(i) - ((factor-1)*(21600/factor));
             weather_data.(field_name{1}).(field_name{2}).interval_time_clear{i}     = {[utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(i)),'-',datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)),13)]};
