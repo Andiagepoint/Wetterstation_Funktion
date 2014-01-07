@@ -59,13 +59,16 @@ else
     
     if isempty(t_rec)
         w_dat_r = 1;
+        w_dat_r_org = 1;
     else
+        
 %         if date2utc(datevec(now))-time_record < 60  
 %             datetest = '07-Jan-2014';
 %         else
 %             datetest = '08-Jan-2014';
 %         end
         if datestr(utc2date(t_rec),1) == date
+            w_dat_r_org = 1;
             w_dat_r = 1;
         else
             while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),date) ~= 1
@@ -75,6 +78,7 @@ else
                 end
             end
             w_dat_r = i;
+            w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2) + 1;
         end
     end
 
@@ -290,8 +294,8 @@ else
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
                 w_dat.(prg_def{1}).(prg_def{2}).val(w_dat_r)            = data_mult(dec_value,prg_def{2});
-                w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r)        = data_mult(dec_value,prg_def{2});
-                w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r)       = con_qual;
+                w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
+                w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
                 
                 fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + (6*3600-1), date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)), data_mult(dec_value,prg_def{2}));                     
 
@@ -300,16 +304,17 @@ else
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now));
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
                 n_dat.(prg_def{1}).(prg_def{2}).val(n_dat_r)            = data_mult(dec_value,prg_def{2});
-                n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
-                n_dat.(prg_def{1}).(prg_def{2}).con_qual(n_dat_r)       = con_qual;
+                n_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
+                n_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
                    
             % Incrementing data string, and data container row position 
             
             data_str_hi_byte_pos = data_str_hi_byte_pos + 2;
             data_str_lo_byte_pos = data_str_lo_byte_pos + 2;
             
-            w_dat_r       = w_dat_r + 1;
-            n_dat_r           = n_dat_r + 1;
+            w_dat_r     = w_dat_r + 1;
+            n_dat_r     = n_dat_r + 1;
+            w_dat_r_org = w_dat_r_org + 1;
             
         end
     end
