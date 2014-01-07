@@ -1,4 +1,4 @@
-function [ dec_value ] = data_processing( data_string, field_name, resolution )
+function [ dec_value ] = data_processing( data_string, prg_def, resolution )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -8,8 +8,8 @@ function [ dec_value ] = data_processing( data_string, field_name, resolution )
 
 % register_data_hwk_kompakt = evalin('base','register_data_hwk_kompakt');
 
-weather_data = evalin('base','weather_data');
-new_data = evalin('base','new_data');
+w_dat = evalin('base','weather_data');
+n_dat = evalin('base','new_data');
 
 % Container building: for the first request session (=modbus-message)
 % set the row counter to 1 for both weather and new data container
@@ -37,7 +37,7 @@ com_settings    = {'temperature_offset','temperature','city_id', ...
 % If no weather data are requested, but communication specific values the
 % if condition is true. Otherwise weather data will be processed.
 
-if strcmp('register_data_hwk_kompakt.communication_settings',field_name) == 1
+if strcmp('register_data_hwk_kompakt.communication_settings',prg_def) == 1
     dec_value = hex2dec(strcat(dec2hex(data_string(1),2),dec2hex(data_string(2),2)));
     
     % As we have an unsigned value from the message, we have to convert
@@ -49,32 +49,32 @@ if strcmp('register_data_hwk_kompakt.communication_settings',field_name) == 1
     
 else
     
-    time_record = [];
+    t_rec = [];
     i           = 1;
-    new_data_r  = 1;
+    n_dat_r  = 1;
     
-    if ~isempty(weather_data.(field_name{1}).(field_name{2}).unix_time_record)
-        time_record = weather_data.(field_name{1}).(field_name{2}).unix_time_record(size(weather_data.(field_name{1}).(field_name{2}).value,2));
+    if ~isempty(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec)
+        t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).value,2));
     end
     
-    if isempty(time_record)
-        weather_data_r = 1;
+    if isempty(t_rec)
+        w_dat_r = 1;
     else
 %         if date2utc(datevec(now))-time_record < 60  
 %             datetest = '07-Jan-2014';
 %         else
 %             datetest = '08-Jan-2014';
 %         end
-        if datestr(utc2date(time_record),1) == date
-            weather_data_r = 1;
+        if datestr(utc2date(t_rec),1) == date
+            w_dat_r = 1;
         else
-            while strcmp(datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(i)),1),date) ~= 1
+            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),date) ~= 1
                 i = i + 1;
-                if i > size(weather_data.(field_name{1}).(field_name{2}).unix_time_start,2)
+                if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
                     break;
                 end
             end
-            weather_data_r = i;
+            w_dat_r = i;
         end
     end
 
@@ -86,15 +86,15 @@ else
     % If condition is false, number of loops will be determined by the list
     % position (obs_day) of the last day of observation.
     
-    [~, sdindex] = ismember(field_name{3}, obs_day);
+    [~, sdindex] = ismember(prg_def{3}, obs_day);
      
-    if size(field_name,2) < 5
+    if size(prg_def,2) < 5
         
         edindex = sdindex;
         
     else
         
-        [~, edindex] = ismember(field_name{5}, obs_day);
+        [~, edindex] = ismember(prg_def{5}, obs_day);
         
     end
     
@@ -114,13 +114,13 @@ else
         if t == sdindex
                 
                 % Starting point for the first observation day
-                if strcmp(field_name{2},'mittlere_temp_prog')==1
+                if strcmp(prg_def{2},'mittlere_temp_prog') == 1
                     
-                    [~, shindex] = ismember(field_name{4}, point_in_time);
+                    [~, shindex] = ismember(prg_def{4}, point_in_time);
                     
                 else
                     
-                    [~, shindex] = ismember(field_name{4}, day_segment);
+                    [~, shindex] = ismember(prg_def{4}, day_segment);
                     
                 end
                 
@@ -129,17 +129,17 @@ else
                 % the entire intervall (24,4), which will be stopped at when
                 % the data string is completely evaluated.
                 
-                if size(field_name,2) < 5
+                if size(prg_def,2) < 5
                     
-                    ehindex         = shindex;
+                    ehindex      = shindex;
                     
-                elseif strcmp(field_name{2},'mittlere_temp_prog')==1
+                elseif strcmp(prg_def{2},'mittlere_temp_prog') == 1
                     
-                    ehindex         = 24;
+                    ehindex      = 24;
                     
                 else
                     
-                    ehindex         = 4;
+                    ehindex      = 4;
                     
                 end
                 
@@ -150,15 +150,15 @@ else
                 % determined through the list position in point_in_time or
                 % day_segment.
                 
-                shindex             = 1;
+                shindex          = 1;
                 
-                if strcmp(field_name{2},'mittlere_temp_prog')==1
+                if strcmp(prg_def{2},'mittlere_temp_prog') == 1
                     
-                    [~, ehindex] = ismember(field_name{6}, point_in_time);
+                    [~, ehindex] = ismember(prg_def{6}, point_in_time);
                     
                 else
                     
-                    [~, ehindex] = ismember(field_name{6}, day_segment);
+                    [~, ehindex] = ismember(prg_def{6}, day_segment);
                     
                 end
                 
@@ -169,26 +169,26 @@ else
                 % complete forecast intervall for the days between start
                 % and end day. 
             
-                shindex             = 1;
+                shindex        = 1;
                 
-                if strcmp(field_name{2},'mittlere_temp_prog')==1
+                if strcmp(prg_def{2},'mittlere_temp_prog') == 1
                     
-                    ehindex         = 24;
+                    ehindex    = 24;
                     
                 else
                     
-                    ehindex         = 4;
+                    ehindex    = 4;
                     
                 end
                 
         end
         
         if t == sdindex
-                datepart                = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
-                date_str_num            = datenum(date);
+                datepart       = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
+                date_str_num   = datenum(date);
         else 
-                datepart                = datepart + [0 0 1];
-                date_str_num            = date_str_num + 1;
+                datepart       = datepart + [0 0 1];
+                date_str_num   = date_str_num + 1;
         end
         
         for s = shindex:ehindex
@@ -203,21 +203,21 @@ else
             
             % Evaluation of a 16-bit word, big-Endian
             
-            hi_byte                                     = dec2hex(data_string(data_str_hi_byte_pos),2);
-            lo_byte                                     = dec2hex(data_string(data_str_lo_byte_pos),2);
-            hex_value                                   = strcat(hi_byte,lo_byte);
-            dec_value                                   = hex2dec(hex_value);
+            hi_byte        = dec2hex(data_string(data_str_hi_byte_pos),2);
+            lo_byte        = dec2hex(data_string(data_str_lo_byte_pos),2);
+            hex_value      = strcat(hi_byte,lo_byte);
+            dec_value      = hex2dec(hex_value);
             
             % Receiving uint bytes, signed bytes will be calculated here
             
             if dec_value > 32768
-                dec_value                               = dec_value - 65536;
+                dec_value  = dec_value - 65536;
             end
             
             % Structuring data: forecast details in rows, timestamp and value in columns 
             
             
-            if strcmp(field_name{2},'mittlere_temp_prog') ~= 1 
+            if strcmp(prg_def{2},'mittlere_temp_prog') ~= 1 
                switch day_segment{s}
                     case 'morgen'
                        timevec      = [datepart, 0 0 1];
@@ -281,27 +281,27 @@ else
                 end
             end
             
-                weather_data.(field_name{1}).(field_name{2}).unix_time_start(weather_data_r)        = date2utc(timevec);
-                weather_data.(field_name{1}).(field_name{2}).unix_time_end(weather_data_r)          = (date2utc(timevec) + (6*3600-1));
-                weather_data.(field_name{1}).(field_name{2}).unix_time_record(weather_data_r)       = date2utc(datevec(now));
-                weather_data.(field_name{1}).(field_name{2}).interval_time_clear{weather_data_r}    = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
-                weather_data.(field_name{1}).(field_name{2}).value(weather_data_r)                  = data_mult(dec_value,field_name{2});
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(w_dat_r)    = date2utc(timevec);
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = (date2utc(timevec) + (6*3600-1));
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
+                w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
+                w_dat.(prg_def{1}).(prg_def{2}).value(w_dat_r)          = data_mult(dec_value,prg_def{2});
                 
-                fprintf('%s %s - %u %u %u %s %u \n', field_name{1}, field_name{2}, date2utc(timevec), date2utc(timevec) + (6*3600-1), date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)), data_mult(dec_value,field_name{2}));                     
+                fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + (6*3600-1), date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)), data_mult(dec_value,prg_def{2}));                     
 
-                new_data.(field_name{1}).(field_name{2}).unix_time_start(new_data_r)        = date2utc(timevec);
-                new_data.(field_name{1}).(field_name{2}).unix_time_end(new_data_r)          = date2utc(timevec) + (6*3600-1);
-                new_data.(field_name{1}).(field_name{2}).unix_time_record(new_data_r)       = date2utc(datevec(now));
-                new_data.(field_name{1}).(field_name{2}).interval_time_clear{new_data_r}    = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
-                new_data.(field_name{1}).(field_name{2}).value(new_data_r)                  = data_mult(dec_value,field_name{2});
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(n_dat_r)    = date2utc(timevec);
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + (6*3600-1);
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now));
+                n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
+                n_dat.(prg_def{1}).(prg_def{2}).value(n_dat_r)          = data_mult(dec_value,prg_def{2});
                    
             % Incrementing data string, and data container row position 
             
             data_str_hi_byte_pos = data_str_hi_byte_pos + 2;
             data_str_lo_byte_pos = data_str_lo_byte_pos + 2;
             
-            weather_data_r       = weather_data_r + 1;
-            new_data_r           = new_data_r + 1;
+            w_dat_r       = w_dat_r + 1;
+            n_dat_r           = n_dat_r + 1;
             
         end
     end
@@ -311,14 +311,14 @@ else
     if resolution == 6
     % Assign data container to base workspace
     
-        assignin('base','new_data',new_data);
-        assignin('base','weather_data',weather_data);
+        assignin('base','new_data',n_dat);
+        assignin('base','weather_data',w_dat);
     
     else
         
-        if strcmp(field_name{1},'markantes_wetter') == 1 || strcmp(field_name{1},'signifikantes_wetter') == 1 || strcmp(field_name{2},'richtung') == 1 || strcmp(field_name{2},'wahrscheinlichkeit') == 1
-            assignin('base','new_data',new_data);
-            assignin('base','weather_data',weather_data);
+        if strcmp(prg_def{1},'markantes_wetter') == 1 || strcmp(prg_def{1},'signifikantes_wetter') == 1 || strcmp(prg_def{2},'richtung') == 1 || strcmp(prg_def{2},'wahrscheinlichkeit') == 1
+            assignin('base','new_data',n_dat);
+            assignin('base','weather_data',w_dat);
         else
             switch resolution
                 case 1
@@ -329,106 +329,106 @@ else
                     factor = 24;
             end
             
-            temp_data_y = double(new_data.(field_name{1}).(field_name{2}).value(1,1:end)');
-            temp_data_x = double(new_data.(field_name{1}).(field_name{2}).unix_time_start(1,1:end)');
+            tmp_dat_y = double(n_dat.(prg_def{1}).(prg_def{2}).value(1,1:end)');
+            tmp_dat_x = double(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,1:end)');
             
             
             
-            if strcmp(field_name{2},'mittlere_temp_prog') == 1 && factor == 6
+            if strcmp(prg_def{2},'mittlere_temp_prog') == 1 && factor == 6
                 
                 if i == 1
                 
-                    data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
+                    data_end = size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2) - 1;
                 
                 else
                 
-                    data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2) - 1;
+                    data_end = i - 1 + size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2) - 1;
                 
                 end
                 
                 if i == 1
-                    slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
+                    slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
                 else
-                    slm = slmengine([weather_data.(field_name{1}).(field_name{2}).unix_start_time(1,i-1) temp_data_x],[weather_data.(field_name{1}).(field_name{2}).value(1,i-1) temp_data_y],'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
+                    slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).value(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
                 end
-                slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
+                slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
                 
 
                 for u = i:data_end+1
-                   weather_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm); 
+                   w_dat.(prg_def{1}).(prg_def{2}).value(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
                 end
 
-                for u = 1:size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)
-                   new_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm_new);
+                for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
+                   n_dat.(prg_def{1}).(prg_def{2}).value(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm_new);
                 end
                 
-                assignin('base','new_data',new_data);
-                assignin('base','weather_data',weather_data);
+                assignin('base','new_data',n_dat);
+                assignin('base','weather_data',w_dat);
                 
             else
                 
                 if i == 1
 
-                    data_end = size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+                    data_end = size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1;
 
                 else
 
-                    data_end = i - 1 + size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1;
+                    data_end = i - 1 + size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1;
 
                 end    
             
-                weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)           = weather_data.(field_name{1}).(field_name{2}).unix_time_end(i) - ((factor-1)*(21600/factor));
-                weather_data.(field_name{1}).(field_name{2}).interval_time_clear{i}     = {[utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(i)),'-',datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_end(i)),13)]};
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)           = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i) - ((factor-1)*(21600/factor));
+                w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{i}     = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)),13)]};
 
-                new_data.(field_name{1}).(field_name{2}).unix_time_end(1)               = new_data.(field_name{1}).(field_name{2}).unix_time_end(1) - ((factor-1)*(21600/factor));
-                new_data.(field_name{1}).(field_name{2}).interval_time_clear{1}         = {[utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_start(1)),'-',datestr(utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_end(1)),13)]};
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)               = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1) - ((factor-1)*(21600/factor));
+                n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{1}         = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)),13)]};
 
             
                
                 for u = i:data_end
 
-                    weather_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)       = weather_data.(field_name{1}).(field_name{2}).unix_time_start(u) + (21600/factor);
-                    weather_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)         = weather_data.(field_name{1}).(field_name{2}).unix_time_end(u) + (21600/factor);
-                    weather_data.(field_name{1}).(field_name{2}).unix_time_record(u+1)      = date2utc(datevec(now));
-                    weather_data.(field_name{1}).(field_name{2}).interval_time_clear{u+1}   = {[utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)),'-',datestr(utc2date(weather_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)),13)]};
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + (21600/factor);
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + (21600/factor);
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
+                    w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
 
-                for u = 1:size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)*factor - 1
+                for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1
 
-                    new_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)       = new_data.(field_name{1}).(field_name{2}).unix_time_start(u) + (21600/factor);
-                    new_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)         = new_data.(field_name{1}).(field_name{2}).unix_time_end(u) + (21600/factor);
-                    new_data.(field_name{1}).(field_name{2}).unix_time_record(u+1)      = date2utc(datevec(now));
-                    new_data.(field_name{1}).(field_name{2}).interval_time_clear{u+1}   = {[utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_start(u+1)),'-',datestr(utc2date(new_data.(field_name{1}).(field_name{2}).unix_time_end(u+1)),13)]};
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + (21600/factor);
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + (21600/factor);
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
+                    n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
             
-                if strcmp(field_name{1},'temperatur') == 1
+                if strcmp(prg_def{1},'temperatur') == 1
                     if i == 1
-                        slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                        slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                     else
-                        slm = slmengine([weather_data.(field_name{1}).(field_name{2}).unix_start_time(1,i-1) temp_data_x],[weather_data.(field_name{1}).(field_name{2}).value(1,i-1) temp_data_y],'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);                         
+                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).value(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);                         
                     end
-                    slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                    slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 else
                     if i === 1
-                        slm = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
+                        slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).value(1,i:end)),'leftslope',0,'rightslope',0);
                     else
-                        slm = slmengine([weather_data.(field_name{1}).(field_name{2}).unix_start_time(1,i-1) temp_data_x],[weather_data.(field_name{1}).(field_name{2}).value(1,i-1) temp_data_y],'plot','off','knots',16,'increasing','off','minvalue',min(weather_data.(field_name{1}).(field_name{2}).value(1,i:end)),'leftslope',0,'rightslope',0);    
+                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).value(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).value(1,i:end)),'leftslope',0,'rightslope',0);    
                     end
-                    slm_new = slmengine(temp_data_x,temp_data_y,'plot','off','knots',16,'increasing','off','minvalue',min(new_data.(field_name{1}).(field_name{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
+                    slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).value(1,1:end)),'leftslope',0,'rightslope',0);
                 end
 
                 for u = i:data_end+1
-                   weather_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm); 
+                   w_dat.(prg_def{1}).(prg_def{2}).value(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
                 end
 
-                for u = 1:size(new_data.(field_name{1}).(field_name{2}).unix_time_start,2)
-                   new_data.(field_name{1}).(field_name{2}).value(1,u) = slmeval(weather_data.(field_name{1}).(field_name{2}).unix_time_start(1,u),slm_new);
+                for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
+                   n_dat.(prg_def{1}).(prg_def{2}).value(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm_new);
                 end
 
-                assignin('base','new_data',new_data);
-                assignin('base','weather_data',weather_data);
+                assignin('base','new_data',n_dat);
+                assignin('base','weather_data',w_dat);
             
             end
             

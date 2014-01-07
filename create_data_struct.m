@@ -4,24 +4,24 @@ function [ data_struct ] = create_data_struct( field_name, data_struct, struct_n
 
 field_name              = regexp(field_name,'-','split');
 
-min                     = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-max                     = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-mittlere_temp_prog      = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-menge                   = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-dauer                   = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-wahrscheinlichkeit      = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-einstrahlung            = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-richtung                = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-staerke                 = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-bodennebel              = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-gefrierender_regen      = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-bodenfrost              = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-boeen                   = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-kaelte                  = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-hitze                   = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-niederschlag            = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-luftdruck               = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
-signifikantes_wetter    = struct('unix_time_start',[],'unix_time_end',[],'unix_time_record',[],'interval_time_clear',[],'unit',[],'value',[]);
+min                     = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+max                     = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+mittlere_temp_prog      = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+menge                   = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+dauer                   = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+wahrscheinlichkeit      = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+einstrahlung            = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+richtung                = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+staerke                 = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+bodennebel              = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+gefrierender_regen      = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+bodenfrost              = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+boeen                   = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+kaelte                  = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+hitze                   = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+niederschlag            = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+luftdruck               = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
+signifikantes_wetter    = struct('unix_t_strt',[],'unix_t_end',[],'unix_t_rec',[],'interval_t_clr',[],'unit',[],'val',[]);
 
 
 switch field_name{1}
