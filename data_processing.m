@@ -1,4 +1,4 @@
-function [ dec_value ] = data_processing( data_string, prg_def, resolution )
+function [ dec_value ] = data_processing( data_string, prg_def, resolution, con_qual )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -285,7 +285,9 @@ else
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = (date2utc(timevec) + (6*3600-1));
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
-                w_dat.(prg_def{1}).(prg_def{2}).val(w_dat_r)          = data_mult(dec_value,prg_def{2});
+                w_dat.(prg_def{1}).(prg_def{2}).val(w_dat_r)            = data_mult(dec_value,prg_def{2});
+                w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r)        = data_mult(dec_value,prg_def{2});
+                w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r)       = con_qual;
                 
                 fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + (6*3600-1), date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)), data_mult(dec_value,prg_def{2}));                     
 
@@ -293,7 +295,9 @@ else
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + (6*3600-1);
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now));
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
-                n_dat.(prg_def{1}).(prg_def{2}).val(n_dat_r)          = data_mult(dec_value,prg_def{2});
+                n_dat.(prg_def{1}).(prg_def{2}).val(n_dat_r)            = data_mult(dec_value,prg_def{2});
+                n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+                n_dat.(prg_def{1}).(prg_def{2}).con_qual(n_dat_r)       = con_qual;
                    
             % Incrementing data string, and data container row position 
             

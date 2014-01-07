@@ -1,4 +1,4 @@
-function [ value ] = send_and_receive_data( modbus_msg, field_name, resolution )
+function [ value ] = send_and_receive_data( modbus_msg, field_name, resolution, con_qual )
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 serial_interface = evalin('base','serial_interface');
@@ -17,7 +17,7 @@ end
 
 [rxdata] = fread(serial_interface, bytes_num, 'uint8');
 
-[value, error_msg] = rxdata_processing( rxdata, modbus_msg, field_name, resolution );
+[value, error_msg] = rxdata_processing( rxdata, modbus_msg, field_name, resolution, con_qual );
 
 end
 

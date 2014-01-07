@@ -76,14 +76,16 @@ for r = 1:t
 
         forecast_interval           = {forecast_interval{1,1:2}, start_reg{:}, end_reg{:}};
 
-        [ start_reg_address ]       = get_reg_address( forecast_interval{1}, forecast_interval{2}, start_reg );
-        [ end_reg_address ]         = get_reg_address( forecast_interval{1}, forecast_interval{2}, end_reg );
+        start_reg_address           = get_reg_address( forecast_interval{1}, forecast_interval{2}, start_reg );
+        end_reg_address             = get_reg_address( forecast_interval{1}, forecast_interval{2}, end_reg );
 
-        [quantity_reg_addresses]    = reg_num(start_reg_address, end_reg_address);
+        quantity_reg_addresses      = reg_num(start_reg_address, end_reg_address);
 
-        [ modbus_pdu ]              = gen_msg( device_id, start_reg_address, quantity_reg_addresses, 'rr' );
+        modbus_pdu                  = gen_msg( device_id, start_reg_address, quantity_reg_addresses, 'rr' );
+        
+        con_qual                    = read_com_set('03',{'quality'});
 
-        [ txdata ]                  = send_and_receive_data(modbus_pdu, forecast_interval, resolution);
+        txdata                      = send_and_receive_data(modbus_pdu, forecast_interval, resolution, con_qual);
 
         waitbar(r/t,h)
             
