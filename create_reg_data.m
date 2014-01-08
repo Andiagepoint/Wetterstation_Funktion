@@ -1,5 +1,5 @@
 function [ data  ] = create_reg_data(  )
-%UNTITLED Summary of this function goes here
+%Create register data structure with addresses
 %   Detailed explanation goes here
 
 hour_rough = struct('morgen',0, 'vormittag',0, 'nachmittag',0, 'abend',0);
@@ -21,25 +21,25 @@ comset = struct('register',register,'coil',coil);
 
 data = struct('temperatur',temperatur,'luftdruck',x,'markantes_wetter',markantes_wetter,'niederschlag',niederschlag,'solarleistung',solarleistung,'signifikantes_wetter',x,'wind',wind,'communication_settings',comset);
 
-[data] = regfill(390,data,'temperatur','mittlere_temp_prog');
-[data] = regfill(400,data,'temperatur','max');
-[data] = regfill(420,data,'temperatur','min');
-[data] = regfill(140,data,'niederschlag','menge');
-[data] = regfill(160,data,'niederschlag','wahrscheinlichkeit');
-[data] = regfill(180,data,'solarleistung','dauer');
-[data] = regfill(190,data,'solarleistung','einstrahlung');
-[data] = regfill(200,data,'wind','staerke');
-[data] = regfill(220,data,'wind','richtung');
-[data] = regfill(250,data,'markantes_wetter','bodennebel');
-[data] = regfill(270,data,'markantes_wetter','gefrierender_regen');
-[data] = regfill(290,data,'markantes_wetter','bodenfrost');
-[data] = regfill(310,data,'markantes_wetter','boeen');
-[data] = regfill(330,data,'markantes_wetter','niederschlag');
-[data] = regfill(350,data,'markantes_wetter','hitze');
-[data] = regfill(370,data,'markantes_wetter','kaelte');
-[data] = regfill(240,data,'luftdruck','x');
-[data] = regfill(120,data,'signifikantes_wetter','x');
-[data] = regfill(0,data,'temperatur','mittlere_temp_prog');
+[data] = register_fill(390,data,'temperatur','mittlere_temp_prog');
+[data] = register_fill(400,data,'temperatur','max');
+[data] = register_fill(420,data,'temperatur','min');
+[data] = register_fill(140,data,'niederschlag','menge');
+[data] = register_fill(160,data,'niederschlag','wahrscheinlichkeit');
+[data] = register_fill(180,data,'solarleistung','dauer');
+[data] = register_fill(190,data,'solarleistung','einstrahlung');
+[data] = register_fill(200,data,'wind','staerke');
+[data] = register_fill(220,data,'wind','richtung');
+[data] = register_fill(250,data,'markantes_wetter','bodennebel');
+[data] = register_fill(270,data,'markantes_wetter','gefrierender_regen');
+[data] = register_fill(290,data,'markantes_wetter','bodenfrost');
+[data] = register_fill(310,data,'markantes_wetter','boeen');
+[data] = register_fill(330,data,'markantes_wetter','niederschlag');
+[data] = register_fill(350,data,'markantes_wetter','hitze');
+[data] = register_fill(370,data,'markantes_wetter','kaelte');
+[data] = register_fill(240,data,'luftdruck','x');
+[data] = register_fill(120,data,'signifikantes_wetter','x');
+[data] = register_fill(0,data,'temperatur','mittlere_temp_prog');
 
 clear hour_detailed
 clear hour_rough

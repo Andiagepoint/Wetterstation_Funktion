@@ -1,5 +1,5 @@
 function [ CityList] = create_city_list(  )
-%UNTITLED2 Summary of this function goes here
+%Create city list
 %   Detailed explanation goes here
 C = {'CityID' 'CityName' 'Latitude' 'Longitude'; ... 
 % Albania

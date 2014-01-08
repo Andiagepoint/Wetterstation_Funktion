@@ -1,5 +1,5 @@
 function [ txdata ] = format_modbus_msg( modbus_msg_crc )
-%UNTITLED2 Summary of this function goes here
+%Format modbus pdu to 'fwrite' readable structure
 %   Detailed explanation goes here
 for e = 2:2:(size(modbus_msg_crc,2)-2)
     if e == 2
@@ -14,4 +14,3 @@ end
 txdata = regexp(string,':','split');
 txdata = hex2dec(txdata);
 end
-

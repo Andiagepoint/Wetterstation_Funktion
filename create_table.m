@@ -1,5 +1,5 @@
 function [ table ] = create_table(  )
-%UNTITLED Summary of this function goes here
+%Create table to request all available forecast data
 %   Detailed explanation goes here
 table = {'luftdruck-x-all';
 'markantes_wetter-bodennebel-all';

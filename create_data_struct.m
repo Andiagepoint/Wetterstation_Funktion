@@ -1,5 +1,5 @@
 function [ data_struct ] = create_data_struct( field_name, data_struct, struct_name )
-%UNTITLED Summary of this function goes here
+%Create data container structure
 %   Detailed explanation goes here
 
 field_name              = regexp(field_name,'-','split');

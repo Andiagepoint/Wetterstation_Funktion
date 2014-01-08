@@ -7,6 +7,8 @@ fprintf(['Automatischer Abruf für den angegebenen Beobachtungszeitraum\n' ...
   
 delete(mTimer)
 
+% Define filename as city_name_weather_data_current_date_current_unix_time
+% and save to specified filepath
 filename = strcat(filepath,'\',city_name,'_weather_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
 weather_data = evalin('base','weather_data');
 save(filename,'weather_data','-mat');
