@@ -287,22 +287,49 @@ else
             
             if dec_value == 10000
                 return;
-            end 
+            end
+            
+            switch resolution
+                case 1
+                    factor = 6;
+                case 0.5
+                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                        factor = 2;
+                    else
+                        factor = 12;
+                    end
+                case 0.25
+                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                        factor = 4;
+                    else
+                        factor = 24;
+                    end
+            end
+            
+            if strcmp(prg_def{2},'mittlere_temp_prog') == 1 && factor ~= 6
+                timestep = 3600-1;
+                timestep_corr = (factor-1)*(3600/factor);
+                timestep_int = 3600/factor;
+            else
+                timestep = 6*3600-1;
+                timestep_corr = (factor-1)*(21600/factor);
+                timestep_int = 21600/factor;
+            end
             
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(w_dat_r)    = date2utc(timevec);
-                w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = (date2utc(timevec) + (6*3600-1));
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = date2utc(timevec) + timestep;
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
-                w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
+                w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)),13)]};
                 w_dat.(prg_def{1}).(prg_def{2}).val(w_dat_r)            = data_mult(dec_value,prg_def{2});
                 w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
                 w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
                 
-                fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + (6*3600-1), date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)), data_mult(dec_value,prg_def{2}));                     
+                fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13)), data_mult(dec_value,prg_def{2}));                     
 
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(n_dat_r)    = date2utc(timevec);
-                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + (6*3600-1);
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + timestep;
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now));
-                n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + (6*3600-1)),13)]};
+                n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)),13)]};
                 n_dat.(prg_def{1}).(prg_def{2}).val(n_dat_r)            = data_mult(dec_value,prg_def{2});
                 n_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
                 n_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
@@ -333,22 +360,7 @@ else
             assignin('base','new_data',n_dat);
             assignin('base','weather_data',w_dat);
         else
-            switch resolution
-                case 1
-                    factor = 6;
-                case 0.5
-                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
-                        factor = 2
-                    else
-                        factor = 12;
-                    end
-                case 0.25
-                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
-                        factor = 4;
-                    else
-                        factor = 24;
-                    end
-            end
+            
             
             tmp_dat_y = double(n_dat.(prg_def{1}).(prg_def{2}).val(1,1:end));
             tmp_dat_x = double(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,1:end));
@@ -398,18 +410,18 @@ else
 
                 end    
             
-                w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)           = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i) - ((factor-1)*(21600/factor));
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)           = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i) - timestep_corr;
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{i}     = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)),13)]};
 
-                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)               = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1) - ((factor-1)*(21600/factor));
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)               = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1) - timestep_corr;
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{1}         = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)),13)]};
 
             
                
                 for u = i:data_end
 
-                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + (21600/factor);
-                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + (21600/factor);
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
                     w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
@@ -417,8 +429,8 @@ else
 
                 for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1
 
-                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + (21600/factor);
-                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + (21600/factor);
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
                     n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
