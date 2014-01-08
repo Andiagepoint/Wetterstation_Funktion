@@ -219,7 +219,7 @@ if ~isempty(varargin)
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
-    update_interval_hours       = update_interval*3600;
+    update_interval_hours       = update_interval*15;
 
 % A timer is defined here to control the automatic update cycles.
 % Requests start with a 3 sec delay. The function to be executed after

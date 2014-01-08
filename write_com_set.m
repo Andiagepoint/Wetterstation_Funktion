@@ -13,7 +13,7 @@ modbus_msg                  = strcat(device_id, fcode_ws_reg, reg_add, request_v
 waitbar(2/3,wb)
 msg                         = crc_calc(char(modbus_msg));
 
-[rxdata]                    = send_and_receive_data(msg, field_name, '');
+[rxdata]                    = send_and_receive_data(msg, field_name, '', '');
 waitbar(3/3,wb)
 close(wb)
 
