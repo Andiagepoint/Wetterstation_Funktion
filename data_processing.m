@@ -62,16 +62,16 @@ else
         w_dat_r_org = 1;
     else
         
-        if date2utc(datevec(now))-t_rec < 60  
-            datetest = '08-Jan-2014';
-        else
-            datetest = '09-Jan-2014';
-        end
-        if datestr(utc2date(t_rec),1) == datetest
+%         if date2utc(datevec(now))-t_rec < 60  
+%             datetest = '08-Jan-2014';
+%         else
+%             datetest = '09-Jan-2014';
+%         end
+        if datestr(utc2date(t_rec),1) == date
             w_dat_r_org = 1;
             w_dat_r = 1;
         else
-            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),datetest) ~= 1
+            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),date) ~= 1
                 i = i + 1;
                 if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
                     break;
@@ -337,9 +337,17 @@ else
                 case 1
                     factor = 6;
                 case 0.5
-                    factor = 12;
+                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                        factor = 2
+                    else
+                        factor = 12;
+                    end
                 case 0.25
-                    factor = 24;
+                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                        factor = 4;
+                    else
+                        factor = 24;
+                    end
             end
             
             tmp_dat_y = double(n_dat.(prg_def{1}).(prg_def{2}).val(1,1:end));
