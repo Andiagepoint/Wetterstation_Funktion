@@ -53,6 +53,24 @@ else
     i           = 1;
     n_dat_r  = 1;
     
+    
+    switch resolution
+        case 1
+            factor = 6;
+        case 0.5
+            if strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                factor = 2;
+            else
+                factor = 12;
+            end
+        case 0.25
+            if strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                factor = 4;
+            else
+                factor = 24;
+            end
+    end
+    
     if ~isempty(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec)
         t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).val,2));
     end
@@ -60,25 +78,29 @@ else
     if isempty(t_rec)
         w_dat_r = 1;
         w_dat_r_org = 1;
+        datetest = '09-Jan-2014';
+        now_s = now;
     else
         
-%         if date2utc(datevec(now))-t_rec < 60  
-%             datetest = '08-Jan-2014';
-%         else
-%             datetest = '09-Jan-2014';
-%         end
-        if datestr(utc2date(t_rec),1) == date
+        if date2utc(datevec(now))-t_rec < 60  
+            datetest = '09-Jan-2014';
+            now_s = now;
+        else
+            datetest = '10-Jan-2014';
+            now_s = 7.356093719560185e+05;
+        end
+        if datestr(utc2date(t_rec),1) == datetest
             w_dat_r_org = 1;
             w_dat_r = 1;
         else
-            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),date) ~= 1
+            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),datetest) ~= 1
                 i = i + 1;
                 if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
                     break;
                 end
             end
             w_dat_r = i;
-            w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2) + 1;
+            w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2) - (factor-1)*(size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)/factor) + 1;
         end
     end
 
@@ -188,8 +210,8 @@ else
         end
         
         if t == sdindex
-                datepart       = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
-                date_str_num   = datenum(date);
+                datepart       = str2double(regexp(datestr(datetest,'yyyy-mm-dd'),'-','split'));
+                date_str_num   = datenum(datetest);
         else 
                 datepart       = datepart + [0 0 1];
                 date_str_num   = date_str_num + 1;
@@ -289,22 +311,6 @@ else
                 return;
             end
             
-            switch resolution
-                case 1
-                    factor = 6;
-                case 0.5
-                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
-                        factor = 2;
-                    else
-                        factor = 12;
-                    end
-                case 0.25
-                    if strcmp(prg_def{2},'mittlere_temp_prog') == 1
-                        factor = 4;
-                    else
-                        factor = 24;
-                    end
-            end
             
             if strcmp(prg_def{2},'mittlere_temp_prog') == 1 && factor ~= 6
                 timestep = 3600-1;
@@ -318,21 +324,21 @@ else
             
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(w_dat_r)    = date2utc(timevec);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = date2utc(timevec) + timestep;
-                w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now_s));
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)),13)]};
                 w_dat.(prg_def{1}).(prg_def{2}).val(w_dat_r)            = data_mult(dec_value,prg_def{2});
                 w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
                 w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
                 
-                fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13)), data_mult(dec_value,prg_def{2}));                     
+                fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now_s)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13)), data_mult(dec_value,prg_def{2}));                     
 
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(n_dat_r)    = date2utc(timevec);
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + timestep;
-                n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now));
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now_s));
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)),13)]};
                 n_dat.(prg_def{1}).(prg_def{2}).val(n_dat_r)            = data_mult(dec_value,prg_def{2});
-                n_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
-                n_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
+                n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+                n_dat.(prg_def{1}).(prg_def{2}).con_qual(n_dat_r)       = con_qual;
                    
             % Incrementing data string, and data container row position 
             
@@ -380,11 +386,11 @@ else
                 end
                 
                 if i == 1
-                    slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).val(1,i:end)),'leftslope',0,'rightslope',0);
+                    slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 else
-                    slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).val(1,i:end)),'leftslope',0,'rightslope',0);
+                    slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 end
-                slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).val(1,1:end)),'leftslope',0,'rightslope',0);
+                slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 
 
                 for u = i:data_end+1
@@ -422,7 +428,7 @@ else
 
                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now_s));
                     w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
@@ -431,7 +437,7 @@ else
 
                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now_s));
                     n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
@@ -440,14 +446,16 @@ else
                     if i == 1
                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                     else
-                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);                         
+%                         slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).val(1,i-2),'leftslope',0,'rightslope',0);                         
+                        slm = slmengine( tmp_dat_x, tmp_dat_y,'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1),'leftslope',0,'rightslope',0);                         
+
                     end
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 else
                     if i == 1
                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).val(1,i:end)),'leftslope',0,'rightslope',0);
                     else
-                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).val(1,i:end)),'leftslope',0,'rightslope',0);    
+                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).val(1,i:end)),'leftvalue',w_dat.(prg_def{1}).(prg_def{2}).val(1,i-2),'leftslope',0,'rightslope',0);    
                     end
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).val(1,1:end)),'leftslope',0,'rightslope',0);
                 end

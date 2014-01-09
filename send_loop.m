@@ -94,7 +94,7 @@ end
 
 new_data = evalin('base','new_data');
 
-filename = strcat(filepath,'\',city_name,'_new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
+filename = strcat(filepath,'\',city_name,'-',strrep(num2str(resolution),'.','_'),'_new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
 save(filename,'new_data','-mat');
 
 new_data = [];

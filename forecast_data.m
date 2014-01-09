@@ -238,7 +238,7 @@ if ~isempty(varargin)
 
     end
     t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution};
-    t.StopFcn                   = {@stop_timer, filepath, city_name};
+    t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
     t.TasksToExecute            = update_cycle_number;
     t.ExecutionMode             = 'fixedSpacing';
