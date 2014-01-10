@@ -81,42 +81,7 @@ else
         t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2));
     end
     
-    if isempty(t_rec)
-        w_dat_r = 1;
-        w_dat_r_org = 1;
-%         datetest = '10-Jan-2014';
-%         now_s = now;
-    else
-        
-%         if date2utc(datevec(now))-t_rec < 60  
-%             datetest = '10-Jan-2014';
-%             now_s = now;
-%         else
-%             datetest = '11-Jan-2014';
-%             now_s = 7.356103410879630e+05;
-%         end
-        if datestr(utc2date(t_rec),1) == date
-            w_dat_r_org = 1;
-            w_dat_r = 1;
-        else
-            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),date) ~= 1
-                i = i + 1;
-                if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
-                    break;
-                end
-            end
-            w_dat_r = i;
-            if strcmp(prg_def{1},'markantes_wetter') == 1 || strcmp(prg_def{1},'signifikantes_wetter') == 1 || strcmp(prg_def{2},'richtung') == 1 || strcmp(prg_def{2},'wahrscheinlichkeit') == 1
-                w_dat_r_org = w_dat_r;
-            else
-                if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
-                    w_dat_r_org = mod(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2),24*factor) + 1;
-                else
-                    w_dat_r_org = mod(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2),6*factor) + 1;
-                end
-            end
-        end
-    end
+    
 
     
     % sdindex = starting point of the loop through the observation days
@@ -137,6 +102,48 @@ else
         [~, edindex] = ismember(prg_def{5}, obs_day);
         
     end
+    
+    
+    if isempty(t_rec)
+        w_dat_r = 1;
+        w_dat_r_org = 1;
+        datetest = '09-Jan-2014';
+        now_s = timestamp;
+    else
+        
+%         if date2utc(datevec(now_s))-t_rec < 60  
+%             datetest = '09-Jan-2014';
+%             now_s = 7.356089473263889e+05;
+%         else
+            datetest = datestr(utc2date(timestamp),1);
+            now_s =  datenum(utc2date(timestamp));
+%         end
+        if datestr(utc2date(t_rec),1) == datetest
+            w_dat_r_org = 1;
+            w_dat_r = 1;
+        else
+            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),datetest) ~= 1
+                i = i + 1;
+                if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
+                    break;
+                end
+            end
+            w_dat_r = i;
+            if strcmp(prg_def{1},'markantes_wetter') == 1 || strcmp(prg_def{1},'signifikantes_wetter') == 1 || strcmp(prg_def{2},'richtung') == 1 || strcmp(prg_def{2},'wahrscheinlichkeit') == 1
+                w_dat_r_org = w_dat_r;
+            else
+                if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
+                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24*factor + 1;
+                else
+                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24*factor + 1;
+                end
+            end
+        end
+    end
+    
+    
+    
+    
     
     % Increment initialization for the data loop
     

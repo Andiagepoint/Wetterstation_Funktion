@@ -84,6 +84,30 @@ else
         t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec,2));
     end
     
+
+
+    
+    % sdindex = starting point of the loop through the observation days
+    % edindex = end point 
+    % If condition is true only one day will be observed, the loop for
+    % observation days will be run only once. 
+    % If condition is false, number of loops will be determined by the list
+    % position (obs_day) of the last day of observation.
+    
+    [~, sdindex] = ismember(prg_def{3}, obs_day);
+     
+    if size(prg_def,2) < 5
+        
+        edindex = sdindex;
+        
+    else
+        
+        [~, edindex] = ismember(prg_def{5}, obs_day);
+        
+    end
+    
+    
+    
     if isempty(t_rec)
         w_dat_r = 1;
         w_dat_r_org = 1;
@@ -113,32 +137,12 @@ else
                 w_dat_r_org = w_dat_r;
             else
                 if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
-                    w_dat_r_org = mod(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2),24*factor) + 1;
+                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24*factor + 1;
                 else
-                    w_dat_r_org = mod(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2),6*factor) + 1;
+                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24*factor + 1;
                 end
             end
         end
-    end
-
-    
-    % sdindex = starting point of the loop through the observation days
-    % edindex = end point 
-    % If condition is true only one day will be observed, the loop for
-    % observation days will be run only once. 
-    % If condition is false, number of loops will be determined by the list
-    % position (obs_day) of the last day of observation.
-    
-    [~, sdindex] = ismember(prg_def{3}, obs_day);
-     
-    if size(prg_def,2) < 5
-        
-        edindex = sdindex;
-        
-    else
-        
-        [~, edindex] = ismember(prg_def{5}, obs_day);
-        
     end
     
     % Increment initialization for the data loop
