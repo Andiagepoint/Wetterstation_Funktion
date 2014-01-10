@@ -109,7 +109,11 @@ else
             if strcmp(prg_def{1},'markantes_wetter') == 1 || strcmp(prg_def{1},'signifikantes_wetter') == 1 || strcmp(prg_def{2},'richtung') == 1 || strcmp(prg_def{2},'wahrscheinlichkeit') == 1
                 w_dat_r_org = w_dat_r;
             else
-                w_dat_r_org = (w_dat_r-1-mod(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2),factor))/factor + mod(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2),factor) + 1;
+                if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
+                    w_dat_r_org = mod(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2),24*factor) + 1;
+                else
+                    w_dat_r_org = mod(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2),6*factor) + 1;
+                end
             end
         end
     end
