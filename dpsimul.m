@@ -59,23 +59,23 @@ for t = 1:size(table,1)
                 weather_data.(s{1}).(s{2}).int_val(l) = owd.new_data{e,8};
                end
                 if size(nwd.new_data,2) < 8 
-        new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,2};
-        new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,3};
-        new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,4};
-        new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,1};
-        new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,5};
-        new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,5};
-        else
-        new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,5};
-        new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,6};
-        new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,7};
-        new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,4};
-        new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,8};
-        new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,8};
-        end
+                new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,2};
+                new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,3};
+                new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,4};
+                new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,1};
+                new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,5};
+                new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,5};
+                else
+                new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,5};
+                new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,6};
+                new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,7};
+                new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,4};
+                new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,8};
+                new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,8};
+                end
                break;
            end
-           if strcmp(owd.new_data{e+1,2},owd.new_data{e+1,2}) ~= 1
+           if strcmp(owd.new_data{e,2},owd.new_data{e+1,2}) ~= 1
                 if flag == 1
                 weather_data.(s{1}).(s{2}).unix_t_strt(l) = owd.new_data{e,5};
                 weather_data.(s{1}).(s{2}).unix_t_end(l) = owd.new_data{e,6};
@@ -85,20 +85,20 @@ for t = 1:size(table,1)
                 weather_data.(s{1}).(s{2}).int_val(l) = owd.new_data{e,8};
                 end 
                 if size(nwd.new_data,2) < 8 
-        new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,2};
-        new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,3};
-        new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,4};
-        new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,1};
-        new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,5};
-        new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,5};
-        else
-        new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,5};
-        new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,6};
-        new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,7};
-        new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,4};
-        new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,8};
-        new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,8};
-        end
+                new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,2};
+                new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,3};
+                new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,4};
+                new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,1};
+                new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,5};
+                new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,5};
+                else
+                new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,5};
+                new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,6};
+                new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,7};
+                new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,4};
+                new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,8};
+                new_data.(s{1}).(s{2}).int_val(l) = nwd.new_data{e,8};
+                end
                 e = e + 1;
                break;
            end
