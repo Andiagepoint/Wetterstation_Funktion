@@ -84,17 +84,17 @@ else
     if isempty(t_rec)
         w_dat_r = 1;
         w_dat_r_org = 1;
-        datetest = '10-Jan-2014';
-        now_s = now;
+%         datetest = '10-Jan-2014';
+%         now_s = now;
     else
         
-        if date2utc(datevec(now))-t_rec < 60  
-            datetest = '10-Jan-2014';
-            now_s = now;
-        else
-            datetest = '11-Jan-2014';
-            now_s = 7.356103410879630e+05;
-        end
+%         if date2utc(datevec(now))-t_rec < 60  
+%             datetest = '10-Jan-2014';
+%             now_s = now;
+%         else
+%             datetest = '11-Jan-2014';
+%             now_s = 7.356103410879630e+05;
+%         end
         if datestr(utc2date(t_rec),1) == date
             w_dat_r_org = 1;
             w_dat_r = 1;
@@ -481,9 +481,14 @@ else
                     end
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:end)),'leftslope',0,'rightslope',0);
                 end
-
-                for u = i-1:data_end+1
-                   w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                if i == 1
+                    for u = i:data_end+1
+                       w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                    end
+                else
+                    for u = i-1:data_end+1
+                       w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                    end
                 end
 
                 for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
