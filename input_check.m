@@ -1,4 +1,4 @@
-function [ correct_input, error_msg, city_id ] = input_check( forecast_detail, update_start_date, update_end_date, city_name )
+function [ correct_input, error_msg, city_id ] = input_check( forecast_detail, update_start_date, update_end_date, city_name, resolution )
 %Checks all input parameter if valid or not and displays wrong parameters
 %   Detailed explanation goes here
 
@@ -38,6 +38,7 @@ else
                            'gefrierender_regen', 'menge', 'kaelte', 'hitze', ...
                            'bodennebel', 'wahrscheinlichkeit', 'niederschlag'};
     forecast_interval   = {'1','2','3','all'};
+    resolution_values   = {'6','1','0.5','0.25','0.08'};
 % Determine if the input values are member of those lists defined above. If
 % this is the case correct_input values will be 1.
     correct_input(3)    = ismember(forecast_detail{1},forecast_scope);
@@ -74,13 +75,19 @@ elseif days365(date,update_start_date) < 0
 else
     correct_input(6)    = 1;
 end
+
+    correct_input(7)    = ismember(num2str(resolution),resolution_values);
+    
+if correct_input(7) == 0
+    error_msg{7}        = ('Für die Auflösung können nur folgende Werte eingegeben werden: 6, 1, 0.5, 0.25, 0.08!');
+end 
 % If no error exists don´t return a error msg or if there are less than 6
 % error messages, make the last error message empty so it could be
 % displayed in the fprintf command.
 if true(correct_input)
     error_msg           = NaN;
-elseif size(error_msg,2) < 6
-    error_msg{6}        = [];
+elseif size(error_msg,2) < 7
+    error_msg{7}        = [];
 end
 
 

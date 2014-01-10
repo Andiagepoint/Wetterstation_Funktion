@@ -108,7 +108,7 @@ weather_data = [];
 new_data = [];
     
 for z = 1:size_table_data
-    [correct_input, error_msg, city_id] = input_check(forecast_definition{z}, update_start_date, update_end_date, city_name);
+    [correct_input, error_msg, city_id] = input_check(forecast_definition{z}, update_start_date, update_end_date, city_name, resolution);
     if true(correct_input)
         
         weather_data = create_data_struct(forecast_definition{z}, weather_data, 'weather_data');
@@ -116,7 +116,7 @@ for z = 1:size_table_data
         
     else
     
-        fprintf(2,'%s\n%s\n%s\n%s\n%s\n%s\n', error_msg{1}, error_msg{2}, error_msg{3}, error_msg{4}, error_msg{5}, error_msg{6}, char(10))
+        fprintf(2,'%s\n%s\n%s\n%s\n%s\n%s\n', error_msg{1}, error_msg{2}, error_msg{3}, error_msg{4}, error_msg{5}, error_msg{6}, error_msg{7}, char(10))
         error('Die oben aufgeführten Eingabeparameter sind nicht korrekt.');
     
     end
@@ -219,7 +219,7 @@ if ~isempty(varargin)
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
-    update_interval_hours       = update_interval*15;
+    update_interval_hours       = update_interval*3600;
 
 % A timer is defined here to control the automatic update cycles.
 % Requests start with a 3 sec delay. The function to be executed after
@@ -237,6 +237,7 @@ if ~isempty(varargin)
         t.StartDelay            = start_delay;
 
     end
+    t.BusyMode                  = 'drop';
     t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution};
     t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
