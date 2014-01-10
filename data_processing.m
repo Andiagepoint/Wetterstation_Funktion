@@ -106,7 +106,7 @@ else
                 end
             end
             w_dat_r = i;
-            w_dat_r_org = (w_dat_r-1)/factor + 1;
+            w_dat_r_org = (w_dat_r-1-mod(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2),factor))/factor + mod(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2),factor) + 1;
         end
     end
 

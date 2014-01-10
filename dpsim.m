@@ -1,4 +1,4 @@
-function [ output_args ] = dpsim( data_string, prg_def, resolution, con_qual )
+function [ output_args ] = dpsim( data_string, prg_def, resolution, res_old, con_qual )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -9,9 +9,8 @@ function [ output_args ] = dpsim( data_string, prg_def, resolution, con_qual )
 % register_data_hwk_kompakt = evalin('base','register_data_hwk_kompakt');
 
 w_dat = evalin('base','weather_data');
-% n_dat = evalin('base','new_data');
-n_dat = [];
-n_dat = create_data_struct(prg_def, n_dat, 'new_data');
+n_dat = evalin('base','new_data');
+timestamp = evalin('base','timestamp');
 prg_def              = regexp(prg_def,'-','split');
 
 % Container building: for the first request session (=modbus-message)
@@ -82,22 +81,22 @@ else
     end
     
     if ~isempty(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec)
-        t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2));
+        t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec,2));
     end
     
     if isempty(t_rec)
         w_dat_r = 1;
         w_dat_r_org = 1;
         datetest = '09-Jan-2014';
-        now_s = 7.356089473263889e+05;
+        now_s = timestamp;
     else
         
 %         if date2utc(datevec(now_s))-t_rec < 60  
 %             datetest = '09-Jan-2014';
 %             now_s = 7.356089473263889e+05;
 %         else
-            datetest = '10-Jan-2014';
-            now_s =  7.356092402314815e+05;
+            datetest = datestr(utc2date(timestamp),1);
+            now_s =  datenum(utc2date(timestamp));
 %         end
         if datestr(utc2date(t_rec),1) == datetest
             w_dat_r_org = 1;
@@ -110,7 +109,7 @@ else
                 end
             end
             w_dat_r = i;
-            w_dat_r_org = (w_dat_r-1)/factor + 1;
+            w_dat_r_org = (w_dat_r-1-mod(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2),factor))/factor + mod(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2),factor) + 1;
         end
     end
 
@@ -463,31 +462,48 @@ else
                 end
             
                 if strcmp(prg_def{1},'temperatur') == 1
+                    
                     if i == 1
+                        
                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                        
                     else
-%                         slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).val(1,i-2),'leftslope',0,'rightslope',0);                         
+                        
                         dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
                         dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
                         m = dy/dx;
                         slm = slmengine( [w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1),'leftslope',m,'rightslope',0);                         
 
                     end
+                    
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                
                 else
+                    
                     if i == 1
+                        
                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftslope',0,'rightslope',0);
+                    
                     else
+                        
                         dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
                         dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
                         m = dy/dx;
                         slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2),'leftslope',m,'rightslope',0);    
                     end
+                    
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:end)),'leftslope',0,'rightslope',0);
+                
                 end
 
-                for u = i-1:data_end+1
-                   w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                if i == 1
+                    for u = i:data_end+1
+                       w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                    end
+                else
+                    for u = i-1:data_end+1
+                       w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                    end
                 end
 
                 for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
