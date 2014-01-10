@@ -133,9 +133,9 @@ else
                 w_dat_r_org = w_dat_r;
             else
                 if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
-                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24*factor + 1;
+                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24 + 1;
                 else
-                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24*factor + 1;
+                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*4 + 1;
                 end
             end
         end
