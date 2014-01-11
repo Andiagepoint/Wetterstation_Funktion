@@ -1,7 +1,7 @@
-function [  ] = dpsimul( old_w_dat, new_dat, table, flag )
+function [  ] = dpsimul( old_w_dat, new_dat, table, flag, flag_struct )
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
-
+if flag_struct == 1
 nwd = load(new_dat);
 if flag == 1
 owd = load(old_w_dat);
@@ -25,6 +25,7 @@ for t = 1:size(table,1)
         if flag == 1
         weather_data.(s{1}).(s{2}).unix_t_strt(l) = owd.new_data{e,5};
         weather_data.(s{1}).(s{2}).unix_t_end(l) = owd.new_data{e,6};
+        weather_data.(s{1}).(s{2}).unix_t_mean(l) = floor((owd.new_data{e,6}-owd.new_data{e,5})/2)+owd.new_data{e,5};
         weather_data.(s{1}).(s{2}).unix_t_rec(l) = owd.new_data{e,7};
         weather_data.(s{1}).(s{2}).interval_t_clr{l} = owd.new_data{e,4};
         weather_data.(s{1}).(s{2}).org_val(l) = owd.new_data{e,8};
@@ -33,6 +34,7 @@ for t = 1:size(table,1)
         if size(nwd.new_data,2) < 8 
         new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,2};
         new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,3};
+        new_data.(s{1}).(s{2}).unix_t_mean(l) = floor((nwd.new_data{e,3}-nwd.new_data{e,2})/2)+nwd.new_data{e,2};
         new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,4};
         new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,1};
         new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,5};
@@ -40,6 +42,7 @@ for t = 1:size(table,1)
         else
         new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,5};
         new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,6};
+        new_data.(s{1}).(s{2}).unix_t_mean(l) = floor((nwd.new_data{e,6}-nwd.new_data{e,5})/2)+nwd.new_data{e,5};
         new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,7};
         new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,4};
         new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,8};
@@ -53,6 +56,7 @@ for t = 1:size(table,1)
                if flag == 1
                 weather_data.(s{1}).(s{2}).unix_t_strt(l) = owd.new_data{e,5};
                 weather_data.(s{1}).(s{2}).unix_t_end(l) = owd.new_data{e,6};
+                weather_data.(s{1}).(s{2}).unix_t_mean(l) = floor((owd.new_data{e,6}-owd.new_data{e,5})/2)+owd.new_data{e,5};
                 weather_data.(s{1}).(s{2}).unix_t_rec(l) = owd.new_data{e,7};
                 weather_data.(s{1}).(s{2}).interval_t_clr{l} = owd.new_data{e,4};
                 weather_data.(s{1}).(s{2}).org_val(l) = owd.new_data{e,8};
@@ -61,6 +65,7 @@ for t = 1:size(table,1)
                 if size(nwd.new_data,2) < 8 
                 new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,2};
                 new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,3};
+                new_data.(s{1}).(s{2}).unix_t_mean(l) = floor((nwd.new_data{e,3}-nwd.new_data{e,2})/2)+nwd.new_data{e,2};
                 new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,4};
                 new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,1};
                 new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,5};
@@ -68,6 +73,7 @@ for t = 1:size(table,1)
                 else
                 new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,5};
                 new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,6};
+                new_data.(s{1}).(s{2}).unix_t_mean(l) = floor((nwd.new_data{e,6}-nwd.new_data{e,5})/2)+nwd.new_data{e,5};
                 new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,7};
                 new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,4};
                 new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,8};
@@ -79,6 +85,7 @@ for t = 1:size(table,1)
                 if flag == 1
                 weather_data.(s{1}).(s{2}).unix_t_strt(l) = owd.new_data{e,5};
                 weather_data.(s{1}).(s{2}).unix_t_end(l) = owd.new_data{e,6};
+                weather_data.(s{1}).(s{2}).unix_t_mean(l) = floor((owd.new_data{e,6}-owd.new_data{e,5})/2)+owd.new_data{e,5};
                 weather_data.(s{1}).(s{2}).unix_t_rec(l) = owd.new_data{e,7};
                 weather_data.(s{1}).(s{2}).interval_t_clr{l} = owd.new_data{e,4};
                 weather_data.(s{1}).(s{2}).org_val(l) = owd.new_data{e,8};
@@ -87,6 +94,7 @@ for t = 1:size(table,1)
                 if size(nwd.new_data,2) < 8 
                 new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,2};
                 new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,3};
+                new_data.(s{1}).(s{2}).unix_t_mean(l) = floor((nwd.new_data{e,3}-nwd.new_data{e,2})/2)+nwd.new_data{e,2};
                 new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,4};
                 new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,1};
                 new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,5};
@@ -94,6 +102,7 @@ for t = 1:size(table,1)
                 else
                 new_data.(s{1}).(s{2}).unix_t_strt(l) = nwd.new_data{e,5};
                 new_data.(s{1}).(s{2}).unix_t_end(l) = nwd.new_data{e,6};
+                new_data.(s{1}).(s{2}).unix_t_mean(l) = floor((nwd.new_data{e,6}-nwd.new_data{e,5})/2)+nwd.new_data{e,5};
                 new_data.(s{1}).(s{2}).unix_t_rec(l) = nwd.new_data{e,7};
                 new_data.(s{1}).(s{2}).interval_t_clr{l} = nwd.new_data{e,4};
                 new_data.(s{1}).(s{2}).org_val(l) = nwd.new_data{e,8};
@@ -116,6 +125,9 @@ assignin('base','new_data',new_data);
 %     case 192
 %         res = 0.5;
 % end
+% 
+end
+new_data = evalin('base','new_data');
 timestamp = regexp(new_dat,'_','split');
 timestamp = regexp(timestamp(1,end),'[.]','split');
 timestamp = str2double(cell2mat(timestamp{1}(1)));
@@ -123,7 +135,7 @@ assignin('base','timestamp',timestamp);
 % qual = nd.weather_data.temperatur.min.con_qual(1);
 for t = 1:size(table,1)
     s = regexp(table{t},'-','split');
-    qual = 8;
+    qual = 9;
 dpsim(new_data.(s{1}).(s{2}).org_val,table{t},0.08,1,qual)
 end
 end

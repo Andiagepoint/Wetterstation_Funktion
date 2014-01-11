@@ -1,4 +1,4 @@
-function [ x, y ] = lmu_plot_data( data, bereich )
+function [ x, y ] = lpd( data, bereich )
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 for t = 1:size(data.(bereich),1)

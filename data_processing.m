@@ -434,16 +434,16 @@ else
                 
             else
                 
-                if i == 1
+                               if i == 1
 
                     data_end = size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1;
 
                 else
-
+                    
                     if strcmp(prg_def{2},'mittlere_temp_prog') == 1
-                        data_end = i - 1 + edindex*24*factor;
+                        data_end = i - 1 + edindex*24*factor - 1;
                     else
-                        data_end = i - 1 + edindex*4*factor;
+                        data_end = i - 1 + edindex*4*factor - 1;
                     end
 
                 end    
@@ -460,7 +460,7 @@ else
 
                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now_s));
                     w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
@@ -469,45 +469,76 @@ else
 
                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now));
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now_s));
                     n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
             
-                if strcmp(prg_def{1},'temperatur') == 1
+                if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1
+%                     if i == 1
+%                         yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
+%                     else
+%                         yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i-1:end));   
+%                     end
+%                     yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
+                    
                     if i == 1
                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                        for u = i:data_end+1
+                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                        end
                     else
                         dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
                         dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
                         m = dy/dx;                        
                         slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1),'leftslope',m,'rightslope',0);                         
 
+                        for u = i-1:data_end+1
+                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                        end
                     end
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                    
+                    for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
+                        n_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm_new);
+                    end
+                    
                 else
+                    
                     if i == 1
-                        slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftslope',0,'rightslope',0);
+                        yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
+                        for w = i:size(yi,2)
+                           if yi(w) < 0
+                               yi(w) = 0;
+                           end
+                        end
+                        w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:(data_end+1)) = yi; 
                     else
-                        dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
-                        dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
-                        m = dy/dx;
-                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2),'leftslope',m,'rightslope',0);    
+                        yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i-1:end));
+                        for w = 1:size(yi,2)
+                           if yi(w) < 0
+                               yi(w) = 0;
+                           end
+                        end
+                        w_dat.(prg_def{1}).(prg_def{2}).int_val(1,(i-1):(data_end+1)) = yi;
                     end
-                    slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:end)),'leftslope',0,'rightslope',0);
-                end
-                if i == 1
-                    for u = i:data_end+1
-                       w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                    yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
+                    for w = 1:size(yi_new,2)
+                       if yi_new(w) < 0
+                           yi_new(w) = 0;
+                       end
                     end
-                else
-                    for u = i-1:data_end+1
-                       w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
-                    end
-                end
-
-                for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
-                   n_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm_new);
+                    n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)) = yi_new;
+                        
+%                     if i == 1
+%                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftslope',0,'rightslope',0);
+%                     else
+%                         dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
+%                         dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
+%                         m = dy/dx;
+%                         slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2),'leftslope',m,'rightslope',0);    
+%                     end
+%                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:end)),'leftslope',0,'rightslope',0);
                 end
 
                 assignin('base','new_data',n_dat);
