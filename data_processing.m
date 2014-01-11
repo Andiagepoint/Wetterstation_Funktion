@@ -107,22 +107,13 @@ else
     if isempty(t_rec)
         w_dat_r = 1;
         w_dat_r_org = 1;
-        datetest = '09-Jan-2014';
-        now_s = timestamp;
     else
         
-%         if date2utc(datevec(now_s))-t_rec < 60  
-%             datetest = '09-Jan-2014';
-%             now_s = 7.356089473263889e+05;
-%         else
-            datetest = datestr(utc2date(timestamp),1);
-            now_s =  datenum(utc2date(timestamp));
-%         end
-        if datestr(utc2date(t_rec),1) == datetest
+        if datestr(utc2date(t_rec),1) == date
             w_dat_r_org = 1;
             w_dat_r = 1;
         else
-            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),datetest) ~= 1
+            while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),date) ~= 1
                 i = i + 1;
                 if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
                     break;
@@ -345,10 +336,13 @@ else
             
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(w_dat_r)    = date2utc(timevec);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = date2utc(timevec) + timestep;
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(w_dat_r)    = date2utc(timevec) + floor(timestep/2);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)),13)]};
-                w_dat.(prg_def{1}).(prg_def{2}).int_val(w_dat_r)            = data_mult(dec_value,prg_def{2});
-                w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
+%                 w_dat.(prg_def{1}).(prg_def{2}).int_val(w_dat_r)            = data_mult(dec_value,prg_def{2});
+%                 w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
+                w_dat.(prg_def{1}).(prg_def{2}).int_val(w_dat_r)            = dec_value;
+                w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = dec_value;
                 w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
                 
                 fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13)), data_mult(dec_value,prg_def{2}));                     
@@ -356,9 +350,12 @@ else
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(n_dat_r)    = date2utc(timevec);
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + timestep;
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now));
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(n_dat_r)    = date2utc(timevec) + floor(timestep/2);
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)),13)]};
-                n_dat.(prg_def{1}).(prg_def{2}).int_val(n_dat_r)            = data_mult(dec_value,prg_def{2});
-                n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+%                 n_dat.(prg_def{1}).(prg_def{2}).int_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+%                 n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+                n_dat.(prg_def{1}).(prg_def{2}).int_val(n_dat_r)        = dec_value;
+                n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = dec_value;
                 n_dat.(prg_def{1}).(prg_def{2}).con_qual(n_dat_r)       = con_qual;
                    
             % Incrementing data string, and data container row position 
@@ -369,6 +366,7 @@ else
             w_dat_r     = w_dat_r + 1;
             n_dat_r     = n_dat_r + 1;
             w_dat_r_org = w_dat_r_org + 1;
+            o=o+1;
             
         end
     end
@@ -390,7 +388,7 @@ else
             
             
             tmp_dat_y = double(n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:end));
-            tmp_dat_x = double(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,1:end));
+            tmp_dat_x = double(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,1:end));
             
             
             
@@ -403,9 +401,9 @@ else
                 else
                 
                     if strcmp(prg_def{2},'mittlere_temp_prog') == 1
-                        data_end = i - 1 + edindex*24*factor;
+                        data_end = i - 1 + edindex*24*factor - 1;
                     else
-                        data_end = i - 1 + edindex*4*factor;
+                        data_end = i - 1 + edindex*4*factor - 1;
                     end
                 
                 end
@@ -413,20 +411,17 @@ else
                 if i == 1
                     slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 else
-                    dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
-                    dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
-                    m = dy/dx;
-                    slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftslope',m,'rightslope',0);
+                    slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 end
                 slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                 
 
-                for u = i-1:data_end+1
-                   w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                for u = i:data_end+1
+                   w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,u),slm); 
                 end
 
-                for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
-                   n_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm_new);
+                for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)
+                   n_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,u),slm_new);
                 end
                 
                 assignin('base','new_data',n_dat);
@@ -434,9 +429,9 @@ else
                 
             else
                 
-                               if i == 1
+                if i == 1
 
-                    data_end = size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1;
+                    data_end = size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)*factor - 1;
 
                 else
                     
@@ -449,32 +444,37 @@ else
                 end    
             
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)           = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i) - timestep_corr;
-                w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{i}     = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)),13)]};
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i)          = floor((w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)-w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i))/2)+w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i);
+                w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{i}       = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i)),13)]};
 
-                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)               = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1) - timestep_corr;
-                n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{1}         = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)),13)]};
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)           = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1) - timestep_corr;
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1)          = floor((n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)-n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1))/2)+n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1);
+                n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{1}       = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1)),13)]};
 
             
                
                 for u = i:data_end
 
-                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
-                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now_s));
-                    w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)     = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u+1)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u) + timestep_int;
+                    w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)     = date2utc(datevec(now));
+                    w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1} = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
 
                 for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1
 
-                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)       = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
-                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)         = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)      = date2utc(datevec(now_s));
-                    n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1}   = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)     = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u+1)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u) + timestep_int;
+                    n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)     = date2utc(datevec(now));
+                    n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1} = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
 
                 end
             
-                if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1
+                if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1 || strcmp(prg_def{1},'luftdruck') == 1
+                    
 %                     if i == 1
 %                         yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
 %                     else
@@ -485,28 +485,31 @@ else
                     if i == 1
                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                         for u = i:data_end+1
-                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,u),slm);  
                         end
                     else
                         dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
-                        dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
+                        dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-2);
                         m = dy/dx;                        
-                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1),'leftslope',m,'rightslope',0);                         
+                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1),'leftslope',m,'rightslope',0);                         
 
                         for u = i-1:data_end+1
-                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm); 
+                            if isnan(slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,u),slm))
+                                error('NaN detected');
+                            end
+                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,u),slm);                           
                         end
                     end
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                     
-                    for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
-                        n_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,u),slm_new);
+                    for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)                        
+                        n_dat.(prg_def{1}).(prg_def{2}).int_val(1,u) = slmeval(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,u),slm_new);                        
                     end
                     
                 else
                     
                     if i == 1
-                        yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
+                        yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
                         for w = i:size(yi,2)
                            if yi(w) < 0
                                yi(w) = 0;
@@ -514,21 +517,21 @@ else
                         end
                         w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:(data_end+1)) = yi; 
                     else
-                        yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i-1:end));
+                        yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i-1:end));
                         for w = 1:size(yi,2)
                            if yi(w) < 0
-                               yi(w) = 0;
+                               yi(w) = 0;                               
                            end
                         end
                         w_dat.(prg_def{1}).(prg_def{2}).int_val(1,(i-1):(data_end+1)) = yi;
                     end
-                    yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
+                    yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
                     for w = 1:size(yi_new,2)
                        if yi_new(w) < 0
                            yi_new(w) = 0;
                        end
                     end
-                    n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)) = yi_new;
+                    n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = yi_new;
                         
 %                     if i == 1
 %                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftslope',0,'rightslope',0);
@@ -550,7 +553,8 @@ else
             
          
     end
-    
+
+
 end
 
 end

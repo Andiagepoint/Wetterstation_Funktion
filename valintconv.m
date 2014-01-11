@@ -1,4 +1,4 @@
-function [  ] = valintconv( factor_r, factor_t, table, new_data )
+function [  ] = valintconv( factor_r, factor_t, table, new_data, flag_datamult )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 for t = 1:18
@@ -9,6 +9,15 @@ for t = 1:18
    new_data.(s{1}).(s{2}).int_val(u) = new_data.(s{1}).(s{2}).org_val(u);
    end
    if strcmp(s{1},'niederschlag') == 1 || strcmp(s{1},'luftdruck') == 1 || strcmp(s{1},'solarleistung') == 1 || strcmp(s{1},'temperatur') == 1 || strcmp(s{2},'staerke') == 1
+       if flag_datamult == 1
+           if strcmp(s{2},'menge') == 1 || strcmp(s{2},'dauer') == 1
+               for r=1:size(new_data.(s{1}).(s{2}).org_val,2)
+                    
+                    new_data.(s{1}).(s{2}).org_val(r)=new_data.(s{1}).(s{2}).org_val(r)/10;
+                    
+               end
+           end
+       end
    if strcmp(s{2},'mittlere_temp_prog') == 1
    new_data.(s{1}).(s{2}).unix_t_strt = new_data.(s{1}).(s{2}).unix_t_strt(1:factor_t:end);
    new_data.(s{1}).(s{2}).unix_t_end = new_data.(s{1}).(s{2}).unix_t_end(1:factor_t:end);

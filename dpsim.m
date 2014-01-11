@@ -349,8 +349,10 @@ else
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(w_dat_r)    = date2utc(timevec) + floor(timestep/2);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now_s));
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)),13)]};
-                w_dat.(prg_def{1}).(prg_def{2}).int_val(w_dat_r)            = data_mult(dec_value,prg_def{2});
-                w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
+%                 w_dat.(prg_def{1}).(prg_def{2}).int_val(w_dat_r)            = data_mult(dec_value,prg_def{2});
+%                 w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,prg_def{2});
+                w_dat.(prg_def{1}).(prg_def{2}).int_val(w_dat_r)            = dec_value;
+                w_dat.(prg_def{1}).(prg_def{2}).org_val(w_dat_r_org)        = dec_value;
                 w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
                 
                 fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now_s)), strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13)), data_mult(dec_value,prg_def{2}));                     
@@ -360,8 +362,10 @@ else
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now_s));
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(n_dat_r)    = date2utc(timevec) + floor(timestep/2);
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[' ',utc2date(date2utc(timevec)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)),13)]};
-                n_dat.(prg_def{1}).(prg_def{2}).int_val(n_dat_r)            = data_mult(dec_value,prg_def{2});
-                n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+%                 n_dat.(prg_def{1}).(prg_def{2}).int_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+%                 n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = data_mult(dec_value,prg_def{2});
+                n_dat.(prg_def{1}).(prg_def{2}).int_val(n_dat_r)        = dec_value;
+                n_dat.(prg_def{1}).(prg_def{2}).org_val(n_dat_r)        = dec_value;
                 n_dat.(prg_def{1}).(prg_def{2}).con_qual(n_dat_r)       = con_qual;
                    
             % Incrementing data string, and data container row position 

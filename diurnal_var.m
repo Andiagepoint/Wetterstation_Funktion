@@ -1,4 +1,4 @@
-function [ sunrise sunset ] = diurnal_var( latitude, longitude, date_of_day )
+function [ sunrise_vec sunset_vec ] = diurnal_var( latitude, longitude, date_of_day )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 phi_horz = pi/4;
@@ -33,8 +33,10 @@ sunrise_sec = floor((sunrise_dec*60 - sunrise_min)*60);
 sunset_min = floor(sunset_dec*60);
 sunset_sec = floor((sunset_dec*60 - sunset_min)*60);
 
-sunrise_vec = [datevec(date_of_day) sunrise_hour sunrise_min sunrise_sec];
-sunset_vec = [datevec(date_of_day) sunset_hour sunset_min sunset_sec];
+dv = datevec(date_of_day);
+
+sunrise_vec = [dv(1:3) sunrise_hour sunrise_min sunrise_sec];
+sunset_vec = [dv(1:3) sunset_hour sunset_min sunset_sec];
 
 end
 
