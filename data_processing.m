@@ -366,7 +366,6 @@ else
             w_dat_r     = w_dat_r + 1;
             n_dat_r     = n_dat_r + 1;
             w_dat_r_org = w_dat_r_org + 1;
-            o=o+1;
             
         end
     end
