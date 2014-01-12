@@ -32,7 +32,7 @@ if size(request_list,2) > 1
 % Generate modbus message 'rr' indicates a read register operation
         modbus_msg = gen_msg(device_id, reg_address, reg_num, 'rr');
 % Send message and evaluate the response
-        request_value(t) = send_and_receive_data(modbus_msg, field_name,'','');
+        request_value(t) = send_and_receive_data(modbus_msg, field_name,'','','');
     end
 % Close progress bar
     close(wb);
@@ -45,7 +45,7 @@ else
 % Generate modbus message 'rr' indicates a read register operation
     modbus_msg = gen_msg(device_id, reg_address, reg_num, 'rr');
 % Send message and evaluate the response, write status to protocol
-    request_value = send_and_receive_data(modbus_msg, field_name, '', '');
+    request_value = send_and_receive_data(modbus_msg, field_name, '', '','');
 end
 
 end

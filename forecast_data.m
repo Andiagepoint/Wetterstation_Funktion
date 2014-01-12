@@ -102,6 +102,7 @@ size_table_data         = size(forecast_definition,1);
 % Set daychange to 0
 
 daychange = 0;
+assignin('base','daychange',daychange)
 
 % Split the datestring into single elements 
   
@@ -260,7 +261,6 @@ if ~isempty(varargin)
         t.StartDelay            = start_delay;
 
     end
-    t.BusyMode                  = 'drop';
     t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution, daychange};
     t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
