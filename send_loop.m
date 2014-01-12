@@ -1,4 +1,4 @@
-function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution )
+function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution, daychange )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 h = waitbar(0,'Please wait while receiving data...');
@@ -7,13 +7,12 @@ w_dat = evalin('base','weather_data');
 
 if ~isempty(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec)
     t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec,2));
+    
+    if days365(utc2date(t_rec),date) ~= 0
+        daychange = daychange + 1;
+    end
+    assignin('base','daychange',daychange);
 end
-
-if days365(utc2date(t_rec),date) ~= 0
-    daychange = daychange + 1;
-end
-assignin('base','daychange',daychange);
-
 
 for r = 1:t
     

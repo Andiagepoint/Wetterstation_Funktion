@@ -99,6 +99,10 @@ end
 
 size_table_data         = size(forecast_definition,1);
 
+% Set daychange to 0
+
+daychange = 0;
+
 % Split the datestring into single elements 
   
 start_observation       = regexp(start_observation,'-','split');
@@ -257,7 +261,7 @@ if ~isempty(varargin)
 
     end
     t.BusyMode                  = 'drop';
-    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution};
+    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution, daychange};
     t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
     t.TasksToExecute            = update_cycle_number;
@@ -266,7 +270,7 @@ if ~isempty(varargin)
 
 else
 
-    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '', resolution);
+    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '', resolution, daychange);
     filename                    = strcat(filepath,'\weather_data_',date,'.mat');
     weather_data                = evalin('base','weather_data');
     save(filename,'weather_data','-mat');
