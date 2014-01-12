@@ -4,9 +4,7 @@ function [ dec_value ] = data_processing( data_string, prg_def, resolution, con_
 %   Detailed explanation goes here
 
 
-% Get the register data and weather data container form the base workspace
-
-% register_data_hwk_kompakt = evalin('base','register_data_hwk_kompakt');
+% Get the new data and weather data container form the base workspace
 
 w_dat = evalin('base','weather_data');
 n_dat = evalin('base','new_data');
@@ -49,11 +47,11 @@ if strcmp('register_data_hwk_kompakt.communication_settings',prg_def) == 1
     
 else
     
-    t_rec = [];
+    t_rec       = [];
     i           = 1;
-    n_dat_r  = 1;
+    n_dat_r     = 1;
     
-    
+% Determine which factor to chose for interpolation    
     switch resolution
         case 1
             factor = 6;
@@ -77,22 +75,25 @@ else
             end
     end
     
+% Check whether a function call has been made before. If this is the case,
+% assign t_rec the last record timestamp from the last request loop
+% performed.
+    
     if ~isempty(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec)
         t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2));
     end
-    
-    
-
-    
-    % sdindex = starting point of the loop through the observation days
-    % edindex = end point 
-    % If condition is true only one day will be observed, the loop for
-    % observation days will be run only once. 
-    % If condition is false, number of loops will be determined by the list
-    % position (obs_day) of the last day of observation.
+   
+% sdindex = starting point of the loop through the observation days
+% edindex = end point 
+% If condition is false, number of loops will be determined by the list
+% position (obs_day) of the last day of observation.
     
     [~, sdindex] = ismember(prg_def{3}, obs_day);
      
+% Normally prg_def is defined as
+% 'niederschlag-menge-heute-morgen-heute-abend
+% If prg_def is only 'niederschlag-menge-heute-morgen' if condition will be
+% true.
     if size(prg_def,2) < 5
         
         edindex = sdindex;
@@ -103,45 +104,53 @@ else
         
     end
     
-    
+% For the first function call t_rec will be empty, so datavector position
+% for continous data recording will be set to 1.
     if isempty(t_rec)
+        
         w_dat_r = 1;
         w_dat_r_org = 1;
+        
     else
         
-        if datestr(utc2date(t_rec),1) == date
+% If t_rec is not empty a previous function call had been executed. If this
+% execution was on the same day data vector position has to stay constant.
+        if days365(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(1)),1),date) == 0
             w_dat_r_org = 1;
             w_dat_r = 1;
         else
+% Get the data vector position for which the date changes, start at positon
+% 1 from recording.
             while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),date) ~= 1
                 i = i + 1;
                 if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
                     break;
                 end
             end
+% i will be the next position in the data vector to write data to            
             w_dat_r = i;
+% For the data with no interpolation you don´t have to change position
+% cause they go parallel.
             if strcmp(prg_def{1},'markantes_wetter') == 1 || strcmp(prg_def{1},'signifikantes_wetter') == 1 || strcmp(prg_def{2},'richtung') == 1 || strcmp(prg_def{2},'wahrscheinlichkeit') == 1
                 w_dat_r_org = w_dat_r;
             else
+% For interpolated data you have to make a difference between original data
+% and interpolated data vector position. 
                 if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
-                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24 + 1;
+                    w_dat_r_org = (size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2)-(edindex-1)*24*factor)/factor + 1;
                 else
-                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*4 + 1;
+                    w_dat_r_org = (size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2)-(edindex-1)*4*factor)/factor + 1;
                 end
             end
         end
     end
     
-    
-    
-    
-    
-    % Increment initialization for the data loop
+% Increment initialization for the data loop
     
     data_str_hi_byte_pos = 1;
     data_str_lo_byte_pos = 2;
     
-    % Loop through response data
+% Loop through response data
     
     for t = sdindex:edindex
        
@@ -472,7 +481,7 @@ else
 
                 end
             
-                if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1 || strcmp(prg_def{1},'luftdruck') == 1
+                if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1 || strcmp(prg_def{1},'luftdruck') == 1 || strcmp(prg_def{2},'menge') == 1
                     
 %                     if i == 1
 %                         yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));

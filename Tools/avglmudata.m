@@ -40,9 +40,9 @@ for t = 1:size(data.(ch),1)
 
     end
     if iscell(data.(ch){t}(4))
-        y(t) = cell2mat(data.(ch){t}(2));
+        y(t) = cell2mat(data.(ch){t}(2))/60;
     else
-        y(t) = double(data.(ch){t}(2));
+        y(t) = double(data.(ch){t}(2))/60;
     end
 end
 x = double(x);
