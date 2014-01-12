@@ -3,6 +3,18 @@ function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepat
 %   Detailed explanation goes here
 h = waitbar(0,'Please wait while receiving data...');
 
+w_dat = evalin('base','weather_data');
+
+if ~isempty(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec)
+    t_rec = w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec,2));
+end
+
+if days365(utc2date(t_rec),date) ~= 0
+    daychange = daychange + 1;
+end
+assignin('base','daychange',daychange);
+
+
 for r = 1:t
     
         forecast_interval           = regexp(forecast_definition{r},'-','split');
@@ -85,7 +97,7 @@ for r = 1:t
         
         con_qual                    = read_com_set('03',{'quality'});
 
-        txdata                      = send_and_receive_data(modbus_pdu, forecast_interval, resolution, con_qual);
+        txdata                      = send_and_receive_data(modbus_pdu, forecast_interval, resolution, con_qual, daychange);
 
         waitbar(r/t,h)
             

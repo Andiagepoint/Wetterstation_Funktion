@@ -1,4 +1,4 @@
-function [ dec_value ] = data_processing( data_string, prg_def, resolution, con_qual )
+function [ dec_value ] = data_processing( data_string, prg_def, resolution, con_qual, daychange )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -137,9 +137,9 @@ else
 % For interpolated data you have to make a difference between original data
 % and interpolated data vector position. 
                 if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
-                    w_dat_r_org = (size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2)-(edindex-1)*24*factor)/factor + 1;
+                    w_dat_r_org = 24*daychange+1;
                 else
-                    w_dat_r_org = (size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2)-(edindex-1)*4*factor)/factor + 1;
+                    w_dat_r_org = 4*daychange+1;
                 end
             end
         end

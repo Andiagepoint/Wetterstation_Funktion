@@ -1,4 +1,4 @@
-function [ value ] = send_and_receive_data( modbus_msg, field_name, resolution, con_qual )
+function [ value ] = send_and_receive_data( modbus_msg, field_name, resolution, con_qual , daychange )
 %Writes and reads modbus message on serial interface
 %   Detailed explanation goes here
 
@@ -24,7 +24,7 @@ end
 [rxdata] = fread(serial_interface, bytes_num, 'uint8');
 
 % Call rxdata processing
-[value, error_msg] = rxdata_processing( rxdata, modbus_msg, field_name, resolution, con_qual );
+[value, error_msg] = rxdata_processing( rxdata, modbus_msg, field_name, resolution, con_qual, daychange );
 
 end
 

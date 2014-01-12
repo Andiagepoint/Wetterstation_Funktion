@@ -11,6 +11,7 @@ function [ output_args ] = dpsim( data_string, prg_def, resolution, res_old, con
 w_dat = evalin('base','weather_data');
 n_dat = evalin('base','new_data');
 timestamp = evalin('base','timestamp');
+daychange = evalin('base','daychange');
 prg_def              = regexp(prg_def,'-','split');
 
 % Container building: for the first request session (=modbus-message)
@@ -109,38 +110,62 @@ else
     
     
     if isempty(t_rec)
+        
         w_dat_r = 1;
         w_dat_r_org = 1;
-        datetest = '09-Jan-2014';
-        now_s = timestamp;
+         
     else
-        
-%         if date2utc(datevec(now_s))-t_rec < 60  
-%             datetest = '09-Jan-2014';
-%             now_s = 7.356089473263889e+05;
-%         else
-            datetest = datestr(utc2date(timestamp),1);
-            now_s =  datenum(utc2date(timestamp));
-%         end
-        if datestr(utc2date(t_rec),1) == datetest
+        datetest = datestr(utc2date(timestamp),1);
+        now_s =  datenum(utc2date(timestamp));
+% If t_rec is not empty a previous function call had been executed. If this
+% execution was on the same day data vector position has to stay constant.
+        if days365(t_rec,datetest) == 0
             w_dat_r_org = 1;
             w_dat_r = 1;
+            if strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                w_dat_r_org = (size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2)-(edindex-1)*24*factor)/factor + 1;
+                else
+                w_dat_r_org = (size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2)-(edindex-1)*4*factor)/factor + 1;
+            end
+                
         else
+            if strcmp(prg_def{1},'luftdruck') == 1
+                if days365(utc2date(t_rec),datetest) ~= 0
+                    daychange = daychange + 1;
+                end
+            assignin('base','daychange',daychange);
+            end
+% Get the data vector position for which the date changes, start at positon
+% 1 from recording.
             while strcmp(datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i)),1),datetest) ~= 1
                 i = i + 1;
                 if i > size(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)
                     break;
                 end
             end
+% i will be the next position in the data vector to write data to            
             w_dat_r = i;
+% For the data with no interpolation you don´t have to change position
+% cause they go parallel.
             if strcmp(prg_def{1},'markantes_wetter') == 1 || strcmp(prg_def{1},'signifikantes_wetter') == 1 || strcmp(prg_def{2},'richtung') == 1 || strcmp(prg_def{2},'wahrscheinlichkeit') == 1
                 w_dat_r_org = w_dat_r;
             else
+% For interpolated data you have to make a difference between original data
+% and interpolated data vector position. 
+            if size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2) == 8 
+                w_dat_r_org = i;
+            elseif size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2) == 16
+                w_dat_r_org = i;
+            elseif size(w_dat.(prg_def{1}).(prg_def{2}).int_val,2) == 96
+                w_dat_r_org = i;
+            else
                 if strcmp(prg_def{2},'mittlere_temp_prog') == 1 
-                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*24 + 1;
+                    w_dat_r_org = 24*daychange+1;
                 else
-                    w_dat_r_org = size(w_dat.(prg_def{1}).(prg_def{2}).org_val,2)-(edindex-1)*4 + 1;
+                    w_dat_r_org = 4*daychange+1;
                 end
+            end 
+                
             end
         end
     end
