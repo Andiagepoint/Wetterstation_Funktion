@@ -1,4 +1,4 @@
-function [ unix_zeit ] = date2utc( date_vector )
+function [ unix_zeit ] = date2utc( date_vector, varargin )
 %Converts a date vector into unix time code, i.e. date2utc(datevec(now)) 
 %   Detailed explanation goes here
 
@@ -12,7 +12,12 @@ tage_seit_jahresanfang = {0,31,59,90,120,151,181,212,243,273,304,334};
 jahre = jahr - 1970;
 schaltjahre = floor(((jahr-1)-1968)/4)-floor(((jahr-1)-1900)/100)+floor(((jahr-1)-1600)/400);
 unix_zeit=sec+60*min+3600*std+(tage_seit_jahresanfang{monat}+tag-1)*86400+(365*jahre+schaltjahre)*86400;
-
+if isempty(varargin)
+    varargin = {0};
+end
+if cell2mat(varargin) == 1
+    unix_zeit = unix_zeit  - 3600;
+end
 end
 
 

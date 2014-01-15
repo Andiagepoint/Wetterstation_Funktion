@@ -34,9 +34,9 @@ if stemplot == 1
         y = data.(prog1).(prog2).org_val(25:end);
         xi = data.(prog1).(prog2).unix_t_mean,data;
     else
-        stem(data.(prog1).(prog2).unix_t_mean(41:factor:end),data.(prog1).(prog2).org_val(5:end),farbe);
-        x = data.(prog1).(prog2).unix_t_mean(41:factor:end);
-        y = data.(prog1).(prog2).org_val(41:end);
+        stem(data.(prog1).(prog2).unix_t_mean(29:factor:end),data.(prog1).(prog2).org_val(5:end),farbe);
+        x = data.(prog1).(prog2).unix_t_mean(29:factor:end);
+        y = data.(prog1).(prog2).org_val(29:end);
         xi = data.(prog1).(prog2).unix_t_mean,data;
     end
     

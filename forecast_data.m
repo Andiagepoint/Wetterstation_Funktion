@@ -101,8 +101,10 @@ size_table_data         = size(forecast_definition,1);
 
 % Set daychange to 0
 
-daychange = 0;
-assignin('base','daychange',daychange)
+daychange_flag = 0;
+daychange_counter = 0;
+assignin('base','daychange_flag',daychange_flag);
+assignin('base','daychange_counter',daychange_counter);
 
 % Split the datestring into single elements 
   
@@ -261,16 +263,16 @@ if ~isempty(varargin)
         t.StartDelay            = start_delay;
 
     end
-    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution, daychange};
+    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution};
     t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
     t.TasksToExecute            = update_cycle_number;
-    t.ExecutionMode             = 'fixedSpacing';
+    t.ExecutionMode             = 'fixedRate';
     start(t);
 
 else
 
-    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '', resolution, daychange);
+    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '', resolution);
     filename                    = strcat(filepath,'\weather_data_',date,'.mat');
     weather_data                = evalin('base','weather_data');
     save(filename,'weather_data','-mat');
