@@ -9,18 +9,19 @@ for r = 1:t
     
         forecast_interval           = regexp(forecast_definition{r},'-','split');
         if r == 1
+            
             if ~isempty(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec)
                 t_rec = w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec(size(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec,2));
-            end
-            
-            if days365(utc2date(t_rec),datetest) ~= 0
-                daychange_flag = 1;
-                daychange_counter = daychange_counter + 1;
-            else
-                daychange_flag = 0;
-            end
+                if days365(utc2date(t_rec),datetest) ~= 0
+                    daychange_flag = 1;
+                    daychange_counter = daychange_counter + 1;
+                else
+                    daychange_flag = 0;
+                end
             assignin('base','daychange_flag',daychange_flag);
             assignin('base','daychange_counter',daychange_counter);
+            end
+            
         end
         
         forecast_days               = forecast_interval{1,3};
