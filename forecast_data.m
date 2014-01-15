@@ -60,8 +60,7 @@ function [ ] = forecast_data( city_name, forecast_definition, varargin )
 %   To end the function and to save all results, type delete(timerfind)
 
 
-% filepath = uigetdir('','Please select folder to save forecast data');
-
+% Assign varargin elements to variables. Create folder to save records.
 
 if ~isempty(varargin)
     start_observation       = varargin{1};
@@ -83,30 +82,55 @@ if ~isempty(varargin)
     end
 end
 
+% Create a table with all available forecast definitions.
+
 if strcmp(forecast_definition,'all') == 1
     forecast_definition = create_table();
 end
+
+% If only one forecast definition is requested, convert char input into
+% cell array.
 
 if ~iscell(forecast_definition)
     forecast_definition = {forecast_definition};
 end
 
+% Determine the number of requests.
+
 size_table_data         = size(forecast_definition,1);
 
+% Set daychange to 0
+
+daychange_flag = 0;
+daychange_counter = 0;
+assignin('base','daychange_flag',daychange_flag);
+assignin('base','daychange_counter',daychange_counter);
+
+% Split the datestring into single elements 
+  
 start_observation       = regexp(start_observation,'-','split');
 end_observation         = regexp(end_observation,'-','split');
+
+% 
 update_start_date       = [start_observation{1},'-',start_observation{2},'-',start_observation{3}];
 update_end_date         = [end_observation{1},'-',end_observation{2},'-',end_observation{3}];
 
+% Create the structure with all register addresses 
 data = create_reg_data();
+
+% Create the list with all available city ids
 city_list = create_city_list;
 
+% Assign both created structures to base workspace
 assignin('base','register_data_hwk_kompakt',data);
 assignin('base','city_list',city_list);
 
+% Initalize or reset with new function call data container
 weather_data = [];
 new_data = [];
     
+% Input check, if all inputs are correct, create data container, else print
+% error message.
 for z = 1:size_table_data
     [correct_input, error_msg, city_id] = input_check(forecast_definition{z}, update_start_date, update_end_date, city_name, resolution);
     if true(correct_input)
@@ -122,8 +146,9 @@ for z = 1:size_table_data
     end
 end
 
-
-
+% Check whether a variable serial interface already exists in the base 
+% workspace. If true delete this variable and all other available serial
+% interfaces to be sure to build up the neccessary serial interface.
 if evalin('base', ('exist(''serial_interface'')')) == 1
     evalin('base', ('delete(''serial_interface'')'));
     evalin('base', 'clear serial_interface');
@@ -134,17 +159,14 @@ end
 
 device_id                   = '03';
 
-% Create and reset data container
+% Assign data container to base workspace. In the base workspace now the 
+% city_list, the data container, the serial interface and the register
+% address structure are available.
 
 assignin('base','weather_data',weather_data);
 assignin('base','new_data',new_data);
 
-% If forecast_definition is not a cell array but a char, convert to cell
-% array.
-
-
-
-% Check for available COM Ports
+% Check for available COM Ports, if COM6 is not available print message
 
 av_com_ports                = instrhwinfo('serial');
 com_port_av                 = find(ismember(av_com_ports.AvailableSerialPorts,'COM6'));
@@ -154,20 +176,17 @@ if isempty(com_port_av)
     return;
 end
 
-
 % Open serial interface
 
 open_serial_port( 'COM6', 19200, 8, 'even', 1 );
 
-% Read city_id value in holding register
+% Read actual city_id value in holding register
 
 city_id_reg                 = read_com_set(device_id, {'city_id'});
 
-
-% Compare city_id and value, if values differ, write the new
-% city_id to the relevant register.
-
-% [ city_id ]                 = get_city_id( city_name );
+% If no value is detected for the city id register, the required city id
+% will be written to that register. If the existent register value doesn´t
+% match the required value it will be overwritten. 
 
 if isempty(city_id_reg) == 1
    fprintf('Es befindet sich kein Wert in Register 112!\n');
@@ -184,19 +203,25 @@ end
 
 if ~isempty(varargin)
 
-% Decision between a single update call or an automated update cycle
-% defined by the start and end date.
+% Calculate day difference in hours between the observation start date and 
+% end date. Further determine start and end date of current day.
 
     diff_days               = days365(update_start_date,update_end_date)*24;
     end_of_day              = datevec(date)+[0 0 0 24 0 0];
     start_of_day            = datevec(now);
 
-% If start date is today you first have to calculate the remaining hours
-% till the end of that day, then you have to calculate the difference
-% between the start and the end date to receive the number of days.
-% Multiply with 24 to get the hours for those days. The number of update
-% cycles is calculated then by dividing the sum of available hours round
-% down the result and add 1 for the immediate request at time zero.
+% When the observation start date equals current date, calculate the
+% remaining hours from calling the function to the end of current day. The
+% number of update cycles results from the sum of remaining hours from the
+% current day and hours between the days after current day to end of
+% observation divided by the update interval. You have to add 1 for the
+% first request executed immediatly with this function call.
+% If the observation start date is in the future, and observation start
+% date and end date are equal, 24 hours are available. Update cycle number 
+% is the result of the division diffdays/update_interval. Start delay is
+% calculated from the sum of remaining hours of current date and difference
+% of days in hours till start of observation. 
+
     if strcmp(update_start_date,date) == 1
 
         diff_today              = etime(end_of_day,start_of_day)/3600;
@@ -216,6 +241,7 @@ if ~isempty(varargin)
             start_delay         = uint32(diff_today+diff_days2start*86400);
             update_cycle_number = floor(diff_days/update_interval);
             assignin('base','update_cycle_number',update_cycle_number);
+            
     end
 
 % The waiting period for the timer: interval for an update times 3600 sec
@@ -237,12 +263,11 @@ if ~isempty(varargin)
         t.StartDelay            = start_delay;
 
     end
-    t.BusyMode                  = 'drop';
     t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution};
     t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
     t.TasksToExecute            = update_cycle_number;
-    t.ExecutionMode             = 'fixedSpacing';
+    t.ExecutionMode             = 'fixedRate';
     start(t);
 
 else

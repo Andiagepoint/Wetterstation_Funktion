@@ -29,14 +29,14 @@ end
 hold on; 
 if stemplot == 1
     if strcmp(prog2,'mittlere_temp_prog') == 1
-        stem(data.(prog1).(prog2).unix_t_mean(61:factor:end),data.(prog1).(prog2).org_val(25:end),farbe);
-        x = data.(prog1).(prog2).unix_t_mean(61:factor:end);
-        y = data.(prog1).(prog2).org_val(61:end);
+        stem(data.(prog1).(prog2).unix_t_mean(25:factor:end),data.(prog1).(prog2).org_val(25:end),farbe);
+        x = data.(prog1).(prog2).unix_t_mean(25:factor:end);
+        y = data.(prog1).(prog2).org_val(25:end);
         xi = data.(prog1).(prog2).unix_t_mean,data;
     else
-        stem(data.(prog1).(prog2).unix_t_mean(41:factor:end),data.(prog1).(prog2).org_val(5:end),farbe);
-        x = data.(prog1).(prog2).unix_t_mean(41:factor:end);
-        y = data.(prog1).(prog2).org_val(41:end);
+        stem(data.(prog1).(prog2).unix_t_mean(29:factor:end),data.(prog1).(prog2).org_val(5:end),farbe);
+        x = data.(prog1).(prog2).unix_t_mean(29:factor:end);
+        y = data.(prog1).(prog2).org_val(29:end);
         xi = data.(prog1).(prog2).unix_t_mean,data;
     end
     

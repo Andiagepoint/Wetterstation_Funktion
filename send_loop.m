@@ -3,11 +3,24 @@ function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepat
 %   Detailed explanation goes here
 h = waitbar(0,'Please wait while receiving data...');
 
+w_dat = evalin('base','weather_data');
+
+
+
 for r = 1:t
     
         forecast_interval           = regexp(forecast_definition{r},'-','split');
+        if r == 1
+            if days365(utc2date(t_rec),datetest) ~= 0
+                daychange_flag = 1;
+                daychange_counter = daychange_counter + 1;
+            else
+                daychange_flag = 0;
+            end
+            assignin('base','daychange_flag',daychange_flag);
+            assignin('base','daychange_counter',daychange_counter);
+        end
         
-                    
         forecast_days               = forecast_interval{1,3};
 
 

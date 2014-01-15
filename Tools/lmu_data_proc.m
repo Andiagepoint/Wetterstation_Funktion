@@ -30,7 +30,7 @@ for t = 1:numel(fields(data))
     d = cell(1,1);
     split_res = regexp(data_fields{t},'_','split');
     while CH_ID(s,1) == str2double(split_res{2})
-       d{l,1} = {DATE{s,1}, VALUE(s,1), VALID_SAMPLES(s,1)};
+       d{l,1} = {DATE1{s,1}, VALUE(s,1), VALID_SAMPLES(s,1)};
        l = l+1;
         
        s = s+1;
