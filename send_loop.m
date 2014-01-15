@@ -1,26 +1,29 @@
-function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution )
+function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution, longitude, latitude )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 h = waitbar(0,'Please wait while receiving data...');
 
+daychange_flag = evalin('base','daychange_flag');
+daychange_counter = evalin('base','daychange_counter');
 w_dat = evalin('base','weather_data');
 
 for r = 1:t
     
         forecast_interval           = regexp(forecast_definition{r},'-','split');
         if r == 1
+            
             if ~isempty(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec)
                 t_rec = w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec(size(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec,2));
-            end
-            
-            if days365(utc2date(t_rec),datetest) ~= 0
-                daychange_flag = 1;
-                daychange_counter = daychange_counter + 1;
-            else
-                daychange_flag = 0;
-            end
+                if days365(utc2date(t_rec),date) ~= 0
+                    daychange_flag = 1;
+                    daychange_counter = daychange_counter + 1;
+                else
+                    daychange_flag = 0;
+                end
             assignin('base','daychange_flag',daychange_flag);
             assignin('base','daychange_counter',daychange_counter);
+            end
+            
         end
         
         forecast_days               = forecast_interval{1,3};
@@ -100,7 +103,7 @@ for r = 1:t
         
         con_qual                    = read_com_set('03',{'quality'});
 
-        txdata                      = send_and_receive_data(modbus_pdu, forecast_interval, resolution, con_qual);
+        txdata                      = send_and_receive_data(modbus_pdu, forecast_interval, resolution, con_qual, longitude, latitude);
 
         waitbar(r/t,h)
             

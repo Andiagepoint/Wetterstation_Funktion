@@ -1,4 +1,4 @@
-function [ dec_value ] = data_processing( data_string, prg_def, resolution, con_qual )
+function [ dec_value ] = data_processing( data_string, prg_def, resolution, con_qual, longitude, latitude )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -8,7 +8,6 @@ function [ dec_value ] = data_processing( data_string, prg_def, resolution, con_
 
 w_dat = evalin('base','weather_data');
 n_dat = evalin('base','new_data');
-daychange_flag = evalin('base','daychange_flag');
 daychange_counter = evalin('base','daychange_counter');
 
 % Decide if MEZ or MESZ is valid
@@ -265,6 +264,8 @@ else
 % forecast scope will be canceled.
 
             if dec_value == 10000
+                warning_msg = ['Der Wert für den Prognosebereich ',prg_def{1},'-',prg_def{2},'-',prg_def{3},'-',prg_def{4},' ist ungültig! Der komplette Prognosebereich wurde deshalb nicht gespeichert!'];
+                warning(warning_msg);
                 return;
             end
             
@@ -285,7 +286,7 @@ else
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(w_dat_r)    = date2utc(timevec);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)     = date2utc(timevec) + timestep;
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(w_dat_r)    = date2utc(timevec) + floor(timestep/2);
-                w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now_s));
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now));
                 
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{w_dat_r} = {[cell2mat(utc2date(date2utc(timevec))),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(w_dat_r)),13)]};
 
@@ -294,12 +295,12 @@ else
                 w_dat.(prg_def{1}).(prg_def{2}).con_qual(w_dat_r_org)       = con_qual;
                
                 
-                fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now_s)), cell2mat(strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13))), data_mult(dec_value,prg_def{2}));                     
+                fprintf('%s %s - %u %u %u %s %u \n', prg_def{1}, prg_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now)), cell2mat(strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13))), data_mult(dec_value,prg_def{2}));                     
 
 % Assign received value to update data container. No interpolation is done.
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(n_dat_r)    = date2utc(timevec);
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + timestep;
-                n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now_s));
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now));
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(n_dat_r)    = date2utc(timevec) + floor(timestep/2);
                 
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{n_dat_r} = {[cell2mat(utc2date(date2utc(timevec))),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(n_dat_r)),13)]};
@@ -345,8 +346,8 @@ else
             tmp_dat_y = double(n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:end));
             
             if strcmp(prg_def{1},'solarleistung') == 1
-                [sun_rise_today,sun_set_today] = diurnal_var(48.08, 11.35, datetest);
-                [sun_rise_tomorrow,sun_set_tomorrow] = diurnal_var(48.08, 11.35, datestr(datenum(datetest)+1));
+                [sun_rise_today,sun_set_today] = diurnal_var(latitude, longitude, date);
+                [sun_rise_tomorrow,sun_set_tomorrow] = diurnal_var(latitude, longitude, datestr(datenum(date)+1));
                 sun_rise_today = double(date2utc(sun_rise_today, MEZ));
                 sun_set_today = double(date2utc(sun_set_today,MEZ));
                 sun_rise_tomorrow = double(date2utc(sun_rise_tomorrow,MEZ));
@@ -441,13 +442,13 @@ else
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(end)+timestep_corr);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i):timestep_int:n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(end);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(end)+(timestep_corr/2));
-                w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(i:data_end)    = date2utc(datevec(now_s));
+                w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(i:data_end)    = date2utc(datevec(now));
                 
                 date_string1 = utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:data_end));
                 date_string2 = utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i:data_end));
                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr(i:data_end) = cellstr(strcat(cell2mat(date_string1'),'-',datestr(cell2mat(date_string2'),13)))';
                 
-                n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec,2)*factor)    = date2utc(datevec(now_s));
+                n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec,2)*factor)    = date2utc(datevec(now));
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(end)+timestep_corr);
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end,2)*factor)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1):timestep_int:n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(end);
                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)*factor)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(end)+(timestep_corr/2));

@@ -1,11 +1,11 @@
-function [ correct_input, error_msg, city_id ] = input_check( forecast_detail, update_start_date, update_end_date, city_name, resolution )
+function [ correct_input, error_msg, city_id, longitude, latitude ] = input_check( forecast_detail, update_start_date, update_end_date, city_name, resolution )
 %Checks all input parameter if valid or not and displays wrong parameters
 %   Detailed explanation goes here
 
 % Check for the right spelling and availability of city name
 % correct_input(1) will be 1 for existence and city_id contains the numeric
 % city id.
-[correct_input(1), city_id] = get_city_id(city_name);
+[correct_input(1), city_id, longitude, latitude] = get_city_id(city_name);
 
 % Create failure message for a non existent city name
 if correct_input(1) == 0

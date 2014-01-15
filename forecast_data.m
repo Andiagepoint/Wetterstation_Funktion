@@ -132,7 +132,7 @@ new_data = [];
 % Input check, if all inputs are correct, create data container, else print
 % error message.
 for z = 1:size_table_data
-    [correct_input, error_msg, city_id] = input_check(forecast_definition{z}, update_start_date, update_end_date, city_name, resolution);
+    [correct_input, error_msg, city_id, longitude, latitude] = input_check(forecast_definition{z}, update_start_date, update_end_date, city_name, resolution);
     if true(correct_input)
         
         weather_data = create_data_struct(forecast_definition{z}, weather_data, 'weather_data');
@@ -263,7 +263,7 @@ if ~isempty(varargin)
         t.StartDelay            = start_delay;
 
     end
-    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution};
+    t.TimerFcn                  = {@send_loop, size_table_data, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution, longitude, latitude};
     t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
     t.TasksToExecute            = update_cycle_number;
@@ -272,7 +272,7 @@ if ~isempty(varargin)
 
 else
 
-    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '', resolution);
+    send_loop('','', size_table_data, forecast_definition, device_id, filepath, city_name, '', resolution, longitude, latitude);
     filename                    = strcat(filepath,'\weather_data_',date,'.mat');
     weather_data                = evalin('base','weather_data');
     save(filename,'weather_data','-mat');

@@ -1,8 +1,13 @@
 function [ reg_address, field_name ] = get_reg_address( varargin )
 %Gets the register number as hex value 
-%   Detailed explanation goes here
+%   Inputparameter could be forecast scope, forecast detail, {day of
+%   observation and daysegment}. E.g. 'niederschlag','menge',{'heute',
+%   'morgen'} or a memeber from the coillist 'fsk_qualitaet',
+%   'status_ext_temp_sensor', or a request for the radio clock
+%   'radio_clock.sec',..., 'radio_clock.year', or a communication setting
+%   parameter like 'city_id', 'transmitting_station', 'quality',
+%   'temperature', 'temperatre_offset'
 
-% make structur with hex addresses available in local workspace
 register_data_hwk_kompakt   = evalin('base', 'register_data_hwk_kompakt');
 
 % 
