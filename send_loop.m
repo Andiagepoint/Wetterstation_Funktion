@@ -14,6 +14,7 @@ for r = 1:t
             
             if ~isempty(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec)
                 t_rec = w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec(size(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec,2));
+
                 if days365(utc2date(t_rec),date) ~= 0
                     daychange_flag = 1;
                     daychange_counter = daychange_counter + 1;
