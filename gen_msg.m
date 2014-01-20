@@ -2,13 +2,13 @@ function [ modbus_adu_msg ] = gen_msg( device_id, reg_address, reg_num, type )
 %Creates modbus adu
 %   Detailed explanation goes here
 switch type
-    case 'rr'
+    case 'rsr'
     fcode = '03';
-    case 'srw'
+    case 'wsr'
     fcode = '06';    
-    case 'cr'
+    case 'rsc'
     fcode = '01';    
-    case 'scw'
+    case 'wsc'
     fcode = '05';    
     otherwise
 end
