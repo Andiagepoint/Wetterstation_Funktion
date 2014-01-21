@@ -63,10 +63,16 @@ function [ ] = forecast_data( city_name, forecast_definition, varargin )
 % Assign varargin elements to variables. Create folder to save records.
 
 if ~isempty(varargin)
-    start_observation       = varargin{1};
-    end_observation         = varargin{2};
-    resolution              = varargin{3};
-    update_interval         = varargin{4};
+    if size(varargin,2) < 4
+        fprintf(2,['Bitte geben Sie das Start- und Enddatum des Boabachtungszeitraums\n'...
+            'sowie die Auflösung und das Updateintervall an.\n'],char(10));
+        error('Zu wenig Inputparameter!');
+    else
+        start_observation       = varargin{1};
+        end_observation         = varargin{2};
+        resolution              = varargin{3};
+        update_interval         = varargin{4};
+    end
     if size(varargin,2) > 4
         filepath            = varargin{5};
     else
@@ -79,7 +85,18 @@ if ~isempty(varargin)
         if ~isempty(mess)
             fprintf('Ordner existiert bereits.\n');
         end
+    end 
+else
+    if size(pwd,2) < 4
+        filepath        = [pwd,'Aufzeichnungen'];
+    else
+        filepath        = [pwd,'\Aufzeichnungen']; 
     end
+        [s,mess,messid]     = mkdir(filepath);
+        if ~isempty(mess)
+            fprintf('Ordner existiert bereits.\n');
+        end
+    resolution = 1;    
 end
 
 % Create a table with all available forecast definitions.
@@ -106,15 +123,6 @@ daychange_counter = 0;
 assignin('base','daychange_flag',daychange_flag);
 assignin('base','daychange_counter',daychange_counter);
 
-% Split the datestring into single elements 
-  
-start_observation       = regexp(start_observation,'-','split');
-end_observation         = regexp(end_observation,'-','split');
-
-% 
-update_start_date       = [start_observation{1},'-',start_observation{2},'-',start_observation{3}];
-update_end_date         = [end_observation{1},'-',end_observation{2},'-',end_observation{3}];
-
 % Create the structure with all register addresses 
 data = create_reg_data();
 
@@ -128,11 +136,11 @@ assignin('base','city_list',city_list);
 % Initalize or reset with new function call data container
 weather_data = [];
 new_data = [];
-    
+
 % Input check, if all inputs are correct, create data container, else print
 % error message.
 for z = 1:size_table_data
-    [correct_input, error_msg, city_id, longitude, latitude] = input_check(forecast_definition{z}, update_start_date, update_end_date, city_name, resolution);
+    [correct_input, error_msg, city_id, longitude, latitude] = input_check(forecast_definition{z}, city_name, varargin);
     if true(correct_input)
         
         weather_data = create_data_struct(forecast_definition{z}, weather_data, 'weather_data');
@@ -140,11 +148,13 @@ for z = 1:size_table_data
         
     else
     
-        fprintf(2,'%s\n%s\n%s\n%s\n%s\n%s\n', error_msg{1}, error_msg{2}, error_msg{3}, error_msg{4}, error_msg{5}, error_msg{6}, error_msg{7}, char(10))
+        fprintf(2,'%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n', error_msg{1}, error_msg{2}, error_msg{3}, error_msg{4}, error_msg{5}, error_msg{6}, error_msg{7}, error_msg{8}, error_msg{9}, error_msg{10} , char(10))
         error('Die oben aufgeführten Eingabeparameter sind nicht korrekt.');
     
     end
 end
+
+
 
 % Check whether a variable serial interface already exists in the base 
 % workspace. If true delete this variable and all other available serial
@@ -172,7 +182,7 @@ av_com_ports                = instrhwinfo('serial');
 com_port_av                 = find(ismember(av_com_ports.AvailableSerialPorts,'COM6'));
 
 if isempty(com_port_av)
-    fprintf('%s \n','COM6 Port ist nicht verfügbar!');
+    fprintf(2,'COM6 Port ist nicht verfügbar!\n', char(10));
     return;
 end
 
@@ -193,8 +203,17 @@ if isempty(city_id_reg) == 1
    write_com_set( device_id, city_id, {'city_id'} );
    fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);
 elseif city_id ~= city_id_reg
-   write_com_set( device_id, city_id, {'city_id'} );
-   fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);
+    prompt = 'Die vorhandene City ID entspricht nicht der in der Funktion übergebenen ID.\n Möchten Sie fortfahren? Y/N [Y]: ';
+    str = input(prompt,'s');
+    if isempty(str)
+        str = 'Y';
+    elseif strcmp(str,'Y') == 1
+        write_com_set( device_id, city_id, {'city_id'} );
+        fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);  
+    else
+        fprintf(2,'Der Funktionsaufruf wurde abgebrochen.\n', char(10)); 
+        return;
+    end
 end
 
 % If an observation interval is given as argument in the function, varargin
@@ -202,7 +221,14 @@ end
 % Get number of requests
 
 if ~isempty(varargin)
+    
+% Split the datestring into single elements
+  
+    start_observation       = regexp(start_observation,'-','split');
+    end_observation         = regexp(end_observation,'-','split');
 
+    update_start_date       = [start_observation{1},'-',start_observation{2},'-',start_observation{3}];
+    update_end_date         = [end_observation{1},'-',end_observation{2},'-',end_observation{3}];
 % Calculate day difference in hours between the observation start date and 
 % end date. Further determine start and end date of current day.
 
