@@ -15,9 +15,9 @@ if nargin == 1
     
     coil_list               = {'fsk_qualitaet' 'status_ext_temp_sensor' 'reserve1' 'reserve2' 'reserve3'};
     
-    if strmatch(varargin, coil_list) == 1
+    if strmatch(char(varargin), coil_list) ~= 0
         
-        reg_address         = getfield(register_data_hwk_kompakt.communication_settings.coil,char(varargin));
+        reg_address         = getfield(register_data_hwk_kompakt.communication_settings.coil.status,char(varargin));
         field_name          = {'register_data_hwk_kompakt.communication_settings'};
         
     elseif ~isempty(cell2mat(strfind(varargin,'radio_clock')))

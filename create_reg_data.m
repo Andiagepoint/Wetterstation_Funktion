@@ -14,7 +14,7 @@ temperatur = struct('max',day_rough,'min',day_rough,'mittlere_temp_prog',day_det
 x = struct('x',day_rough);
 
 radio_clock = struct('sec','0064','min','0065','hour','0066','day','0067','month','0068','year','0069');
-status = struct('fsk_qualitaet','0000','status_ext_temp_sensor','0001','reserve1','0002','reserve2','0003','reserve3','0004');
+status = struct('fsk_qualitaet','0001','status_ext_temp_sensor','0002','reserve1','0003','reserve2','0004','reserve3','0005');
 register = struct('temperature','0061','temperature_offset','0062','radio_clock',radio_clock,'transmitting_station','006E','quality','006F','city_id','0070');
 coil = struct('status',status);
 comset = struct('register',register,'coil',coil);
