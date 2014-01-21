@@ -10,11 +10,11 @@ while not_done == 1
         crc_check_value = 0;
         response_msg = [];
     else
-        device_id = dec2hex(rxdata(1),2);
+%         device_id = dec2hex(rxdata(1),2);
         func_code = dec2hex(rxdata(2),2);
         fcode_error = fcode_check(func_code);
-        reg_address = modbus_msg(5:8);
-        num_reg_address = hex2dec(modbus_msg(9:12));
+%         reg_address = modbus_msg(5:8);
+%         num_reg_address = hex2dec(modbus_msg(9:12));
 
         if fcode_error == 1
             exception_code = dec2hex(rxdata(3),2);
@@ -38,9 +38,11 @@ while not_done == 1
             switch rxdata(2)
                 case 1
                     byte_count = rxdata(3);
-                    for t = 1:byte_count
-                        data_processing( reg_address )
-                    end
+                    response_data = rxdata(4);
+                    [crc_check_value, response_msg] = crc_check(rxdata);
+%                     for t = 1:byte_count
+%                         data_processing( reg_address )
+%                     end
                 case 3
                     byte_count = rxdata(3);
                     if byte_count > (size(rxdata,1)-5)
