@@ -207,7 +207,8 @@ elseif city_id ~= city_id_reg
     str = input(prompt,'s');
     if isempty(str)
         str = 'Y';
-    elseif strcmp(str,'Y') == 1
+    end
+    if strcmp(str,'Y') == 1
         write_com_set( device_id, city_id, {'city_id'} );
         fprintf('Neue CityID %u wurde in das Register geschrieben.\nEs wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n',city_id);  
     else
