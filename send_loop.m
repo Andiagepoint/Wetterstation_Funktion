@@ -1,4 +1,5 @@
-function [  ] = send_loop(obj, event, t, forecast_definition, device_id, filepath, city_name, update_cycle_number, resolution, longitude, latitude )
+function[  ] = send_loop(obj, event, t, fc_def, dev_id, f_path, city, u_c_n, res,...
+                         lng, lat )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 h = waitbar(0,'Please wait while receiving data...');
@@ -7,13 +8,20 @@ daychange_flag = evalin('base','daychange_flag');
 daychange_counter = evalin('base','daychange_counter');
 w_dat = evalin('base','weather_data');
 
+% For loop to process every forecast definition(fc_def). 
 for r = 1:t
     
-        forecast_interval           = regexp(forecast_definition{r},'-','split');
-        if r == 1
-            
-            if ~isempty(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec)
-                t_rec = w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec(size(w_dat.(forecast_interval{1}).(forecast_interval{2}).unix_t_rec,2));
+        fc_int           = regexp(fc_def{r},'-','split');
+% For the first loop determine if the datacontainer weather_data(w_dat) has
+% stored previous data by analyzing the last stored recording time stamp.
+% If there is such data, compare timestamp with current date. If it is not
+% equal, increase daychange_counter and set daychange_flag true. Make both
+% variables available in base workspace.
+
+        if r == 1            
+            if ~isempty(w_dat.(fc_int{1}).(fc_int{2}).unix_t_rec)
+                t_rec = w_dat.(fc_int{1}).(fc_int{2}).unix_t_rec(...
+                        size(w_dat.(fc_int{1}).(fc_int{2}).unix_t_rec,2));
 
                 if days365(utc2date(t_rec),date) ~= 0
                     daychange_flag = 1;
@@ -23,42 +31,35 @@ for r = 1:t
                 end
             assignin('base','daychange_flag',daychange_flag);
             assignin('base','daychange_counter',daychange_counter);
-            end
-            
+            end            
         end
+
+% Build the forecast interval
+        forecast_days               = fc_int{1,3};
         
-        forecast_days               = forecast_interval{1,3};
-
-
-            if strcmp(forecast_interval{1,2},'mittlere_temp_prog') == 1
-                
+            if strcmp(fc_int{1,2},'mittlere_temp_prog') == 1                
                 switch forecast_days
                     case '1'
                        start_reg    = {'heute' 'am0_00'};
                        end_reg      = {'heute' 'pm11_00'};
                     case '2'
-                       start_reg    = {'erster_folgetag' 'am0_00'}; 
+                       start_reg    = {'heute' 'am0_00'}; 
                        end_reg      = {'erster_folgetag' 'pm11_00'};
                     case '3'
-                       start_reg    = {'zweiter_folgetag' 'am0_00'}; 
+                       start_reg    = {'heute' 'am0_00'}; 
                        end_reg      = {'zweiter_folgetag' 'pm11_00'};
-                    case '4'
-                       start_reg    = {'dritter_folgetag' 'am0_00'}; 
-                       end_reg      = {'dritter_folgetag' 'pm11_00'};
                     case 'all'
                         start_reg   = {'heute' 'am0_00'};
                         end_reg     = {'dritter_folgetag' 'pm11_00'};
-                end
-                
-            elseif strcmp(forecast_interval{1,1},'solarleistung') == 1 || strcmp(forecast_interval{1,1},'luftdruck') == 1
-                
+                end                
+            elseif strcmp(fc_int{1,1},'solarleistung') == 1 || ...
+                   strcmp(fc_int{1,1},'luftdruck') == 1                
                 if str2double(forecast_days) > 1
                     warning(['Für die Solarleistungs- und Luftdruckprognose' ...
                             ' werden nur Werte für den heutigen Tag und den' ...
                             ' ersten Folgetag bereitgestellt.'])
                     forecast_days = 'all';    
-                end
-                
+                end                
                 switch forecast_days
                     case '1'
                        start_reg    = {'heute' 'morgen'};
@@ -66,10 +67,8 @@ for r = 1:t
                     case 'all'
                        start_reg    = {'heute' 'morgen'}; 
                        end_reg      = {'erster_folgetag' 'abend'};
-                end
-                
-            else
-                
+                end                
+            else  
                 switch forecast_days
                     case '1'
                        start_reg    = {'heute' 'morgen'};
@@ -83,56 +82,51 @@ for r = 1:t
                     case 'all'
                        start_reg    = {'heute' 'morgen'}; 
                        end_reg      = {'dritter_folgetag' 'abend'};
-                end 
-                
+                end  
             end
 
-%         if size(forecast_interval,2) < 5 
+%         if size(fc_int,2) < 5 
 %             end_reg                 = start_reg;
 %         else
-%             end_reg                 = forecast_interval(1,5:6);
+%             end_reg                 = fc_int(1,5:6);
 %         end
 
-        forecast_interval           = {forecast_interval{1,1:2}, start_reg{:}, end_reg{:}};
+        fc_int           = {fc_int{1,1:2}, start_reg{:}, end_reg{:}};
+% Determine register addresses and number of registers to be processed
+        start_reg_address       = get_reg_address( fc_int{1}, fc_int{2}, start_reg );
+        end_reg_address         = get_reg_address( fc_int{1}, fc_int{2}, end_reg );
 
-        start_reg_address           = get_reg_address( forecast_interval{1}, forecast_interval{2}, start_reg );
-        end_reg_address             = get_reg_address( forecast_interval{1}, forecast_interval{2}, end_reg );
-
-        quantity_reg_addresses      = reg_num(start_reg_address, end_reg_address);
-
-        modbus_pdu                  = gen_msg( device_id, start_reg_address, quantity_reg_addresses, 'rsr' );
-        
-        con_qual                    = read_com_set('03',{'quality'});
-
-        txdata                      = send_and_receive_data(modbus_pdu, forecast_interval, resolution, con_qual, longitude, latitude);
+        quantity_reg_addresses  = reg_num(start_reg_address, end_reg_address);
+% Generate modbus message 
+        modbus_pdu              = gen_msg( dev_id, start_reg_address,...
+                                           quantity_reg_addresses, 'rsr' );
+% Read the connection quality        
+        con_qual                = read_com_set('03',{'quality'});
+% Write message on interface and read and process response 
+        txdata                  = send_and_receive_data(modbus_pdu, fc_int,...
+                                                        res, con_qual, lng, lat);
 
         waitbar(r/t,h)
-            
-        
+               
 end
-
+% Save requested data in a seperate file
 new_data = evalin('base','new_data');
-
-filename = strcat(filepath,'\',city_name,'-',strrep(num2str(resolution),'.','_'),'_new_data_',date,'_',num2str(date2utc(datevec(now))),'.mat');
+filename = strcat(f_path,'\',city,'-',strrep(num2str(res),'.','_'),'_new_data_',...
+                  date,'_',num2str(date2utc(datevec(now),MESZ_calc)),'.mat');
 save(filename,'new_data','-mat');
-
+% Reset new_data container
 new_data = [];
-
 for z = 1:t
-    new_data = create_data_struct(forecast_definition{z}, new_data, 'new_data');
+    new_data = create_data_struct(fc_def{z}, new_data, 'new_data');
 end
-
 assignin('base','new_data',new_data);
-
-if ~isempty(update_cycle_number)
-    update_cycle_number = evalin('base','update_cycle_number');
-    update_cycle_number = update_cycle_number-1;
-    fprintf('Noch %u ausstehende Abfrage(n).\n',update_cycle_number)
-    assignin('base','update_cycle_number',update_cycle_number);
+% Update the remaining number of requests
+if ~isempty(u_c_n)
+    u_c_n = evalin('base','u_c_n');
+    u_c_n = u_c_n-1;
+    fprintf('Noch %u ausstehende Abfrage(n).\n',u_c_n)
+    assignin('base','u_c_n',u_c_n);
 end
-
-
-
 close(h);
 end
 

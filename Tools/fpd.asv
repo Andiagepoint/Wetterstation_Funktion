@@ -37,15 +37,6 @@ if stemplot == 1
         y = data.(prog1).(prog2).org_val(1:end);
         xi = data.(prog1).(prog2).unix_t_mean,data;
     else
-        if strcmp(prog2,'menge') == 1
-        xdate = xdatecalc(data.(prog1).(prog2).unix_t_mean(1:factor:end));
-        stem(xdate,data.(prog1).(prog2).org_val(1:end)./72,farbe,'MarkerEdgeColor','k',...
-                'MarkerFaceColor',[.49 1 .63],...
-                'MarkerSize',10), datetick('x',0,'keepticks');
-        x = data.(prog1).(prog2).unix_t_mean(1:factor:end);
-        y = data.(prog1).(prog2).org_val(1:end);
-        xi = data.(prog1).(prog2).unix_t_mean,data;
-        else
         xdate = xdatecalc(data.(prog1).(prog2).unix_t_mean(1:factor:end));
         stem(xdate,data.(prog1).(prog2).org_val(1:end),farbe,'MarkerEdgeColor','k',...
                 'MarkerFaceColor',[.49 1 .63],...
@@ -53,7 +44,6 @@ if stemplot == 1
         x = data.(prog1).(prog2).unix_t_mean(1:factor:end);
         y = data.(prog1).(prog2).org_val(1:end);
         xi = data.(prog1).(prog2).unix_t_mean,data;
-        end
     end
     
 else

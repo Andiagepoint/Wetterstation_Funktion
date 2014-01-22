@@ -1,4 +1,4 @@
-function [ x, avg_x, y, avg_y ] = avglmudata( data, ch, res, farbe)
+function [ x, avg_x, y, avg_y ] = avglmudata( data, ch, res, farbe, solar_flag)
 %UNTITLED3 Summary of this function goes here
 %   CH_ID	NAME	SINGLE_READING	STORAGE_INTERVAL	UNIT	DESCRIPTION
 % 100	Lufttemperatur	0	3600	°C	Lufttemperatur in 2m Höhe
@@ -37,12 +37,19 @@ for t = 1:size(data.(ch),1)
         x(t) = cell2mat(data.(ch){t}(4));
     else
         x(t) = double(data.(ch){t}(4));
-
     end
-    if iscell(data.(ch){t}(4))
-        y(t) = cell2mat(data.(ch){t}(2))/60;
+    if solar_flag == 1
+        if iscell(data.(ch){t}(4))
+            y(t) = cell2mat(data.(ch){t}(2))/60;
+        else
+            y(t) = double(data.(ch){t}(2))/60;
+        end
     else
-        y(t) = double(data.(ch){t}(2))/60;
+        if iscell(data.(ch){t}(4))
+            y(t) = cell2mat(data.(ch){t}(2));
+        else
+            y(t) = double(data.(ch){t}(2));
+        end
     end
 end
 x = double(x);
@@ -62,7 +69,7 @@ while t < size(y,2)
     end
 end
 
-
-plot(avg_x,avg_y,farbe);
+xdate = xdatecalc(avg_x);
+plot(xdate,avg_y,farbe,'LineWidth',3),datetick('x',0,'keepticks');
 end
 
