@@ -1,67 +1,62 @@
-function [ response_data, crc_check_value, response_msg, err_msg ] = rxdata_processing( rxdata, modbus_msg, field_name, resolution, con_qual, longitude, latitude )
-%UNTITLED5 Summary of this function goes here
-%   Detailed explanation goes here
+function [ response_data, crc_check_value, response_msg ] = ...
+           rxdata_processing( rxdata, modbus_msg, fc_def, res, con_qual, lng, lat )
+%Processing the received rxdata from serial interface
+%   Rxdata contains the response from the MODBUS server, which has to be
+%   processed here and in a subsequent function.
+
 not_done = 1;
 
 while not_done == 1
     if isempty(rxdata)
-        err_msg = 'No data received! Check if server is available!';
-        response_data = [];
-        crc_check_value = 0;
-        response_msg = [];
+        error('No data received! Check if server is available!');
+%         response_data = [];
+%         crc_check_value = 0;
+%         response_msg = [];
     else
-%         device_id = dec2hex(rxdata(1),2);
         func_code = dec2hex(rxdata(2),2);
         fcode_error = fcode_check(func_code);
-%         reg_address = modbus_msg(5:8);
-%         num_reg_address = hex2dec(modbus_msg(9:12));
 
         if fcode_error == 1
             exception_code = dec2hex(rxdata(3),2);
             switch exception_code
                 case '01'
-                    err_msg = 'Exception Code 01 -> Function code not supported';
+                    error('Exception Code 01 -> Function code not supported');
                 case '02'
-                    err_msg = 'Exception Code 02 -> Output address not valid';
+                    error('Exception Code 02 -> Output address not valid');
                 case '03'
-                    err_msg = 'Exception Code 03 -> Quantity of outputs exceeds range 0x0001 and 0x07D0';
+                    error(['Exception Code 03 -> Quantity of outputs exceeds'...
+                           'range 0x0001 and 0x07D0']);
                 case '04'
-                    err_msg = 'Exception Code 04 -> Failure during reading discret outputs';
-                otherwise
+                    error(['Exception Code 04 -> Failure during reading discret'...
+                          'outputs']);
             end
-            response_data = [];
-            crc_check_value = 0;
-            response_msg = [];
+%             response_data = [];
+%             crc_check_value = 0;
+%             response_msg = [];
         else
-            pause(0.25)
-            err_msg = [];
+%             pause(0.25)
+%             err_msg = [];
             switch rxdata(2)
                 case 1
-                    byte_count = rxdata(3);
+%                     byte_count = rxdata(3);
                     response_data = rxdata(4);
                     [crc_check_value, response_msg] = crc_check(rxdata);
-%                     for t = 1:byte_count
-%                         data_processing( reg_address )
-%                     end
                 case 3
-                    byte_count = rxdata(3);
-                    if byte_count > (size(rxdata,1)-5)
-                    [ value ] = send_and_receive_data( modbus_msg, field_name );
-                    end
-                    response_data = data_processing( rxdata(4:end-2), field_name, resolution, con_qual, longitude, latitude );
+%                     byte_count = rxdata(3);
+%                     if byte_count > (size(rxdata,1)-5)
+%                     [ value ] = send_and_receive_data( modbus_msg, fc_def );
+%                     end
+                    response_data = data_processing( rxdata(4:end-2), fc_def,...
+                                                     res, con_qual, lng, lat );
                     [crc_check_value, response_msg] = crc_check(rxdata);
-                case 5
-                    output_address = dec2hex(rxdata(3:4),4);
-                    output_value = dec2hex(rxdata(5:6),4);
                 case 6
                     response_data = dec2hex(rxdata(5:6),4);
                     [crc_check_value, response_msg] = crc_check(rxdata);
-                otherwise
             end
         end
     end
 
-    if ((isempty(response_data) || isempty(crc_check_value) || isempty(response_msg))  && isempty(err_msg))
+    if (isempty(response_data) || isempty(crc_check_value) || isempty(response_msg))
         not_done = 1;
     else
         not_done = 0;

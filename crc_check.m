@@ -1,4 +1,4 @@
-function [ check, response_msg ] = crc_check( rxdata )
+function [ check, response_msg  ] = crc_check( rxdata )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 msg = '';
