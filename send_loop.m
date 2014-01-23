@@ -122,10 +122,10 @@ end
 assignin('base','new_data',new_data);
 % Update the remaining number of requests
 if ~isempty(u_c_n)
-    u_c_n = evalin('base','u_c_n');
+    u_c_n = evalin('base','update_cycle_number');
     u_c_n = u_c_n-1;
     fprintf('Noch %u ausstehende Abfrage(n).\n',u_c_n)
-    assignin('base','u_c_n',u_c_n);
+    assignin('base','update_cycle_number',u_c_n);
 end
 close(h);
 end
