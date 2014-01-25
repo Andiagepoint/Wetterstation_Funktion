@@ -179,11 +179,29 @@ if evalin('base', ('exist(''serial_interface'')')) == 1
     evalin('base', 'delete(instrfind)');
 end
 
-% Check for available COM Ports, if COM6 is not available print message
-av_com_ports    = instrhwinfo('serial');
-com_port_av     = find(ismember(av_com_ports.AvailableSerialPorts,'COM6'));
+% Check for available COM Ports, if COM6 is not available print message.
+% When COM6 Port is already in use, delete it and make it availbale for the
+% weather station.
+av_com_ports        = instrhwinfo('serial');
+com_port_av         = find(ismember(av_com_ports.AvailableSerialPorts,'COM6'));
+serial_ports_in_use = instrfind({'Port'},{'COM6'});
 
-if isempty(com_port_av)
+if ~isempty(serial_ports_in_use)
+    prompt = ['Der COM6 Port ist bereits in Benutzung. Wollen Sie ihn löschen,\n'...
+        ' um ihn für die Wetterstation frei zu bekommen?.\n'...
+        'Möchten Sie fortfahren? Y/N [Y]: '];
+    str = input(prompt,'s');
+    if isempty(str)
+        str = 'Y';
+    end
+    if strcmp(str,'Y') == 1
+        delete(instrfind({'Port'},{'COM6'}));
+        fprintf('Der COM6 Port steht nun zur Verfügung.\n');  
+    else
+        fprintf(2,'Der Funktionsaufruf wurde abgebrochen.\n', char(10)); 
+        return;
+    end
+elseif isempty(com_port_av)
     fprintf(2,'COM6 Port ist nicht verfügbar!\n', char(10));
     return;
 end

@@ -114,6 +114,7 @@ new_data = evalin('base','new_data');
 filename = strcat(f_path,'\',city,'-',strrep(num2str(res),'.','_'),'_new_data_',...
                   date,'_',num2str(date2utc(datevec(now),MESZ_calc)),'.mat');
 save(filename,'new_data','-mat');
+
 % Reset new_data container
 new_data = [];
 for z = 1:t
@@ -127,6 +128,7 @@ if ~isempty(u_c_n)
     fprintf('Noch %u ausstehende Abfrage(n).\n',u_c_n)
     assignin('base','update_cycle_number',u_c_n);
 end
+evalin('base',sprintf('save(''%s'')', strcat(f_path,'\workspace')));
 close(h);
 end
 

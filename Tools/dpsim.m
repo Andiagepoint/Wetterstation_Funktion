@@ -487,15 +487,24 @@ w_dat_r_org_ni = w_dat_r_org;
             
 % Perform the slm interpolation for temperatur, staerke and luftdruck                
                 
-                if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1 || strcmp(prg_def{1},'luftdruck') == 1 || strcmp(prg_def{1},'menge') == 1
-                    
+%                 if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1 || strcmp(prg_def{1},'luftdruck') == 1 || strcmp(prg_def{2},'menge') == 1 || strcmp(prg_def{1},'solarleistung') == 1
+%                   
+                    if strcmp(prg_def{2},'staerke') == 1 || strcmp(prg_def{2},'menge') == 1 || strcmp(prg_def{2},'min') == 1 || strcmp(prg_def{2},'max') == 1
+                        knoten = 16;
+                    elseif strcmp(prg_def{2},'mittlere_temp_prog') == 1
+                        knoten = 48;
+                    else
+                        knoten = 8;
+                    end
+
+
                     if i == 1
-                        slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                        slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',knoten,'increasing','off','leftslope',0,'rightslope',0);
                         
                         w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:data_end) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i:data_end),slm);  
                         
                     else
-                        
+%                         
 % Calculate the slope of the end of previous data. The slope of the new 
 % calculated interpolation values has to be on the left side equal to that
 % of the intersecting old data on the right side. Furthermore the values of 
@@ -504,41 +513,77 @@ w_dat_r_org_ni = w_dat_r_org;
                         dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
                         dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-2);
                         m = dy/dx;                        
-                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1),'leftslope',m,'rightslope',0);                         
-
+                        slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',knoten,'increasing','off','leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1),'leftslope',m,'rightslope',0);                         
+                        
 % Evaluate spline function at timestamps.
-
-                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1:data_end),slm);                           
-                            if strcmp(prg_def{1},'solarleistung') == 1
-                            temp = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end);
-                            temp(temp < 0) = 0;
-                            w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end) = temp;
+                        
+                        w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1:data_end),slm);
+                       
+                            if strcmp(prg_def{1},'solarleistung') == 1 
+                                tempx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1:data_end);
+                                temp1 = tempx <= sun_rise_today;
+                                temp2 = tempx > sun_rise_today & tempx < sun_set_today;
+                                temp3 = tempx >= sun_set_today & tempx <= sun_rise_tomorrow;
+                                temp4 = tempx > sun_rise_tomorrow & tempx < sun_set_tomorrow;
+                                temp5 = tempx >= sun_set_tomorrow;
+                                tempy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end);
+                                tempy1 = tempy(temp1);
+                                tempy2 = tempy(temp2);
+                                tempy3 = tempy(temp3);
+                                tempy4 = tempy(temp4);
+                                tempy5 = tempy(temp5);
+                                tempy1(tempy1<0) = 0;
+                                tempy1(tempy1>0) = 0;
+                                tempy2(tempy2<0) = 0;
+                                tempy3(tempy3<0) = 0;
+                                tempy3(tempy3>0) = 0;
+                                tempy4(tempy4<0) = 0;
+                                tempy5(tempy5<0) = 0;
+                                tempy5(tempy5>0) = 0;
+                                temp = [tempy1 tempy2 tempy3 tempy4 tempy5];
+                                w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end) = temp;
+                            elseif strcmp(prg_def{2},'menge') == 1
+                                temp = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end);
+                                temp(temp < 0) = 0;
+                                w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end) = temp;
                             end
 
                     end
                     
-                    slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
+                    slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',knoten,'increasing','off','leftslope',0,'rightslope',0);
                     
                          n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = slmeval(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)),slm_new);                        
-                    
-                else
+% %                     
+% %                 else
 
 % For the forecast scope solarleistung                     
                     
-                    if i == 1
-                        yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
-                        yi(yi < 0) = 0;
-                        w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:(data_end)) = yi; 
-                    else
-                        yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i-1:end));
-                        yi(yi < 0) = 0;
-                        w_dat.(prg_def{1}).(prg_def{2}).int_val(1,(i-1):(data_end)) = yi;
-                    end
-                    yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
-                    yi_new(yi_new < 0) = 0;
-
-                    n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = yi_new;
-                end
+%                     if i == 1
+%                         yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
+%                         if strcmp(prg_def{1},'solarleistung') == 1 || strcmp(prg_def{2},'staerke') || strcmp(prg_def{2},'menge') || strcmp(prg_def{1},'luftdruck')
+%                             yi(yi < 0) = 0;
+%                             w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:(data_end)) = yi;
+%                         else
+%                             w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:(data_end)) = yi;   
+%                         end
+%                     else
+%                         yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i-1:end));
+%                         if strcmp(prg_def{1},'solarleistung') == 1 || strcmp(prg_def{2},'staerke') || strcmp(prg_def{2},'menge') || strcmp(prg_def{1},'luftdruck')
+%                         yi(yi < 0) = 0;
+%                             w_dat.(prg_def{1}).(prg_def{2}).int_val(1,(i-1):(data_end)) = yi;
+%                         else
+%                             w_dat.(prg_def{1}).(prg_def{2}).int_val(1,(i-1):(data_end)) = yi;
+%                         end     
+%                     end
+%                     n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = yi(1,2:end);
+%                     if strcmp(prg_def{1},'solarleistung') == 1 || strcmp(prg_def{2},'staerke') || strcmp(prg_def{2},'menge') || strcmp(prg_def{1},'luftdruck')
+%                         yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
+%                         yi_new(yi_new < 0) = 0;
+%                         n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = yi_new;
+%                     else
+%                         n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = yi(1,2:end);
+%                     end
+%                 end
 
                 assignin('base','new_data',n_dat);
                 assignin('base','weather_data',w_dat);
