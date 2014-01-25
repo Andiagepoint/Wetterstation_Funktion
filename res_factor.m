@@ -1,6 +1,9 @@
 function [ factor ] = res_factor( resolution, f_c_d )
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%Determines the factor for interpolation intervall construction
+%   As there are two different resolutions in the received data we have to
+%   assign two different factors. E.g. a resolution of 0.25 hours is
+%   requested, the factor for the mittlere_temp_prog results from 1 hour
+%   divided by 0.25 = 4.
 switch resolution
     
     case 6

@@ -359,7 +359,7 @@ else
             
 % If factor is 6 no interval correction has to be done            
             
-            if strcmp(fc_def{2},'mittlere_temp_prog') == 1 && factor == 6
+            if strcmp(fc_def{2},'mittlere_temp_prog') == 1 && factor == 1
                 
                 if i == 1
                 
