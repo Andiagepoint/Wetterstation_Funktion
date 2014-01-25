@@ -1,4 +1,4 @@
-function [ x, y, xi ] = fpd( prog1, prog2, data, resolution_in_dec, farbe, stemplot  )
+function [ x, y, xi ] = fpd( prog1, prog2, data, resolution_in_dec, farbe, stemplot, lw  )
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -59,10 +59,10 @@ if stemplot == 1
 else
     if strcmp(prog2,'menge') == 1
         xdate = xdatecalc(data.(prog1).(prog2).unix_t_mean);
-        plot(xdate,data.(prog1).(prog2).int_val./72,farbe, 'LineWidth', 3), datetick('x',0,'keepticks');
+        plot(xdate,data.(prog1).(prog2).int_val./72,farbe, 'LineWidth', lw), datetick('x',0,'keepticks');
     else
         xdate = xdatecalc(data.(prog1).(prog2).unix_t_mean);
-        plot(xdate,data.(prog1).(prog2).int_val,farbe, 'LineWidth', 3), datetick('x',0,'keepticks');
+        plot(xdate,data.(prog1).(prog2).int_val,farbe, 'LineWidth', lw), datetick('x',0,'keepticks');
     end
 end
 end

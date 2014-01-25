@@ -265,18 +265,8 @@ w_dat_r_org_ni = w_dat_r_org;
 
 % Break condition for an completely evaluated data string
             
-%             if data_str_lo_byte_pos > size(data_string,2)
-%                 
-%                 break;
-%                 
-%             end
-            
             % Evaluation of a 16-bit word, big-Endian
             
-%             hi_byte        = dec2hex(data_string(data_str_hi_byte_pos),2);
-%             lo_byte        = dec2hex(data_string(data_str_lo_byte_pos),2);
-%             hex_value      = strcat(hi_byte,lo_byte);
-%             dec_value      = hex2dec(hex_value);
             dec_value      = data_string(o);
             
 % Receiving uint bytes, signed bytes will be calculated here
@@ -428,13 +418,10 @@ w_dat_r_org_ni = w_dat_r_org;
 % Evaluate interpolation function at timestamps, which are the mean of
 % start and end interval. 
 
-%                 for u = i:data_end
-                   w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:data_end) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i:data_end),slm); 
-%                 end
 
-%                 for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)
+                   w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:data_end) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i:data_end),slm); 
+
                    n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)),slm_new);
-%                 end
                 
                 assignin('base','new_data',n_dat);
                 assignin('base','weather_data',w_dat);
@@ -480,37 +467,6 @@ w_dat_r_org_ni = w_dat_r_org;
 
 % Adjust all following intervals 
 
-%                 if daychange_flag == 1
-                    
-% Start intervall will be starting from 0:00-6:00-timest
-%                 if err_flag == 1
-%                     if strcmp(prg_def{2},'mittlere_temp_prog') == 1
-%                         addon = 95;
-%                     elseif strcmp(prg_def{1},'luftdruck') == 1 || strcmp(prg_def{1},'solarleistung') == 1
-%                         addon = 7;
-%                     else
-%                         addon = 15;
-%                     end
-%                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i):timestep_int:(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i+addon)+timestep_corr);
-%                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i):timestep_int:w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i+addon);
-%                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i):timestep_int:(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i+addon)+(timestep_corr/2));
-%                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(i:data_end)    = date2utc(datevec(now_s));
-%                 
-%                 date_string1 = utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:data_end));
-%                 date_string2 = utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i:data_end));
-%                 w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr(i:data_end) = cellstr(strcat(cell2mat(date_string1'),'-',datestr(cell2mat(date_string2'),13)))';
-                             
-%                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec,2)*factor)    = date2utc(datevec(now_s));
-%                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(end)+timestep_corr);
-%                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end,2)*factor)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1):timestep_int:n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(end);
-%                 n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)*factor)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(end)+(timestep_corr/2));
-%                 
-%                 date_string1 = utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)));
-%                 date_string2 = utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)));
-%                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)) = cellstr(strcat(cell2mat(date_string1'),'-',datestr(cell2mat(date_string2'),13)))';
-    
-                    
-%                 else
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(end)+timestep_corr);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(i):timestep_int:n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(end);
                 w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:data_end)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i):timestep_int:(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(end)+(timestep_corr/2));
@@ -528,42 +484,10 @@ w_dat_r_org_ni = w_dat_r_org;
                 date_string1 = utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)));
                 date_string2 = utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)));
                 n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr(1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)) = cellstr(strcat(cell2mat(date_string1'),'-',datestr(cell2mat(date_string2'),13)))';
-    
-                    
-%                 end
-                    
-                    
-                    
-%                 for u = i:data_end-1
-% 
-%                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
-%                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)     = w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-%                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u+1)    = w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u) + timestep_int;
-%                     w_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)     = date2utc(datevec(now_s));
-%                     w_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1} = {[utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(w_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
-% 
-%                 end
-% 
-%                 for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt,2)*factor - 1
-% 
-%                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u) + timestep_int;
-%                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)     = n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u) + timestep_int;
-%                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u+1)    = n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(u) + timestep_int;
-%                     n_dat.(prg_def{1}).(prg_def{2}).unix_t_rec(u+1)     = date2utc(datevec(now_s));
-%                     n_dat.(prg_def{1}).(prg_def{2}).interval_t_clr{u+1} = {[utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(u+1)),'-',datestr(utc2date(n_dat.(prg_def{1}).(prg_def{2}).unix_t_end(u+1)),13)]};
-% 
-%                 end
             
 % Perform the slm interpolation for temperatur, staerke and luftdruck                
                 
                 if strcmp(prg_def{1},'temperatur') == 1 || strcmp(prg_def{2},'staerke') == 1 || strcmp(prg_def{1},'luftdruck') == 1 || strcmp(prg_def{1},'menge') == 1
-                    
-%                     if i == 1
-%                         yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
-%                     else
-%                         yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i-1:end));   
-%                     end
-%                     yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(i:end));
                     
                     if i == 1
                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
@@ -584,26 +508,18 @@ w_dat_r_org_ni = w_dat_r_org;
 
 % Evaluate spline function at timestamps.
 
-%                         for u = i-1:data_end+1
-%                             if isnan(slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,u),slm))
-%                                 error('NaN detected');
-%                             end
                             w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end) = slmeval(w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1:data_end),slm);                           
                             if strcmp(prg_def{1},'solarleistung') == 1
                             temp = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end);
                             temp(temp < 0) = 0;
                             w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1:data_end) = temp;
                             end
-%                         end
+
                     end
                     
                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
                     
-%                     for u = 1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)
-% if err_flag ~= 1
                          n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = slmeval(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)),slm_new);                        
-% end
-%                     end
                     
                 else
 
@@ -612,41 +528,16 @@ w_dat_r_org_ni = w_dat_r_org;
                     if i == 1
                         yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
                         yi(yi < 0) = 0;
-%                         for w = i:size(yi,2)
-%                            if yi(w) < 0
-%                                yi(w) = 0;
-%                            end
-%                         end
                         w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:(data_end)) = yi; 
                     else
                         yi = spline([w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i-1:end));
                         yi(yi < 0) = 0;
-%                         for w = 1:size(yi,2)
-%                            if yi(w) < 0
-%                                yi(w) = 0;                               
-%                            end
-%                         end
                         w_dat.(prg_def{1}).(prg_def{2}).int_val(1,(i-1):(data_end)) = yi;
                     end
                     yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(prg_def{1}).(prg_def{2}).unix_t_mean(i:end));
                     yi_new(yi_new < 0) = 0;
-%                     for w = 1:size(yi_new,2)
-%                        if yi_new(w) < 0
-%                            yi_new(w) = 0;
-%                        end
-%                     end
-% if err_flag ~= 1
+
                     n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:size(n_dat.(prg_def{1}).(prg_def{2}).unix_t_mean,2)) = yi_new;
-% end        
-%                     if i == 1
-%                         slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftslope',0,'rightslope',0);
-%                     else
-%                         dy = w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2);
-%                         dx = w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) - w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-2);
-%                         m = dy/dx;
-%                         slm = slmengine([w_dat.(prg_def{1}).(prg_def{2}).unix_t_strt(1,i-1) tmp_dat_x],[w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','minvalue',min(w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i:end)),'leftvalue',w_dat.(prg_def{1}).(prg_def{2}).int_val(1,i-2),'leftslope',m,'rightslope',0);    
-%                     end
-%                     slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','minvalue',min(n_dat.(prg_def{1}).(prg_def{2}).int_val(1,1:end)),'leftslope',0,'rightslope',0);
                 end
 
                 assignin('base','new_data',n_dat);

@@ -254,7 +254,7 @@ if ~isempty(varargin)
         end
         diff_today          = etime(end_of_day,start_of_day);
         diff_days2start     = days365(date,start_observation);
-        start_delay         = uint32(diff_today+diff_days2start*86400);
+        start_delay         = uint32(diff_today+(diff_days2start-1)*86400);
         update_cycle_number = floor(diff_days/update_interval);
         assignin('base','update_cycle_number',update_cycle_number);    
     end

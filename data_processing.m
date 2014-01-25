@@ -356,47 +356,7 @@ else
             else
                 tmp_dat_x = double(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,1:end));
             end
-            
-% If factor is 6 no interval correction has to be done            
-            
-            if strcmp(fc_def{2},'mittlere_temp_prog') == 1 && factor == 6
-                
-                if i == 1
-                
-                    data_end = size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2) - 1;
-                
-                else
-                
-                    if strcmp(fc_def{2},'mittlere_temp_prog') == 1
-                        data_end = i - 1 + edindex*24*factor;
-                    else
-                        data_end = i - 1 + edindex*4*factor;
-                    end
-                
-                end
-                
-% Calculate the interpolation values 
-                
-                if i == 1
-                    slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
-                else
-                
-% A previous function call created interpolated values, take the last one
-% of these with the new data and interpolate. 
-
-                    slm = slmengine([w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
-                end
-                slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',16,'increasing','off','leftslope',0,'rightslope',0);
-               
-                w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i:data_end) = slmeval(w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i:data_end),slm); 
-                
-                n_dat.(fc_def{1}).(fc_def{2}).int_val(1,1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)) = slmeval(w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)),slm_new);
-                
-                assignin('base','new_data',n_dat);
-                assignin('base','weather_data',w_dat);
-                
-            else
-                
+                            
 % Define the end of datavector after interpolation. Take actual size of new
 % data i.e. 8 values for 2 days and multiply it with factor will be the
 % same as to divide 48h into 5m intervals. 6h have 72 5m intervals. If
@@ -525,7 +485,7 @@ else
                 assignin('base','new_data',n_dat);
                 assignin('base','weather_data',w_dat);
             
-            end
+            
             
         end
             
