@@ -1,11 +1,11 @@
 function [ response_data, crc_check_value, response_msg ] = ...
-           rxdata_processing( rxdata, modbus_pdu, fc_def, res, con_qual, lng, lat )
+           rxdata_processing( rxdata, modbus_pdu, fc_def, res, con_qual, lng, lat, cnt )
 %Processing the received rxdata from serial interface
 %   Rxdata contains the response from the MODBUS server, which has to be
 %   processed here and in a subsequent function.
 
 not_done = 1;
-cnt = 0;
+
 
 while not_done == 1
     if isempty(rxdata)
@@ -30,6 +30,8 @@ while not_done == 1
                 case '04'
                     error_msg = (['Exception Code 04 -> Failure during reading discret'...
                           'outputs']);
+                otherwise
+                    error_msg = ['Unnown exception code: ' exception_code];
             end
             response_data = [];
             crc_check_value = 0;
@@ -59,10 +61,11 @@ while not_done == 1
 
     if (isempty(response_data) || isempty(crc_check_value) || isempty(response_msg)) && ~isempty(error_msg)
         not_done = 1;
-        send_and_receive_data(modbus_pdu, fc_def, res, con_qual, lng, lat);
         cnt = cnt + 1;
         if cnt == 3
             error(error_msg);
+        else
+            send_and_receive_data(modbus_pdu, fc_def, res, con_qual, lng, lat, cnt);
         end
     else
         not_done = 0;

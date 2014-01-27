@@ -10,7 +10,7 @@ w_dat = evalin('base','weather_data');
 
 % For loop to process every forecast definition(fc_def). 
 for r = 1:t
-    
+        cnt = 0;
         fc_int           = regexp(fc_def{r},'-','split');
 % For the first loop determine if the datacontainer weather_data(w_dat) has
 % stored previous data by analyzing the last stored recording time stamp.
@@ -101,10 +101,10 @@ for r = 1:t
         modbus_pdu              = gen_msg( dev_id, start_reg_address,...
                                            quantity_reg_addresses, 'rsr' );
 % Read the connection quality        
-        con_qual                = read_com_set('03',{'quality'});
+        con_qual                = read_com_set('03',{'quality'},cnt);
 % Write message on interface and read and process response 
         txdata                  = send_and_receive_data(modbus_pdu, fc_int,...
-                                                        res, con_qual, lng, lat);
+                                                        res, con_qual, lng, lat, cnt);
 
         waitbar(r/t,h)
                

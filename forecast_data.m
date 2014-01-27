@@ -210,14 +210,14 @@ end
 open_serial_port( 'COM6', 19200, 8, 'even', 1 );
 
 % Read actual city_id value in holding register
-city_id_reg                 = read_com_set(device_id, {'city_id'});
+city_id_reg                 = read_com_set(device_id, {'city_id'}, 0);
 
 % If no value is detected for the city id register, the required city id
 % will be written to that register. If the existent register value doesn´t
 % match the required value it will be overwritten. 
 if isempty(city_id_reg)
     fprintf('Es befindet sich kein Wert in Register 112!\n');
-    write_com_set( device_id, city_id, {'city_id'} );
+    write_com_set( device_id, city_id, {'city_id'}, 0 );
     fprintf(['Neue CityID %u wurde in das Register geschrieben.\n'...
         'Es wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n'],...
         city_id);
@@ -229,7 +229,7 @@ elseif city_id ~= city_id_reg
         str = 'Y';
     end
     if strcmp(str,'Y') == 1
-        write_com_set( device_id, city_id, {'city_id'} );
+        write_com_set( device_id, city_id, {'city_id'}, 0 );
         fprintf(['Neue CityID %u wurde in das Register geschrieben.\n Es wird'...
             'ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n'],city_id);  
     else
