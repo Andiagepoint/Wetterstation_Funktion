@@ -53,7 +53,7 @@ switch field_name{1}
         if strcmp(field_name{2},'dauer') == 1
                 data_struct.(field_name{1}).(field_name{2}) = dauer;
                 data_struct.(field_name{1}).(field_name{2}).unit = 'h';
-                data_struct.(field_name{1}).(field_name{2}).info = '';
+                data_struct.(field_name{1}).(field_name{2}).info = 'Sonnenschein ist vorhanden, wenn auf einer Fläche senkrecht zur Sonnenrichtung der Grenzwert von 120W/m² überschritten wird.';
         else
                 data_struct.(field_name{1}).(field_name{2}) = einstrahlung;
                 data_struct.(field_name{1}).(field_name{2}).unit = 'W/m²';
@@ -72,7 +72,7 @@ switch field_name{1}
     case 'luftdruck'
                 data_struct.(field_name{1}).(field_name{2}) = luftdruck;
                 data_struct.(field_name{1}).(field_name{2}).unit = 'hPa';
-                data_struct.(field_name{1}).(field_name{2}).info = '';
+                data_struct.(field_name{1}).(field_name{2}).info = 'Luftdruck bezogen auf Meereshöhe';
     case 'signifikantes_wetter'
                 data_struct.(field_name{1}).(field_name{2}) = signifikantes_wetter;
                 data_struct.(field_name{1}).(field_name{2}).unit = '';
