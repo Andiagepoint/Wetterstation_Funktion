@@ -17,7 +17,7 @@ waitbar(2/3,wb)
 % Generate modbus adu
 msg                         = crc_calc(char(modbus_msg));
 % Send message
-[rxdata]                    = send_and_receive_data(msg, field_name, '', '', '', '', cnt);
+[rxdata]                    = send_and_receive_data(msg, field_name, '', '', '', '', cnt, '');
 waitbar(3/3,wb)
 % Close progress bar
 close(wb)

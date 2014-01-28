@@ -10,7 +10,7 @@ markantes_wetter = struct('bodennebel',day_rough,'gefrierender_regen',day_rough,
 niederschlag = struct('menge',day_rough,'wahrscheinlichkeit',day_rough);
 wind = struct('staerke',day_rough,'richtung',day_rough);
 solarleistung = struct('dauer',day_rough,'einstrahlung',day_rough);
-temperatur = struct('max',day_rough,'min',day_rough,'mittlere_temp_prog',day_detailed);
+temperatur = struct('max',day_rough,'min',day_rough,'mittlere_temp_prog',day_detailed,'lokal_temp','0061');
 x = struct('x',day_rough);
 
 radio_clock = struct('sec','0064','min','0065','hour','0066','day','0067','month','0068','year','0069');
@@ -21,7 +21,6 @@ comset = struct('register',register,'coil',coil);
 
 data = struct('temperatur',temperatur,'luftdruck',x,'markantes_wetter',markantes_wetter,'niederschlag',niederschlag,'solarleistung',solarleistung,'signifikantes_wetter',x,'wind',wind,'communication_settings',comset);
 
-[data] = register_fill(390,data,'temperatur','mittlere_temp_prog');
 [data] = register_fill(400,data,'temperatur','max');
 [data] = register_fill(420,data,'temperatur','min');
 [data] = register_fill(140,data,'niederschlag','menge');

@@ -101,10 +101,15 @@ for r = 1:t
         modbus_pdu              = gen_msg( dev_id, start_reg_address,...
                                            quantity_reg_addresses, 'rsr' );
 % Read the connection quality        
-        con_qual                = read_com_set('03',{'quality'},cnt);
+        con_qual  = read_com_set('03',{'quality'},cnt);
+        if strcmp(fc_int{1,1},'temperatur') == 1
+            lokal_temp = read_com_set('03',{'temperature'},cnt);
+        else
+            lokal_temp = [];
+        end
 % Write message on interface and read and process response 
         txdata                  = send_and_receive_data(modbus_pdu, fc_int,...
-                                                        res, con_qual, lng, lat, cnt);
+                                  res, con_qual, lng, lat, cnt, lokal_temp);
 
         waitbar(r/t,h)
                

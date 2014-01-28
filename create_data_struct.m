@@ -37,7 +37,7 @@ switch field_name{1}
         else
                 data_struct.(field_name{1}).(field_name{2}) = mittlere_temp_prog;
                 data_struct.(field_name{1}).(field_name{2}).unit = '°C';
-                data_struct.(field_name{1}).(field_name{2}).info = 'mittlere Lufttemperatur 2m ü. Erdboden';
+                data_struct.(field_name{1}).(field_name{2}).info = 'mittlere Lufttemperatur 2m ü. Erdboden';                
         end
     case 'niederschlag'
         if strcmp(field_name{2},'menge') == 1

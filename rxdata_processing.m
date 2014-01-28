@@ -1,5 +1,6 @@
 function [ response_data, crc_check_value, response_msg ] = ...
-           rxdata_processing( rxdata, modbus_pdu, fc_def, res, con_qual, lng, lat, cnt )
+           rxdata_processing( rxdata, modbus_pdu, fc_def, res,...
+           con_qual, lng, lat, cnt, lokal_temp )
 %Processing the received rxdata from serial interface
 %   Rxdata contains the response from the MODBUS server, which has to be
 %   processed here and in a subsequent function.
@@ -50,7 +51,7 @@ while not_done == 1
 %                     [ value ] = send_and_receive_data( modbus_msg, fc_def );
 %                     end
                     response_data = data_processing( rxdata(4:end-2), fc_def,...
-                                                     res, con_qual, lng, lat );
+                                                     res, con_qual, lng, lat, lokal_temp );
                     [crc_check_value, response_msg] = crc_check(rxdata);
                 case 6
                     response_data = dec2hex(rxdata(5:6),4);
@@ -65,7 +66,7 @@ while not_done == 1
         if cnt == 3
             error(error_msg);
         else
-            send_and_receive_data(modbus_pdu, fc_def, res, con_qual, lng, lat, cnt);
+            send_and_receive_data(modbus_pdu, fc_def, res, con_qual, lng, lat, cnt, lokal_temp);
         end
     else
         not_done = 0;

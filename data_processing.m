@@ -1,4 +1,4 @@
-function [ dec_value ] = data_processing( data_string, fc_def, res, con_qual, lng, lat )
+function [ dec_value ] = data_processing( data_string, fc_def, res, con_qual, lng, lat, lokal_temp )
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
@@ -248,7 +248,10 @@ else
 
                 w_dat.(fc_def{1}).(fc_def{2}).int_val(w_dat_r)            = data_mult(dec_value,fc_def{2});
                 w_dat.(fc_def{1}).(fc_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,fc_def{2});
-                w_dat.(fc_def{1}).(fc_def{2}).con_qual(w_dat_r_org)       = con_qual;               
+                w_dat.(fc_def{1}).(fc_def{2}).con_qual(w_dat_r_org)       = con_qual;
+                if strcmp(fc_def{2},'mittlere_temp_prog') == 1
+                w_dat.(fc_def{1}).(fc_def{2}).loc_temp(w_dat_r_org)       = lokal_temp;
+                end
                 
                 fprintf('%s %s - %u %u %u %s %u \n', fc_def{1}, fc_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now),MESZ_calc), cell2mat(strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13))), data_mult(dec_value,fc_def{2}));                     
 
@@ -263,6 +266,9 @@ else
                 n_dat.(fc_def{1}).(fc_def{2}).int_val(n_dat_r)        = data_mult(dec_value,fc_def{2});
                 n_dat.(fc_def{1}).(fc_def{2}).org_val(n_dat_r)        = data_mult(dec_value,fc_def{2});
                 n_dat.(fc_def{1}).(fc_def{2}).con_qual(n_dat_r)       = con_qual;
+                if strcmp(fc_def{1},'Temperatur') == 1
+                n_dat.(fc_def{1}).(fc_def{2}).loc_temp(n_dat_r)       = lokal_temp;
+                end
                    
 % Incrementing data string, and data container row position            
             data_str_hi_byte_pos = data_str_hi_byte_pos + 2;
