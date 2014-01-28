@@ -14,9 +14,9 @@ for t = 1:p
     sun_rise_tomorrow = double(date2utc(sun_rise_tomorrow,1));
     sun_set_tomorrow = double(date2utc(sun_set_tomorrow,1));
     if t == 1
-    temp = [temp, [linspace(sun_rise_today,sun_set_today,4), linspace(sun_rise_tomorrow,sun_set_tomorrow,4)]]; 
+        temp = [temp, [linspace(sun_rise_today,sun_set_today,4), linspace(sun_rise_tomorrow,sun_set_tomorrow,4)]]; 
     else
-    temp = [temp(1:o), [linspace(sun_rise_today,sun_set_today,4), linspace(sun_rise_tomorrow,sun_set_tomorrow,4)]];    
+        temp = [temp(1:o), [linspace(sun_rise_today,sun_set_today,4), linspace(sun_rise_tomorrow,sun_set_tomorrow,4)]];    
     end
     datetest = datestr(datenum(datum1)+t,1);
     o=o+4;
