@@ -249,7 +249,7 @@ else
                 w_dat.(fc_def{1}).(fc_def{2}).int_val(w_dat_r)            = data_mult(dec_value,fc_def{2});
                 w_dat.(fc_def{1}).(fc_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,fc_def{2});
                 w_dat.(fc_def{1}).(fc_def{2}).con_qual(w_dat_r_org)       = con_qual;
-                if strcmp(fc_def{2},'mittlere_temp_prog') == 1
+                if strcmp(fc_def{1},'temperatur') == 1
                 w_dat.(fc_def{1}).(fc_def{2}).loc_temp(w_dat_r_org)       = lokal_temp/10;
                 end
                 
@@ -266,7 +266,7 @@ else
                 n_dat.(fc_def{1}).(fc_def{2}).int_val(n_dat_r)        = data_mult(dec_value,fc_def{2});
                 n_dat.(fc_def{1}).(fc_def{2}).org_val(n_dat_r)        = data_mult(dec_value,fc_def{2});
                 n_dat.(fc_def{1}).(fc_def{2}).con_qual(n_dat_r)       = con_qual;
-                if strcmp(fc_def{1},'Temperatur') == 1
+                if strcmp(fc_def{1},'temperatur') == 1
                 n_dat.(fc_def{1}).(fc_def{2}).loc_temp(n_dat_r)       = lokal_temp/10;
                 end
                    
