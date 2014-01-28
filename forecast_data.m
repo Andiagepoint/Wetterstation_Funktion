@@ -1,7 +1,7 @@
 function [ ] = forecast_data( city_name, fc_def, varargin )
 % Function to read data from HWK Kompakt WS-xx Modbus
 % Example
-% forecast_data('München','niederschlag-menge-3','23-Nov-2013','25-Nov-2013',1,6)
+% forecast_data('München','niederschlag-menge-3','23-Nov-2013','25-Nov-2013',1,6,3600,'D:\Test')
 % forecast_data('München',{'luftdruck-x-heute-all';'niederschlag-menge-2'},'23-Nov-2013','25-Nov-2013',0.08,12)
 % forecast_data('München','all','23-Nov-2013','25-Nov-2013',0.08,12)
 % forecast_data('München','all')
@@ -66,42 +66,45 @@ function [ ] = forecast_data( city_name, fc_def, varargin )
 % #### Assign varargin elements and initialize variables ####
 
 % Assign varargin elements to variables. Create folder to save records.
+if size(pwd,2) < 4
+    default_filepath        = [pwd,'Aufzeichnungen'];
+else
+    default_filepath        = [pwd,'\Aufzeichnungen']; 
+end
 if ~isempty(varargin)
-    if size(varargin,2) < 4
+    if nargin < 4
         fprintf(2,['Bitte geben Sie das Start- und Enddatum des' ... 
             'Boabachtungszeitraums\n sowie die Auflösung und' ...
             'das Updateintervall an.\n'],char(10));
         error('Zu wenig Inputparameter!');
-    else
+    else 
         start_observation       = varargin{1};
         end_observation         = varargin{2};
         resolution              = varargin{3};
         update_interval         = varargin{4};
     end
-    if size(varargin,2) > 4
-        filepath            = varargin{5};
-    else
-        if size(pwd,2) < 4
-            filepath        = [pwd,'Aufzeichnungen'];
-        else
-            filepath        = [pwd,'\Aufzeichnungen']; 
-        end
-        [s,mess,messid]     = mkdir(filepath);
+    if nargin == 5
+        start_offset            = varargin{5};
+        [s,mess,messid]         = mkdir(default_filepath);
         if ~isempty(mess)
             fprintf('Ordner existiert bereits.\n');
         end
+    elseif nargin == 6
+        start_offset            = varargin{5};
+        filepath                = varargin{6};
+    else
+        [s,mess,messid]         = mkdir(default_filepath);
+        if ~isempty(mess)
+            fprintf('Ordner existiert bereits.\n');
+        end
+        start_offset = 0;
     end 
 else
-    if size(pwd,2) < 4
-        filepath            = [pwd,'Aufzeichnungen'];
-    else
-        filepath            = [pwd,'\Aufzeichnungen']; 
+    [s,mess,messid]     = mkdir(default_filepath);
+    if ~isempty(mess)
+        fprintf('Ordner existiert bereits.\n');
     end
-        [s,mess,messid]     = mkdir(filepath);
-        if ~isempty(mess)
-            fprintf('Ordner existiert bereits.\n');
-        end
-    resolution = 1;    
+    resolution = 1;
 end
 
 % If only one forecast definition is requested, convert char input into
@@ -219,11 +222,11 @@ if isempty(city_id_reg)
     fprintf('Es befindet sich kein Wert in Register 112!\n');
     write_com_set( device_id, city_id, {'city_id'}, 0 );
     fprintf(['Neue CityID %u wurde in das Register geschrieben.\n'...
-        'Es wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n'],...
-        city_id);
+    'Es wird ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n'],...
+    city_id);
 elseif city_id ~= city_id_reg
     prompt = ['Die vorhandene City ID entspricht nicht der in der Funktion'...
-        'übergebenen ID.\n Möchten Sie fortfahren? Y/N [Y]: '];
+              'übergebenen ID.\n Möchten Sie fortfahren? Y/N [Y]: '];
     str = input(prompt,'s');
     if isempty(str)
         str = 'Y';
@@ -231,7 +234,7 @@ elseif city_id ~= city_id_reg
     if strcmp(str,'Y') == 1
         write_com_set( device_id, city_id, {'city_id'}, 0 );
         fprintf(['Neue CityID %u wurde in das Register geschrieben.\n Es wird'...
-            'ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n'],city_id);  
+        'ein paar Stunden dauern, bis alle Register aktualisiert wurden.\n\n'],city_id);  
     else
         fprintf(2,'Der Funktionsaufruf wurde abgebrochen.\n', char(10)); 
         return;
@@ -281,18 +284,22 @@ if ~isempty(varargin)
     update_interval_hours       = update_interval*3600;
 
 % A timer is defined here to control the automatic update cycles.
-% Requests start with a 3 sec delay. The function to be executed after
-% the waiting period is send_loop, which triggers the communication
-% between Matlab and the weather station. The stop function deletes the
-% timer object after all tasks have been executed. 
+% Requests start with a specified offset from the moment the function was
+% executed. If no offset was defined, it will be zero. For future start dates
+% of the observation intervall, the start_offset will be the time in seconds 
+% after midnight. The function to be executed after the waiting period is 
+% send_loop, which triggers the communication between Matlab and the weather
+% station. The stop function deletes the timer object after all tasks have 
+% been executed or a failure occures during the timer function execution. 
     t                           = timer;
 
     if strcmp(start_observation,date) == 1
-        t.StartDelay            = 3;
+        t.StartDelay            = start_offset;
     else
-        t.StartDelay            = start_delay;
+        t.StartDelay            = start_delay+start_offset;
     end
-    t.TimerFcn                  = {@send_loop, size_table_data, fc_def, device_id, filepath, city_name, update_cycle_number, resolution, longitude, latitude};
+    t.TimerFcn                  = {@send_loop, size_table_data, fc_def, device_id,...
+           filepath, city_name, update_cycle_number, resolution, longitude, latitude};
     t.StopFcn                   = {@stop_timer, filepath, city_name, resolution};
     t.Period                    = update_interval_hours;
     t.TasksToExecute            = update_cycle_number;
@@ -300,7 +307,8 @@ if ~isempty(varargin)
     start(t);
 
 else
-    send_loop('','', size_table_data, fc_def, device_id, filepath, city_name, '', resolution, longitude, latitude);
+    send_loop('','', size_table_data, fc_def, device_id, filepath, city_name, '',...
+              resolution, longitude, latitude);
     filename                    = strcat(filepath,'\weather_data_',date,'.mat');
     weather_data                = evalin('base','weather_data');
     save(filename,'weather_data','-mat');
