@@ -10,7 +10,7 @@ markantes_wetter = struct('bodennebel',day_rough,'gefrierender_regen',day_rough,
 niederschlag = struct('menge',day_rough,'wahrscheinlichkeit',day_rough);
 wind = struct('staerke',day_rough,'richtung',day_rough);
 solarleistung = struct('dauer',day_rough,'einstrahlung',day_rough);
-temperatur = struct('max',day_rough,'min',day_rough,'mittlere_temp_prog',day_detailed,'lokal_temp','0061');
+temperatur = struct('max',day_rough,'min',day_rough,'mittlere_temp_prog',day_detailed);
 x = struct('x',day_rough);
 
 radio_clock = struct('sec','0064','min','0065','hour','0066','day','0067','month','0068','year','0069');
