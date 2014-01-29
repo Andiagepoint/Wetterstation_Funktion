@@ -67,9 +67,9 @@ function [ ] = forecast_data( city_name, fc_def, varargin )
 
 % Assign varargin elements to variables. Create folder to save records.
 if size(pwd,2) < 4
-    default_filepath        = [pwd,'Aufzeichnungen'];
+    filepath        = [pwd,'Aufzeichnungen'];
 else
-    default_filepath        = [pwd,'\Aufzeichnungen']; 
+    filepath        = [pwd,'\Aufzeichnungen']; 
 end
 if ~isempty(varargin)
     if nargin < 4
@@ -83,24 +83,24 @@ if ~isempty(varargin)
         resolution              = varargin{3};
         update_interval         = varargin{4};
     end
-    if nargin == 5
+    if nargin == 7
         start_offset            = varargin{5};
-        [s,mess,messid]         = mkdir(default_filepath);
+        [s,mess,messid]         = mkdir(filepath);
         if ~isempty(mess)
             fprintf('Ordner existiert bereits.\n');
         end
-    elseif nargin == 6
+    elseif nargin == 8
         start_offset            = varargin{5};
         filepath                = varargin{6};
     else
-        [s,mess,messid]         = mkdir(default_filepath);
+        [s,mess,messid]         = mkdir(filepath);
         if ~isempty(mess)
             fprintf('Ordner existiert bereits.\n');
         end
         start_offset = 0;
     end 
 else
-    [s,mess,messid]     = mkdir(default_filepath);
+    [s,mess,messid]     = mkdir(filepath);
     if ~isempty(mess)
         fprintf('Ordner existiert bereits.\n');
     end
