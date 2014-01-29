@@ -1,4 +1,4 @@
-function [ check, response_msg  ] = crc_check( rxdata )
+function [ check, error_msg  ] = crc_check( rxdata )
 %Calculates the CRC sum from the slave response
 %   Detailed explanation goes here
 msg = '';
@@ -15,8 +15,10 @@ response_msg = crc_calc(msg);
 % compare calculated checksum and recived checksum and assign flag value
 if strcmp(response_msg(end-3:end),crc_checksum) == 1 
     check = 1;
+    error_msg = [];
 else
     check = 0;
+    error_msg = 'CRC Check war ungültig';
 end
 end
 

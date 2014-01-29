@@ -1,6 +1,7 @@
 function [ request_value ] = read_com_set( device_id, request_list, cnt )
 %This function reads the communication settings 
-%E.g. read_com_set('03',{city_id})
+%E.g. read_com_set('03',{'city_id'})
+%     read_com_set('03',{'city_id','quality'})
 %
 %   device_id  has to be '03'
 %
@@ -32,7 +33,8 @@ if size(request_list,2) > 1
 % Generate modbus message 'rr' indicates a read register operation
         modbus_msg = gen_msg(device_id, reg_address, reg_num, 'rsr');
 % Send message and evaluate the response
-        request_value(t) = send_and_receive_data(modbus_msg, field_name, '', '', '', '', cnt, '');
+        request_value(t) = send_and_receive_data(modbus_msg, field_name,...
+                                                 '', '', '', '', cnt, '');
     end
 % Close progress bar
     close(wb);
@@ -45,7 +47,8 @@ else
 % Generate modbus message 'rr' indicates a read register operation
     modbus_msg = gen_msg(device_id, reg_address, reg_num, 'rsr');
 % Send message and evaluate the response, write status to protocol
-    request_value = send_and_receive_data(modbus_msg, field_name, '', '', '', '', cnt, '');
+    request_value = send_and_receive_data(modbus_msg, field_name,...
+                                          '', '', '', '', cnt, '');
 end
 
 end

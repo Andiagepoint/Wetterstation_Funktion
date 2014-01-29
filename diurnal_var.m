@@ -1,5 +1,6 @@
 function [ sunrise_vec sunset_vec ] = diurnal_var( latitude, longitude, date_of_day )
-%UNTITLED Summary of this function goes here
+%Calculates the time of sunset and sunrise for given date, longitude and
+%latitude
 %   Detailed explanation goes here
 phi_horz = pi/4;
 prime_meridian = pi/6;

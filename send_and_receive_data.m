@@ -25,7 +25,7 @@ end
 [rxdata] = fread(serial_interface, bytes_num, 'uint8');
 
 % Call rxdata processing
-[value, error_msg] = rxdata_processing( rxdata, modbus_msg, field_name, res,...
+[value] = rxdata_processing( rxdata, modbus_msg, field_name, res,...
                                         con_qual, lng, lat, cnt, lokal_temp );
 
 end

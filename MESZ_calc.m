@@ -1,5 +1,5 @@
 function [ MEZ ] = MESZ_calc(  )
-%Determines a flat to consider central european summer time or not
+%Determines a flag to consider central european summer time or not
 %   Detailed explanation goes here
 years = {'2013','2014','2015','2016','2017','2018','2019','2020'};
                 

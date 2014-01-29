@@ -1,8 +1,7 @@
-function [ dec_value ] = data_processing( data_string, fc_def, res, con_qual, lng, lat, lokal_temp )
+function[dec_value] = data_processing(data_string, fc_def, res, con_qual, lng, lat, lokal_temp)
 % Processes the rxdata and allocates it to the data container in a defined
 % structure
 %   Detailed explanation goes here
-
 
 % Get the new data and weather data container form the base workspace
 
@@ -13,15 +12,6 @@ daychange_counter = evalin('base','daychange_counter');
 % Decide if MEZ or MESZ is valid
 
 MEZ = MESZ_calc();
-
-% Container building: for the first request session (=modbus-message)
-% set the row counter to 1 for both weather and new data container
-% extent the weather data container to a 1,6 cell array and define the new
-% data container as a 1,2 cell array. After the first request is finished
-% both cell arrays will contain the response for the send message. For the
-% following requests we have to receive the new data array from the base
-% workspace and set the row counter to the next free row.
-
 
 % Here lists are defined which will be needed to define the loop numbers or
 % to find the right register address
@@ -61,29 +51,17 @@ else
 % When the first function call was executed a record timestamp will be 
 % stored in the data container. The last record date of the last update 
 % will be assigned to t_rec to compare it with the current update date to
-% evaluate if a daychange has been occured.
+% encounter a daychange.
     
     if ~isempty(w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec)
-        t_rec = w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(size(w_dat.(fc_def{1}).(fc_def{2}).int_val,2));
+        t_rec = w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(size(...
+                                        w_dat.(fc_def{1}).(fc_def{2}).int_val,2));
     end
    
 % sdindex = starting point of the loop through the observation days
-% edindex = end point 
-    
-    [~, sdindex] = ismember(fc_def{3}, obs_day);
-     
-% Normally fc_def is defined as
-% 'niederschlag-menge-heute-morgen-heute-abend
-% If fc_def is only 'niederschlag-menge-heute-morgen' if condition will be
-% true.
-    if size(fc_def,2) < 5        
-        edindex = sdindex;        
-    else
-        
-% If condition is false, number of loops will be determined by the list
-% position (obs_day) of the last day of observation.        
-        [~, edindex] = ismember(fc_def{5}, obs_day);        
-    end
+% edindex = end point    
+    [~, sdindex] = ismember(fc_def{3}, obs_day);                 
+    [~, edindex] = ismember(fc_def{5}, obs_day);
     
 % When the function is called the first time t_rec will be empty and the
 % start position for the interpolated and original data datavector will 
@@ -94,15 +72,16 @@ else
     else
         
 % If t_rec is not empty a previous function call had been executed. If this
-% execution was on the same day data vector position has to stay constant.
-% In the case a daychange occures daychange will be increased by 1. 
-        if days365(datestr(utc2date(w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(1)),1),date) == 0
+% execution was on the same day data vector position has to stay constant. 
+        if days365(datestr(utc2date(...
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(1)),1),date) == 0
             w_dat_r_org = 1;
             w_dat_r = 1;
         else
 % Get the data vector position for which the date changes, start at positon
 % 1 from recording.
-            while strcmp(datestr(utc2date(w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i)),1),date) ~= 1
+            while strcmp(datestr(utc2date(...
+                    w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i)),1),date) ~= 1
                 i = i + 1;
                 if i > size(w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)
                     break;
@@ -110,9 +89,11 @@ else
             end
 % i will be the next position in the data vector to write data to            
             w_dat_r = i;
-% For the data with no interpolation you don´t have to change position
-% cause they go parallel.
-            if strcmp(fc_def{1},'markantes_wetter') == 1 || strcmp(fc_def{1},'signifikantes_wetter') == 1 || strcmp(fc_def{2},'richtung') == 1 || strcmp(fc_def{2},'wahrscheinlichkeit') == 1
+% For the data with no interpolation you don´t have to change position.
+            if strcmp(fc_def{1},'markantes_wetter') == 1 ||...
+               strcmp(fc_def{1},'signifikantes_wetter') == 1 ||...
+               strcmp(fc_def{2},'richtung') == 1 ||...
+               strcmp(fc_def{2},'wahrscheinlichkeit') == 1
                 w_dat_r_org = w_dat_r;
             else
 % For interpolated data you have to make a difference between original data
@@ -186,7 +167,8 @@ else
         end
         
         if t == sdindex
-                datepart       = str2double(regexp(datestr(date,'yyyy-mm-dd'),'-','split'));
+                datepart       = str2double(regexp(datestr(...
+                                            date,'yyyy-mm-dd'),'-','split'));
                 date_str_num   = datenum(date);
         else 
                 datepart       = datepart + [0 0 1];
@@ -215,13 +197,16 @@ else
             if s > 4
                 timevec = tvector(fc_def{2}, datepart, point_in_time{s});
             else
-                timevec = tvector(fc_def{2}, datepart, point_in_time{s}, day_segment{s});
+                timevec = tvector(fc_def{2}, datepart, point_in_time{s},...
+                                  day_segment{s});
             end
             
 % If any value received is equal to 10000 the data processing for this 
 % forecast scope will be canceled.
             if dec_value == 10000
-                warning_msg = ['Der Wert für den Prognosebereich ',fc_def{1},'-',fc_def{2},'-',fc_def{3},'-',fc_def{4},' ist ungültig! Der komplette Prognosebereich wurde deshalb nicht gespeichert!'];
+                warning_msg = ['Der Wert für den Prognosebereich ',fc_def{1},'-',...
+                    fc_def{2},'-',fc_def{3},'-',fc_def{4},'ist ungültig!'...
+                    'Der komplette Prognosebereich wurde deshalb nicht gespeichert!'];
                 warning(warning_msg);
                 return;
             end
@@ -239,32 +224,53 @@ else
             end
             
 % Assign received value to continous data container. No interpolation is done.             
-                w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(w_dat_r)    = date2utc(timevec);
-                w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(w_dat_r)     = date2utc(timevec) + timestep;
-                w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(w_dat_r)    = date2utc(timevec) + floor(timestep/2);
-                w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(w_dat_r)     = date2utc(datevec(now),MESZ_calc);
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(w_dat_r)    =...
+                                                                    date2utc(timevec);
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(w_dat_r)     =...
+                                                        date2utc(timevec) + timestep;
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(w_dat_r)    =...
+                                                date2utc(timevec) + floor(timestep/2);
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(w_dat_r)     =...
+                                                    date2utc(datevec(now),MESZ_calc);
                 
-                w_dat.(fc_def{1}).(fc_def{2}).interval_t_clr{w_dat_r} = {[cell2mat(utc2date(date2utc(timevec))),'-',datestr(utc2date(w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(w_dat_r)),13)]};
+                w_dat.(fc_def{1}).(fc_def{2}).interval_t_clr{w_dat_r} =...
+                    {[cell2mat(utc2date(date2utc(timevec))),'-',datestr(utc2date(...
+                    w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(w_dat_r)),13)]};
 
-                w_dat.(fc_def{1}).(fc_def{2}).int_val(w_dat_r)            = data_mult(dec_value,fc_def{2});
-                w_dat.(fc_def{1}).(fc_def{2}).org_val(w_dat_r_org)        = data_mult(dec_value,fc_def{2});
-                w_dat.(fc_def{1}).(fc_def{2}).con_qual(w_dat_r_org)       = con_qual;
+                w_dat.(fc_def{1}).(fc_def{2}).int_val(w_dat_r)        =...
+                                                        data_mult(dec_value,fc_def{2});
+                w_dat.(fc_def{1}).(fc_def{2}).org_val(w_dat_r_org)    =...
+                                                        data_mult(dec_value,fc_def{2});
+                w_dat.(fc_def{1}).(fc_def{2}).con_qual(w_dat_r_org)   = con_qual;
                 if strcmp(fc_def{1},'temperatur') == 1
-                w_dat.(fc_def{1}).(fc_def{2}).loc_temp(w_dat_r_org)       = lokal_temp/10;
+                w_dat.(fc_def{1}).(fc_def{2}).loc_temp(w_dat_r_org)   = lokal_temp/10;
                 end
                 
-                fprintf('%s %s - %u %u %u %s %u \n', fc_def{1}, fc_def{2}, date2utc(timevec), date2utc(timevec) + timestep, date2utc(datevec(now),MESZ_calc), cell2mat(strcat(utc2date(date2utc(timevec)),'-',datestr(utc2date(date2utc(timevec) + timestep),13))), data_mult(dec_value,fc_def{2}));                     
+                fprintf('%s %s - %u %u %u %s %u \n', fc_def{1}, fc_def{2},...
+                    date2utc(timevec), date2utc(timevec) + timestep,...
+                    date2utc(datevec(now),MESZ_calc),...
+                    cell2mat(strcat(utc2date(date2utc(timevec)),'-',...
+                    datestr(utc2date(date2utc(timevec) + timestep),13))),...
+                    data_mult(dec_value,fc_def{2}));                     
 
 % Assign received value to update data container. No interpolation is done.
-                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(n_dat_r)    = date2utc(timevec);
-                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(n_dat_r)     = date2utc(timevec) + timestep;
-                n_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(n_dat_r)     = date2utc(datevec(now),MESZ_calc);
-                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(n_dat_r)    = date2utc(timevec) + floor(timestep/2);
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(n_dat_r)    =...
+                                                                    date2utc(timevec);
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(n_dat_r)     =...
+                                                          date2utc(timevec) + timestep;
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(n_dat_r)     =...
+                                                      date2utc(datevec(now),MESZ_calc);
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(n_dat_r)    =...
+                                                 date2utc(timevec) + floor(timestep/2);
                 
-                n_dat.(fc_def{1}).(fc_def{2}).interval_t_clr{n_dat_r} = {[cell2mat(utc2date(date2utc(timevec))),'-',datestr(utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(n_dat_r)),13)]};
+                n_dat.(fc_def{1}).(fc_def{2}).interval_t_clr{n_dat_r} =...
+                    {[cell2mat(utc2date(date2utc(timevec))),'-',datestr(utc2date(...
+                              n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(n_dat_r)),13)]};
 
-                n_dat.(fc_def{1}).(fc_def{2}).int_val(n_dat_r)        = data_mult(dec_value,fc_def{2});
-                n_dat.(fc_def{1}).(fc_def{2}).org_val(n_dat_r)        = data_mult(dec_value,fc_def{2});
+                n_dat.(fc_def{1}).(fc_def{2}).int_val(n_dat_r)        =...
+                                                        data_mult(dec_value,fc_def{2});
+                n_dat.(fc_def{1}).(fc_def{2}).org_val(n_dat_r)        =...
+                                                        data_mult(dec_value,fc_def{2});
                 n_dat.(fc_def{1}).(fc_def{2}).con_qual(n_dat_r)       = con_qual;
                 if strcmp(fc_def{1},'temperatur') == 1
                 n_dat.(fc_def{1}).(fc_def{2}).loc_temp(n_dat_r)       = lokal_temp/10;
@@ -290,7 +296,10 @@ else
 
 % For those forecast scopes with no interpolation the data can be assigned
 % to the base workspace.        
-        if strcmp(fc_def{1},'markantes_wetter') == 1 || strcmp(fc_def{1},'signifikantes_wetter') == 1 || strcmp(fc_def{2},'richtung') == 1 || strcmp(fc_def{2},'wahrscheinlichkeit') == 1            
+        if strcmp(fc_def{1},'markantes_wetter') == 1 ||...
+           strcmp(fc_def{1},'signifikantes_wetter') == 1 ||...
+           strcmp(fc_def{2},'richtung') == 1 ||...
+           strcmp(fc_def{2},'wahrscheinlichkeit') == 1            
             assignin('base','new_data',n_dat);
             assignin('base','weather_data',w_dat);            
         else
@@ -298,13 +307,22 @@ else
 % Select x and y values for interpolation from new data                
             tmp_dat_y = double(n_dat.(fc_def{1}).(fc_def{2}).int_val(1,1:end));            
             if strcmp(fc_def{1},'solarleistung') == 1
+                if edindex == 1
                 [sun_rise_today,sun_set_today] = diurnal_var(lat, lng, date);
-                [sun_rise_tomorrow,sun_set_tomorrow] = diurnal_var(lat, lng, datestr(datenum(date)+1));
+                sun_rise_today = double(date2utc(sun_rise_today, MEZ));
+                sun_set_today = double(date2utc(sun_set_today,MEZ));
+                tmp_dat_x = linspace(sun_rise_today,sun_set_today,4);
+                else
+                [sun_rise_today,sun_set_today] = diurnal_var(lat, lng, date);
+                [sun_rise_tomorrow,sun_set_tomorrow] = diurnal_var(lat, lng,...
+                                                        datestr(datenum(date)+1));
                 sun_rise_today = double(date2utc(sun_rise_today, MEZ));
                 sun_set_today = double(date2utc(sun_set_today,MEZ));
                 sun_rise_tomorrow = double(date2utc(sun_rise_tomorrow,MEZ));
                 sun_set_tomorrow = double(date2utc(sun_set_tomorrow,MEZ));
-                tmp_dat_x = [linspace(sun_rise_today,sun_set_today,4), linspace(sun_rise_tomorrow,sun_set_tomorrow,4)];
+                tmp_dat_x = [linspace(sun_rise_today,sun_set_today,4),...
+                             linspace(sun_rise_tomorrow,sun_set_tomorrow,4)];
+                end
             else
                 tmp_dat_x = double(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,1:end));
             end
@@ -331,38 +349,82 @@ else
 % the new interval end of continous data, take the first 6h interval of new
 % data and subtract timestep_corr. E.g. res is 5m -> new end of
 % continous data will be 6h-5h55m.                
-            w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i)           = n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1) - timestep_corr;
-            w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i)          = floor((w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i)-n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))/2)+n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1);
-            w_dat.(fc_def{1}).(fc_def{2}).interval_t_clr(i)       = {[cell2mat(utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))),'-',datestr(utc2date(w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i)),13)]};
+            w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i)           =...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1) - timestep_corr;
+            w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i)          =...
+                floor((w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i)-...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))/2)+...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1);
+            w_dat.(fc_def{1}).(fc_def{2}).interval_t_clr(i)       =...
+                {[cell2mat(utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))),...
+                '-',datestr(utc2date(w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i)),13)]};
 
-            n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1)           = n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1) - timestep_corr;
-            n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1)          = floor((n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1)-n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))/2)+n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1);
-            n_dat.(fc_def{1}).(fc_def{2}).interval_t_clr{1}       = {[cell2mat(utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))),'-',datestr(utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1)),13)]};
+            n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1)           =...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1) - timestep_corr;
+            n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1)          =...
+                floor((n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1)-...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))/2)+...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1);
+            n_dat.(fc_def{1}).(fc_def{2}).interval_t_clr{1}       =...
+                {[cell2mat(utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1))),...
+                '-',datestr(utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1)),13)]};
 
 % Adjust all following intervals 
                     
 % Start intervall will be starting from 0:00-6:00-timest
-            w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i:data_end)    = w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i):timestep_int:(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(end)+timestep_corr);
-            w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i:data_end)    = w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i):timestep_int:n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(end);
-            w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:data_end)    = w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i):timestep_int:(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(end)+(timestep_corr/2));
-            w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(i:data_end)    = date2utc(datevec(now),MESZ_calc);
+            w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i:data_end)   =...
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i):timestep_int:...
+                (n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(end)+timestep_corr);
+            w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i:data_end)    =...
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i):timestep_int:...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(end);
+            w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:data_end)   =...
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i):timestep_int:...
+                (n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(end)+(timestep_corr/2));
+            w_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(i:data_end)    =...
+                date2utc(datevec(now),MESZ_calc);
 
-            date_string1 = utc2date(w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i:data_end));
-            date_string2 = utc2date(w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i:data_end));
-            w_dat.(fc_def{1}).(fc_def{2}).interval_t_clr(i:data_end) = cellstr(strcat(cell2mat(date_string1'),'-',datestr(cell2mat(date_string2'),13)))';
+            date_string1 = utc2date(...
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(i:data_end));
+            date_string2 = utc2date(...
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_end(i:data_end));
+            w_dat.(fc_def{1}).(fc_def{2}).interval_t_clr(i:data_end) =...
+                cellstr(strcat(cell2mat(date_string1'),...
+                '-',datestr(cell2mat(date_string2'),13)))';
 
-            n_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_rec,2)*factor)    = date2utc(datevec(now),MESZ_calc);
-            n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)*factor)    = n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1):timestep_int:(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(end)+timestep_corr);
-            n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_end,2)*factor)    = n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1):timestep_int:n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(end);
-            n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)*factor)    = n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1):timestep_int:(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(end)+(timestep_corr/2));
+            n_dat.(fc_def{1}).(fc_def{2}).unix_t_rec(1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_rec,2)*factor)    =...
+                date2utc(datevec(now),MESZ_calc);
+            n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)*factor)   =...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1):timestep_int:...
+                (n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(end)+timestep_corr);
+            n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end,2)*factor)    =...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1):timestep_int:...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(end);
+            n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)*factor)   =...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1):timestep_int:...
+                (n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(end)+(timestep_corr/2));
 
-            date_string1 = utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)));
-            date_string2 = utc2date(n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)));
-            n_dat.(fc_def{1}).(fc_def{2}).interval_t_clr(1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)) = cellstr(strcat(cell2mat(date_string1'),'-',datestr(cell2mat(date_string2'),13)))';
+            date_string1 = utc2date(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt(1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)));
+            date_string2 = utc2date(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_end(1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)));
+            n_dat.(fc_def{1}).(fc_def{2}).interval_t_clr(1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_strt,2)) =...
+                cellstr(strcat(cell2mat(date_string1'),...
+                '-',datestr(cell2mat(date_string2'),13)))';
                     
             
 % Perform the slm interpolation for temperatur, staerke and luftdruck            
-            if strcmp(fc_def{2},'staerke') == 1 || strcmp(fc_def{2},'menge') == 1 || strcmp(fc_def{2},'min') == 1 || strcmp(fc_def{2},'max') == 1
+            if strcmp(fc_def{2},'staerke') == 1 ||...
+               strcmp(fc_def{2},'menge') == 1 ||...
+               strcmp(fc_def{2},'min') == 1 ||...
+               strcmp(fc_def{2},'max') == 1
                 knoten = 16;
             elseif strcmp(fc_def{2},'mittlere_temp_prog') == 1
                 knoten = 48;
@@ -371,71 +433,79 @@ else
             end
                     
             if i == 1
-                slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',knoten,'increasing','off','leftslope',0,'rightslope',0);
-                w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i:data_end) = slmeval(w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i:data_end),slm);
+                slm = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',knoten,...
+                    'increasing','off','leftslope',0,'rightslope',0);
+                w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i:data_end) =...
+                    slmeval(w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i:data_end),slm);
+                corr_val = neg_val_corr(fc_def{1},edindex,...
+                    w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i:data_end),...
+                    w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i:data_end));
+                w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i:data_end) = corr_val;
             else
                         
 % Calculate the slope of the end of previous data. The slope of the new 
 % calculated interpolation values has to be on the left side equal to that
 % of the intersecting old data on the right side. Furthermore the values of 
 % old and new data have to be the same.                        
-            dy = w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1) - w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-2);
-            dx = w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1) - w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-2);
+            dy = w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1) -...
+                w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-2);
+            dx = w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1) -...
+                w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-2);
             m = dy/dx;                        
-            slm = slmengine([w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off','knots',knoten,'increasing','off','leftvalue',w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1),'leftslope',m,'rightslope',0);                         
+            slm = slmengine([w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1) tmp_dat_x],...
+                [w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1) tmp_dat_y],'plot','off',...
+                'knots',knoten,'increasing','off','leftvalue',...
+                w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1),'leftslope',m,...
+                'rightslope',0);                         
 
 % Evaluate spline function at timestamps.
-            w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end) = slmeval(w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1:data_end),slm);                           
-                if strcmp(fc_def{1},'solarleistung') == 1 
-                    tempx = w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1:data_end);
-                    temp1 = tempx <= sun_rise_today;
-                    temp2 = tempx > sun_rise_today & tempx < sun_set_today;
-                    temp3 = tempx >= sun_set_today & tempx <= sun_rise_tomorrow;
-                    temp4 = tempx > sun_rise_tomorrow & tempx < sun_set_tomorrow;
-                    temp5 = tempx >= sun_set_tomorrow;
-                    tempy = w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end);
-                    tempy1 = tempy(temp1);
-                    tempy2 = tempy(temp2);
-                    tempy3 = tempy(temp3);
-                    tempy4 = tempy(temp4);
-                    tempy5 = tempy(temp5);
-                    tempy1(tempy1<0) = 0;
-                    tempy1(tempy1>0) = 0;
-                    tempy2(tempy2<0) = 0;
-                    tempy3(tempy3<0) = 0;
-                    tempy3(tempy3>0) = 0;
-                    tempy4(tempy4<0) = 0;
-                    tempy5(tempy5<0) = 0;
-                    tempy5(tempy5>0) = 0;
-                    temp = [tempy1 tempy2 tempy3 tempy4 tempy5];
-                    w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end) = temp;
-                elseif strcmp(fc_def{2},'menge') == 1
-                    temp = w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end);
-                    temp(temp < 0) = 0;
-                    w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end) = temp;
-                end
+            w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end) =...
+                slmeval(w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1:data_end),slm);                           
+            corr_val = neg_val_corr(fc_def{1},edindex...
+                    w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1:data_end),...
+                    w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end));
+            w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end) = corr_val;
             end
                     
-            slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',knoten,'increasing','off','leftslope',0,'rightslope',0);
+            slm_new = slmengine(tmp_dat_x,tmp_dat_y,'plot','off','knots',knoten,...
+                'increasing','off','leftslope',0,'rightslope',0);
 
-            n_dat.(fc_def{1}).(fc_def{2}).int_val(1,1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)) = slmeval(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)),slm_new);                        
+            n_dat.(fc_def{1}).(fc_def{2}).int_val(1,1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)) =...
+                slmeval(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)),slm_new); 
+            corr_val = neg_val_corr(fc_def{1},edindex...
+                    n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)),...
+                    n_dat.(fc_def{1}).(fc_def{2}).int_val(1,1:size(...
+                n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)));
+            w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1:data_end) = corr_val;
                     
 %             if i == 1
-%                 yi = spline(tmp_dat_x,tmp_dat_y,w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:end));
-%                 yi(yi < 0) = 0;
-% 
-%                 w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i:(data_end)) = yi; 
+%                 yi = spline(tmp_dat_x,tmp_dat_y,...
+%                             w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:end));
+%                 corr_val = neg_val_corr(fc_def{1},edindex...
+%                     w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:end),...
+%                     yi);
+%                 w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i:end) = corr_val; 
 %             else
-%                 yi = spline([w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1) tmp_dat_x],[w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1) tmp_dat_y],w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i-1:end));
-%                 yi(yi < 0) = 0;
-% 
-%                 w_dat.(fc_def{1}).(fc_def{2}).int_val(1,(i-1):(data_end)) = yi;
+%                 yi = spline([w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(1,i-1) tmp_dat_x]...
+%                       ,[w_dat.(fc_def{1}).(fc_def{2}).int_val(1,i-1) tmp_dat_y],...
+%                       w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i-1:end));
+%                 corr_val = neg_val_corr(fc_def{1},edindex...
+%                     w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i-1:end),...
+%                     yi);
+%                 w_dat.(fc_def{1}).(fc_def{2}).int_val(1,(i-1):(data_end)) = corr_val;
 %             end
 % 
-%             yi_new = spline(tmp_dat_x,tmp_dat_y,w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:end));
-%             yi_new(yi_new < 0) = 0;
+%             yi_new = spline(tmp_dat_x,tmp_dat_y,...
+%                             w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:end));
+%             corr_val = neg_val_corr(fc_def{1},edindex...
+%                     w_dat.(fc_def{1}).(fc_def{2}).unix_t_mean(i:end),...
+%                     yi_new);
 % 
-%             n_dat.(fc_def{1}).(fc_def{2}).int_val(1,1:size(n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)) = yi_new;
+%             n_dat.(fc_def{1}).(fc_def{2}).int_val(1,1:size(...
+%                            n_dat.(fc_def{1}).(fc_def{2}).unix_t_mean,2)) = corr_val;
                        
             assignin('base','new_data',n_dat);
             assignin('base','weather_data',w_dat);               

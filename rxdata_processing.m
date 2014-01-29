@@ -1,19 +1,20 @@
-function [ response_data, crc_check_value, response_msg ] = ...
+function [ response_data ] = ...
            rxdata_processing( rxdata, modbus_pdu, fc_def, res,...
            con_qual, lng, lat, cnt, lokal_temp )
 %Processing the received rxdata from serial interface
 %   Rxdata contains the response from the MODBUS server, which has to be
 %   processed here and in a subsequent function.
 
+% Initial value for the while loop
 not_done = 1;
 
-
+% The while loop will run three times in the case of no data was received
+% or an exception code was thrown. 
 while not_done == 1
     if isempty(rxdata)
         error_msg = ('No data received! Check if server is available!');
         response_data = [];
         crc_check_value = 0;
-        response_msg = [];
     else
         func_code = dec2hex(rxdata(2),2);
         fcode_error = fcode_check(func_code);
@@ -36,37 +37,31 @@ while not_done == 1
             end
             response_data = [];
             crc_check_value = 0;
-            response_msg = [];
         else
-%             pause(0.25)
             error_msg = [];
             switch rxdata(2)
                 case 1
-%                     byte_count = rxdata(3);
                     response_data = rxdata(4);
-                    [crc_check_value, response_msg] = crc_check(rxdata);
+                    [crc_check_value, error_msg] = crc_check(rxdata);
                 case 3
-%                     byte_count = rxdata(3);
-%                     if byte_count > (size(rxdata,1)-5)
-%                     [ value ] = send_and_receive_data( modbus_msg, fc_def );
-%                     end
-                    response_data = data_processing( rxdata(4:end-2), fc_def,...
-                                                     res, con_qual, lng, lat, lokal_temp );
-                    [crc_check_value, response_msg] = crc_check(rxdata);
+                    response_data = data_processing(rxdata(4:end-2), fc_def,...
+                                                 res, con_qual, lng, lat, lokal_temp );
+                    [crc_check_value, error_msg] = crc_check(rxdata);
                 case 6
                     response_data = dec2hex(rxdata(5:6),4);
-                    [crc_check_value, response_msg] = crc_check(rxdata);
+                    [crc_check_value, error_msg] = crc_check(rxdata);
             end
         end
     end
 
-    if (isempty(response_data) || isempty(crc_check_value) || isempty(response_msg)) && ~isempty(error_msg)
+    if (isempty(response_data) || isempty(crc_check_value)) && ~isempty(error_msg)
         not_done = 1;
         cnt = cnt + 1;
         if cnt == 3
             error(error_msg);
         else
-            send_and_receive_data(modbus_pdu, fc_def, res, con_qual, lng, lat, cnt, lokal_temp);
+            send_and_receive_data(modbus_pdu, fc_def, res, con_qual,...
+                                  lng, lat, cnt, lokal_temp);
         end
     else
         not_done = 0;
