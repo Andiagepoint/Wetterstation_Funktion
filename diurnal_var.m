@@ -1,9 +1,13 @@
-function [ sunrise_vec sunset_vec ] = diurnal_var( latitude, longitude, date_of_day )
+function [ sunrise_vec sunset_vec ] = diurnal_var( longitude, latitude, date_of_day )
 %Calculates the time of sunset and sunrise for given date, longitude and
 %latitude
 %   Detailed explanation goes here
 phi_horz = pi/4;
+if MESZ_calc == 1
+prime_meridian = pi/12;
+else
 prime_meridian = pi/6;
+end
 
 current_date = regexp(datestr(date_of_day,6),'/','split');
 current_month = str2double(current_date(1));
