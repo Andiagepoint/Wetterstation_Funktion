@@ -1,7 +1,7 @@
 function [ ] = forecast_data( city_name, fc_def, varargin )
 % Function to read data from HWK Kompakt WS-xx Modbus
 % Example
-% forecast_data('München','niederschlag-menge-3','23-Nov-2013','25-Nov-2013',1,6,3600,'D:\Test')
+% forecast_data('München','niederschlag-menge-3','23-Nov-2013','25-Nov-2013',1,6,0.5,'D:\Test')
 % forecast_data('München',{'luftdruck-x-heute-all';'niederschlag-menge-2'},'23-Nov-2013','25-Nov-2013',0.08,12)
 % forecast_data('München','all','23-Nov-2013','25-Nov-2013',0.08,12)
 % forecast_data('München','all')
@@ -13,8 +13,9 @@ function [ ] = forecast_data( city_name, fc_def, varargin )
 %   Varargin has to be at least 4 input parameter starting with observation
 %   start date followed by observation end date in this format 
 %   'dd-mmm-yyyy', where month abbreviantions are given in English. A 
-%   RESOLUTION with possible values 1 ,0.5, 0.25 and 0.08. 
-%   And an UPDATE_INTERVAL with possible values 6, 12 and 24. The last
+%   RESOLUTION with possible values 6, 1 ,0.5, 0.25 and 0.08. 
+%   And an UPDATE_INTERVAL with possible values 6, 12 and 24. Following 
+%   variable will be an offset to the function execution time. The last
 %   variable input can be a pathname to the folder the data are stored in.
 %   If no variable input exist, the function just calls the specified
 %   values once. 
@@ -54,7 +55,7 @@ function [ ] = forecast_data( city_name, fc_def, varargin )
 %   
 %       Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Oct, Sep, Nov, Dec
 %
-%   Available RESOLUTION values 1, 0.5, 0.25, 0.08.
+%   Available RESOLUTION values 6, 1, 0.5, 0.25, 0.08.
 % 
 %   Available UPDATE_INTERVAL values 6, 12, 24.
 %   
@@ -84,14 +85,18 @@ if ~isempty(varargin)
         update_interval         = varargin{4};
     end
     if nargin == 7
-        start_offset            = floor(str2double(varargin{5})*3600);
+        start_offset            = varargin{5}*3600;
         [s,mess,messid]         = mkdir(filepath);
         if ~isempty(mess)
             fprintf('Ordner existiert bereits.\n');
         end
     elseif nargin == 8
-        start_offset            = floor(str2double(varargin{5})*3600);
+        start_offset            = varargin{5}*3600;
         filepath                = varargin{6};
+        [s,mess,messid]         = mkdir(filepath);
+        if ~isempty(mess)
+            fprintf('Ordner existiert bereits.\n');
+        end
     else
         [s,mess,messid]         = mkdir(filepath);
         if ~isempty(mess)
